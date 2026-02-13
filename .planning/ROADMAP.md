@@ -31,12 +31,13 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. Navigation shell displays top nav matching the original UI structure, and links work across both apps
   4. EF Core can query the existing database and return data through a repository, with results mapped to DTOs
   5. TUnit and Playwright test projects compile and execute a passing smoke test
-**Plans**: TBD
+**Plans**: 4 plans
 
 Plans:
-- [ ] 01-01: TBD
-- [ ] 01-02: TBD
-- [ ] 01-03: TBD
+- [ ] 01-01-PLAN.md -- Solution scaffold with Clean Architecture project structure and Blazor Server app
+- [ ] 01-02-PLAN.md -- YARP reverse proxy, System.Web Adapters session/auth, and navigation shell
+- [ ] 01-03-PLAN.md -- EF Core database-first scaffolding, Repository/UoW, and DTO mappings
+- [ ] 01-04-PLAN.md -- TUnit and Playwright test project scaffolding with smoke tests
 
 ### Phase 2: Multi-Tenancy & Security Foundation
 **Goal**: All data access is automatically scoped to the current tenant, and role/permission checks prevent unauthorized access to E-recruitment features
@@ -127,7 +128,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 
 | Phase | Plans Complete | Status | Completed |
 |-------|---------------|--------|-----------|
-| 1. Infrastructure Shell | 0/3 | Not started | - |
+| 1. Infrastructure Shell | 0/4 | Planned | - |
 | 2. Multi-Tenancy & Security Foundation | 0/2 | Not started | - |
 | 3. Core Read Views | 0/3 | Not started | - |
 | 4. Core Write Operations | 0/3 | Not started | - |
