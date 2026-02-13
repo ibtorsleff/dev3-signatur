@@ -5,7 +5,7 @@
 
 ## v1 Requirements
 
-Requirements for E-recruitment portal core workflow migration (Phase 0-4).
+Requirements for E-recruitment portal core workflow migration (Phase 1-6).
 
 ### Infrastructure Foundation
 
@@ -147,13 +147,81 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| TBD | TBD | Pending |
+| INFRA-01 | Phase 1 | Pending |
+| INFRA-02 | Phase 1 | Pending |
+| INFRA-03 | Phase 1 | Pending |
+| INFRA-04 | Phase 1 | Pending |
+| INFRA-05 | Phase 1 | Pending |
+| INFRA-06 | Phase 1 | Pending |
+| INFRA-07 | Phase 2 | Pending |
+| INFRA-08 | Phase 1 | Pending |
+| INFRA-09 | Phase 1 | Pending |
+| INFRA-10 | Phase 1 | Pending |
+| INFRA-11 | Phase 1 | Pending |
+| INFRA-12 | Phase 1 | Pending |
+| INFRA-13 | Phase 1 | Pending |
+| INFRA-14 | Phase 1 | Pending |
+| SEC-01 | Phase 2 | Pending |
+| SEC-02 | Phase 2 | Pending |
+| SEC-03 | Phase 2 | Pending |
+| SEC-04 | Phase 2 | Pending |
+| SEC-05 | Phase 2 | Pending |
+| SEC-06 | Phase 2 | Pending |
+| SEC-07 | Phase 2 | Pending |
+| ELIST-01 | Phase 3 | Pending |
+| ELIST-02 | Phase 3 | Pending |
+| ELIST-03 | Phase 3 | Pending |
+| ELIST-04 | Phase 3 | Pending |
+| ELIST-05 | Phase 3 | Pending |
+| ELIST-06 | Phase 3 | Pending |
+| ELIST-07 | Phase 3 | Pending |
+| ELIST-08 | Phase 3 | Pending |
+| ELIST-09 | Phase 3 | Pending |
+| ELIST-10 | Phase 3 | Pending |
+| APP-01 | Phase 3 | Pending |
+| APP-02 | Phase 3 | Pending |
+| APP-03 | Phase 3 | Pending |
+| APP-04 | Phase 3 | Pending |
+| APP-05 | Phase 3 | Pending |
+| CRUD-01 | Phase 4 | Pending |
+| CRUD-02 | Phase 4 | Pending |
+| CRUD-03 | Phase 4 | Pending |
+| CRUD-04 | Phase 4 | Pending |
+| CRUD-05 | Phase 4 | Pending |
+| CRUD-06 | Phase 4 | Pending |
+| CRUD-07 | Phase 4 | Pending |
+| CRUD-08 | Phase 4 | Pending |
+| CRUD-09 | Phase 4 | Pending |
+| CRUD-10 | Phase 4 | Pending |
+| LOC-01 | Phase 5 | Pending |
+| LOC-02 | Phase 5 | Pending |
+| LOC-03 | Phase 5 | Pending |
+| LOC-04 | Phase 5 | Pending |
+| UX-01 | Phase 5 | Pending |
+| UX-02 | Phase 5 | Pending |
+| UX-03 | Phase 5 | Pending |
+| UX-04 | Phase 5 | Pending |
+| UX-05 | Phase 5 | Pending |
+| TEST-01 | Phase 6 | Pending |
+| TEST-02 | Phase 6 | Pending |
+| TEST-03 | Phase 6 | Pending |
+| TEST-04 | Phase 6 | Pending |
+| TEST-05 | Phase 6 | Pending |
+| TEST-06 | Phase 6 | Pending |
+| TEST-07 | Phase 6 | Pending |
+| DEPLOY-01 | Phase 6 | Pending |
+| DEPLOY-02 | Phase 6 | Pending |
+| DEPLOY-03 | Phase 6 | Pending |
+| DEPLOY-04 | Phase 6 | Pending |
+| MONITOR-01 | Phase 6 | Pending |
+| MONITOR-02 | Phase 6 | Pending |
+| MONITOR-03 | Phase 6 | Pending |
 
 **Coverage:**
 - v1 requirements: 61 total
-- Mapped to phases: 0
-- Unmapped: 61 ⚠️
+- Mapped to phases: 61
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-02-13*
-*Last updated: 2026-02-13 after initial definition*
+*Last updated: 2026-02-13 after roadmap creation*
