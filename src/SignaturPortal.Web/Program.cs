@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.SystemWebAdapters;
+using SignaturPortal.Infrastructure;
 using SignaturPortal.Web.Components;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -6,6 +7,9 @@ var builder = WebApplication.CreateBuilder(args);
 // Blazor Server
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+
+// Infrastructure layer - EF Core, repositories, Unit of Work
+builder.Services.AddInfrastructure(builder.Configuration);
 
 // YARP Reverse Proxy
 builder.Services.AddReverseProxy()
