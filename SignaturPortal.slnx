@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/SignaturPortal.Application/SignaturPortal.Application.csproj" />
+    <Project Path="src/SignaturPortal.Domain/SignaturPortal.Domain.csproj" />
+    <Project Path="src/SignaturPortal.Infrastructure/SignaturPortal.Infrastructure.csproj" />
+    <Project Path="src/SignaturPortal.Web/SignaturPortal.Web.csproj" />
+  </Folder>
+</Solution>
