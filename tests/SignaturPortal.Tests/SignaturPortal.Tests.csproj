@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+    <EnableMicrosoftTestingPlatform>true</EnableMicrosoftTestingPlatform>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="TUnit" Version="1.13.56" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\SignaturPortal.Domain\SignaturPortal.Domain.csproj" />
+    <ProjectReference Include="..\..\src\SignaturPortal.Application\SignaturPortal.Application.csproj" />
+    <ProjectReference Include="..\..\src\SignaturPortal.Infrastructure\SignaturPortal.Infrastructure.csproj" />
+  </ItemGroup>
+
+</Project>

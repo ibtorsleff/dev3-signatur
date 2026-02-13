@@ -5,4 +5,7 @@
     <Project Path="src/SignaturPortal.Infrastructure/SignaturPortal.Infrastructure.csproj" />
     <Project Path="src/SignaturPortal.Web/SignaturPortal.Web.csproj" />
   </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/SignaturPortal.Tests/SignaturPortal.Tests.csproj" />
+  </Folder>
 </Solution>
