@@ -9,8 +9,10 @@ namespace SignaturPortal.Tests.Authorization;
 
 public class PermissionServiceTests
 {
-    private static (PermissionService svc, SqliteConnection conn, Guid userId) CreateTestService(
-        int siteId, int clientId, Action<SignaturDbContext, Guid> seedExtra)
+    private const string TestUserName = "testuser";
+
+    private static (PermissionService svc, SqliteConnection conn) CreateTestService(
+        int siteId, int clientId, Action<SignaturDbContext> seedExtra)
     {
         var conn = new SqliteConnection("DataSource=:memory:");
         conn.Open();
@@ -34,8 +36,8 @@ public class PermissionServiceTests
             {
                 UserId = userId,
                 ApplicationId = appId,
-                UserName = "testuser",
-                LoweredUserName = "testuser",
+                UserName = TestUserName,
+                LoweredUserName = TestUserName.ToLowerInvariant(),
                 LastActivityDate = DateTime.UtcNow,
             };
             seedDb.AspnetUsers.Add(user);
@@ -44,21 +46,21 @@ public class PermissionServiceTests
             seedDb.Permissions.Add(new Permission { PermissionId = 2000, PermissionName = "RecruitmentAccess", PermissionGroupId = 1, PermissionTypeId = 1, SortOrder = 1, TextKey = "t", InfoTextKey = "i" });
             seedDb.Permissions.Add(new Permission { PermissionId = 2500, PermissionName = "AdminAccess", PermissionGroupId = 1, PermissionTypeId = 1, SortOrder = 2, TextKey = "t2", InfoTextKey = "i2" });
 
-            seedExtra(seedDb, userId);
+            seedExtra(seedDb);
             seedDb.SaveChanges();
 
             // Build factory + session stub
             var factory = new TestDbContextFactory(options);
             var session = new TestSessionContext(siteId, clientId);
 
-            return (new PermissionService(factory, session), conn, userId);
+            return (new PermissionService(factory, session), conn);
         }
     }
 
     [Test]
     public async Task HasPermission_ReturnsTrueWhenUserHasPermissionViaActiveRole()
     {
-        var (svc, conn, userId) = CreateTestService(1, 10, (db, uid) =>
+        var (svc, conn) = CreateTestService(1, 10, db =>
         {
             var appId = Guid.NewGuid();
             var role = new AspnetRole
@@ -75,7 +77,7 @@ public class PermissionServiceTests
             db.SaveChanges();
 
             // Add user to role
-            var user = db.AspnetUsers.Find(uid)!;
+            var user = db.AspnetUsers.Local.First(u => u.UserName == TestUserName);
             user.Roles.Add(role);
 
             // Add permission to role
@@ -83,14 +85,14 @@ public class PermissionServiceTests
         });
         using var _ = conn;
 
-        var result = await svc.HasPermissionAsync(userId, 2000);
+        var result = await svc.HasPermissionAsync(TestUserName, 2000);
         await Assert.That(result).IsTrue();
     }
 
     [Test]
     public async Task HasPermission_ReturnsFalseWhenRoleIsInactive()
     {
-        var (svc, conn, userId) = CreateTestService(1, 10, (db, uid) =>
+        var (svc, conn) = CreateTestService(1, 10, db =>
         {
             var appId = Guid.NewGuid();
             var role = new AspnetRole
@@ -106,14 +108,14 @@ public class PermissionServiceTests
             db.AspnetRoles.Add(role);
             db.SaveChanges();
 
-            var user = db.AspnetUsers.Find(uid)!;
+            var user = db.AspnetUsers.Local.First(u => u.UserName == TestUserName);
             user.Roles.Add(role);
 
             db.PermissionInRoles.Add(new PermissionInRole { RoleId = role.RoleId, PermissionId = 2000 });
         });
         using var _ = conn;
 
-        var result = await svc.HasPermissionAsync(userId, 2000);
+        var result = await svc.HasPermissionAsync(TestUserName, 2000);
         await Assert.That(result).IsFalse();
     }
 
@@ -121,7 +123,7 @@ public class PermissionServiceTests
     public async Task HasPermission_ReturnsFalseWhenRoleIsWrongTenant()
     {
         // Service scoped to site=1, client=10 but role belongs to site=2, client=30
-        var (svc, conn, userId) = CreateTestService(1, 10, (db, uid) =>
+        var (svc, conn) = CreateTestService(1, 10, db =>
         {
             // Need site 2 + client 30 to exist
             db.Sites.Add(new Site { SiteId = 2, SiteName = "Other", SiteUrls = "other.local", ExternalSiteId = "-1", Enabled = true, LanguageId = 1, CreateDate = DateTime.UtcNow });
@@ -141,14 +143,14 @@ public class PermissionServiceTests
             db.AspnetRoles.Add(role);
             db.SaveChanges();
 
-            var user = db.AspnetUsers.Find(uid)!;
+            var user = db.AspnetUsers.Local.First(u => u.UserName == TestUserName);
             user.Roles.Add(role);
 
             db.PermissionInRoles.Add(new PermissionInRole { RoleId = role.RoleId, PermissionId = 2000 });
         });
         using var _ = conn;
 
-        var result = await svc.HasPermissionAsync(userId, 2000);
+        var result = await svc.HasPermissionAsync(TestUserName, 2000);
         await Assert.That(result).IsFalse();
     }
 
@@ -169,10 +171,10 @@ public class PermissionServiceTests
             ClientId = clientId;
             IsInitialized = true;
         }
-        public int UserId => 0;
-        public int SiteId { get; }
-        public int ClientId { get; }
-        public string UserName => "test";
+        public int? UserId => 0;
+        public int? SiteId { get; }
+        public int? ClientId { get; }
+        public string UserName => TestUserName;
         public int UserLanguageId => 1;
         public bool IsInitialized { get; }
     }

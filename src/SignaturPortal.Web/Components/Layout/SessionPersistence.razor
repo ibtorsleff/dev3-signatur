@@ -1,0 +1,59 @@
+@rendermode InteractiveServer
+@using SignaturPortal.Application.Interfaces
+@using SignaturPortal.Web.Services
+@inject IUserSessionContext Session
+@inject PersistentComponentState PersistState
+@implements IDisposable
+
+@* Invisible component — bridges session data from SSR prerender into the SignalR circuit.
+   Must be @rendermode InteractiveServer so it runs in both SSR (to persist) and circuit (to restore).
+   Without the render mode, it only runs in the static layout and never restores into the circuit scope. *@
+
+@code {
+    private PersistingComponentStateSubscription _subscription;
+
+    protected override void OnInitialized()
+    {
+        // During prerender (SSR): register callback to persist session values
+        // During circuit: restore session values from persisted state
+        _subscription = PersistState.RegisterOnPersisting(PersistSession);
+
+        if (!Session.IsInitialized &&
+            PersistState.TryTakeFromJson<SessionData>("session", out var data) &&
+            data is not null)
+        {
+            ((UserSessionContext)Session).Restore(
+                data.UserId, data.SiteId, data.ClientId, data.UserName, data.UserLanguageId);
+        }
+    }
+
+    private Task PersistSession()
+    {
+        if (Session.IsInitialized)
+        {
+            PersistState.PersistAsJson("session", new SessionData
+            {
+                UserId = Session.UserId,
+                SiteId = Session.SiteId,
+                ClientId = Session.ClientId,
+                UserName = Session.UserName,
+                UserLanguageId = Session.UserLanguageId,
+            });
+        }
+        return Task.CompletedTask;
+    }
+
+    public void Dispose()
+    {
+        _subscription.Dispose();
+    }
+
+    private sealed class SessionData
+    {
+        public int? UserId { get; set; }
+        public int? SiteId { get; set; }
+        public int? ClientId { get; set; }
+        public string UserName { get; set; } = string.Empty;
+        public int UserLanguageId { get; set; }
+    }
+}
