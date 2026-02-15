@@ -30,6 +30,8 @@ public partial class SignaturDbContext : DbContext
 
     public virtual DbSet<UserActivityLog> UserActivityLogs { get; set; }
 
+    public virtual DbSet<PermissionInRole> PermissionInRoles { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.UseCollation("Latin1_General_CI_AS");

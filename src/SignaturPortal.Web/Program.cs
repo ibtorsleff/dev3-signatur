@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.SystemWebAdapters;
+using SignaturPortal.Application.Authorization;
 using SignaturPortal.Application.Interfaces;
 using SignaturPortal.Infrastructure;
+using SignaturPortal.Infrastructure.Authorization;
 using SignaturPortal.Web.Components;
 using SignaturPortal.Web.Middleware;
 using SignaturPortal.Web.Services;
@@ -11,8 +13,15 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-// Infrastructure layer - EF Core, repositories, Unit of Work
+// Infrastructure layer - EF Core, repositories, Unit of Work, permissions, auth handler
 builder.Services.AddInfrastructure(builder.Configuration);
+
+// Authorization policies based on legacy permission IDs
+builder.Services.AddAuthorizationBuilder()
+    .AddPolicy("RecruitmentAccess", policy =>
+        policy.Requirements.Add(new PermissionRequirement((int)ERecruitmentPermission.RecruitmentAccess)))
+    .AddPolicy("RecruitmentAdmin", policy =>
+        policy.Requirements.Add(new PermissionRequirement((int)ERecruitmentPermission.AdminAccess)));
 
 // YARP Reverse Proxy
 builder.Services.AddReverseProxy()

@@ -1,11 +1,11 @@
-﻿@page "/"
+@page "/"
 @rendermode InteractiveServer
-@using Microsoft.EntityFrameworkCore
-@using SignaturPortal.Infrastructure.Data
+@using Microsoft.AspNetCore.Authorization
+@using SignaturPortal.Domain.Interfaces
 @using SignaturPortal.Infrastructure.Data.Entities
-@using SignaturPortal.Infrastructure.Repositories
 @using SignaturPortal.Web.Components.Layout
-@inject IDbContextFactory<SignaturDbContext> DbContextFactory
+@attribute [Authorize(Policy = "RecruitmentAccess")]
+@inject IUnitOfWork UnitOfWork
 
 <PageTitle>SignaturPortal</PageTitle>
 
@@ -72,8 +72,7 @@
 
         try
         {
-            await using var uow = new UnitOfWork(DbContextFactory);
-            var clients = await uow.Repository<Client>().GetAllAsync();
+            var clients = await UnitOfWork.Repository<Client>().GetAllAsync();
             _clients = clients.ToList();
         }
         catch (Exception ex)

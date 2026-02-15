@@ -102,4 +102,6 @@ public partial class Ercandidate
     public DateTime? DeleteWarningSentTimestamp { get; set; }
 
     public bool? InterviewAppointmentIsTeamsMeeting { get; set; }
+
+    public virtual Eractivity Eractivity { get; set; } = null!;
 }

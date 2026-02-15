@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using SignaturPortal.Application.Interfaces;
 using SignaturPortal.Domain.Interfaces;
 using SignaturPortal.Infrastructure.Data;
 
@@ -7,15 +8,21 @@ namespace SignaturPortal.Infrastructure.Repositories;
 /// <summary>
 /// Unit of Work implementation that owns a DbContext instance.
 /// Created via IDbContextFactory for Blazor Server circuit safety.
-/// Dispose the UnitOfWork to dispose the underlying DbContext.
+/// Stamps tenant context (SiteId/ClientId) on the DbContext so that
+/// global query filters automatically scope all queries.
 /// </summary>
 public class UnitOfWork : IUnitOfWork
 {
     private readonly SignaturDbContext _context;
 
-    public UnitOfWork(IDbContextFactory<SignaturDbContext> contextFactory)
+    public UnitOfWork(IDbContextFactory<SignaturDbContext> contextFactory, IUserSessionContext session)
     {
         _context = contextFactory.CreateDbContext();
+        if (session.IsInitialized)
+        {
+            _context.CurrentSiteId = session.SiteId;
+            _context.CurrentClientId = session.ClientId;
+        }
     }
 
     /// <summary>

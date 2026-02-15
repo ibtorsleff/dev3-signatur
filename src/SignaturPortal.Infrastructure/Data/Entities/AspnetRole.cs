@@ -30,4 +30,6 @@ public partial class AspnetRole
     public bool IsDefaultOnboardingRole { get; set; }
 
     public virtual ICollection<AspnetUser> Users { get; set; } = new List<AspnetUser>();
+
+    public virtual ICollection<PermissionInRole> PermissionInRoles { get; set; } = new List<PermissionInRole>();
 }
