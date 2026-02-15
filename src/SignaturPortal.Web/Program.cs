@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.SystemWebAdapters;
+using MudBlazor.Services;
 using SignaturPortal.Application.Authorization;
 using SignaturPortal.Application.Interfaces;
 using SignaturPortal.Infrastructure;
@@ -12,6 +13,9 @@ var builder = WebApplication.CreateBuilder(args);
 // Blazor Server
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+
+// MudBlazor
+builder.Services.AddMudServices();
 
 // Infrastructure layer - EF Core, repositories, Unit of Work, permissions, auth handler
 builder.Services.AddInfrastructure(builder.Configuration);

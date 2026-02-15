@@ -8,14 +8,33 @@
     <ResourcePreloader />
     <link rel="stylesheet" href="@Assets["app.css"]" />
     <link rel="stylesheet" href="@Assets["SignaturPortal.Web.styles.css"]" />
+    <link href="_content/MudBlazor/MudBlazor.min.css" rel="stylesheet" />
     <ImportMap />
     <HeadOutlet />
 </head>
 
 <body>
+    <MudThemeProvider Theme="_theme" />
+    <MudPopoverProvider />
+    <MudDialogProvider />
+    <MudSnackbarProvider />
+
     <Routes />
     <ReconnectModal />
+
     <script src="@Assets["_framework/blazor.web.js"]"></script>
+    <script src="_content/MudBlazor/MudBlazor.min.js"></script>
 </body>
 
 </html>
+
+@code {
+    private MudTheme _theme = new()
+    {
+        PaletteLight = new PaletteLight
+        {
+            Primary = "#1a9b89",
+            PrimaryDarken = "#178a79",
+        }
+    };
+}
