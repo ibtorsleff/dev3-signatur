@@ -59,8 +59,8 @@ The activity list view must work perfectly. Users must be able to see and naviga
 ## Context
 
 **Original System:**
-- Codebase location: `C:\Users\it\Documents\Dev\CustomersAndProjects\Signatur\Dev\AtlantaSignatur`
-- Codebase mapping: `C:\Users\it\Documents\Dev\CustomersAndProjects\Signatur\Dev\.planning\codebase`
+- Codebase location: `C:\Users\it\Documents\Dev\CustomersAndProjects\Signatur\Dev3Org\AtlantaSignatur`
+- Codebase mapping: `C:\Users\it\Documents\Dev\CustomersAndProjects\Signatur\Dev3Org\.planning\codebase`
 - Database: SignaturAnnoncePortal (SQL Server, existing production data)
 - Primary customers: Large Danish organizations with multiple departments and many users
 

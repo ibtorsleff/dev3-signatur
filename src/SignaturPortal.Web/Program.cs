@@ -15,13 +15,21 @@ builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddReverseProxy()
     .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
 
+// Distributed cache - required for session
+builder.Services.AddDistributedMemoryCache();
+
+// ASP.NET Core Session - required as base for System.Web Adapters remote session
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
+
 // System.Web Adapters - Session + Auth sharing with legacy WebForms
 builder.Services.AddSystemWebAdapters()
     .AddJsonSessionSerializer(options =>
     {
-        // Register session keys used by legacy WebForms app.
-        // IMPORTANT: These must match exactly what the WebForms app registers.
-        // Based on audit of legacy codebase: Session["SiteId"], Session["ClientId"], Session["UserId"], Session["UserName"], Session["UserLanguageId"]
         options.RegisterKey<int>("UserId");
         options.RegisterKey<int>("SiteId");
         options.RegisterKey<int>("ClientId");
@@ -36,6 +44,10 @@ builder.Services.AddSystemWebAdapters()
     .AddSessionClient()
     .AddAuthenticationClient(true); // true = set as default auth scheme
 
+// Ignore unknown session keys from legacy app (it has dozens we don't need)
+builder.Services.Configure<Microsoft.AspNetCore.SystemWebAdapters.SessionState.Serialization.SessionSerializerOptions>(
+    options => options.ThrowOnUnknownSessionKey = false);
+
 // HttpContext accessor for session access in services
 builder.Services.AddHttpContextAccessor();
 
@@ -46,19 +58,21 @@ if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error");
     app.UseHsts();
+    app.UseHttpsRedirection(); // Only redirect to HTTPS in production
 }
 
-app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
+app.UseSession();
+app.UseSystemWebAdapters(); // MUST be before UseAuthentication to set up remote auth/session
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseSystemWebAdapters();
 app.UseAntiforgery();
 
 // Blazor components (higher precedence - matched first)
 app.MapRazorComponents<App>()
-    .AddInteractiveServerRenderMode();
+    .AddInteractiveServerRenderMode()
+    .RequireSystemWebAdapterSession(new SessionAttribute { SessionBehavior = System.Web.SessionState.SessionStateBehavior.ReadOnly });
 
 // YARP fallback to WebForms (MUST be last - lowest precedence)
 // int.MaxValue ensures this only matches when no Blazor route handles the request

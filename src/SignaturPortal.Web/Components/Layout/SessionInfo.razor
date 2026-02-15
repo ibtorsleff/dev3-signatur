@@ -1,0 +1,86 @@
+<div class="session-info">
+    <h3>Session Debug Info</h3>
+    <table>
+        <tbody>
+            <tr><td><strong>UserId:</strong></td><td>@userId</td></tr>
+            <tr><td><strong>SiteId:</strong></td><td>@siteId</td></tr>
+            <tr><td><strong>ClientId:</strong></td><td>@clientId</td></tr>
+            <tr><td><strong>UserName:</strong></td><td>@userName</td></tr>
+            <tr><td><strong>UserLanguageId:</strong></td><td>@userLanguageId</td></tr>
+            <tr><td><strong>Session Available:</strong></td><td>@sessionStatus</td></tr>
+        </tbody>
+    </table>
+</div>
+
+@code {
+    private string userId = "";
+    private string siteId = "";
+    private string clientId = "";
+    private string userName = "";
+    private string userLanguageId = "";
+    private string sessionStatus = "";
+
+    protected override void OnInitialized()
+    {
+        // Remote session from System.Web Adapters is accessed via System.Web.HttpContext.Current.Session
+        // (NOT via HttpContext.Session which is the local ASP.NET Core session)
+        try
+        {
+            var swSession = System.Web.HttpContext.Current?.Session;
+            if (swSession != null)
+            {
+                userId = swSession["UserId"]?.ToString() ?? "(null)";
+                siteId = swSession["SiteId"]?.ToString() ?? "(null)";
+                clientId = swSession["ClientId"]?.ToString() ?? "(null)";
+                userName = swSession["UserName"]?.ToString() ?? "(null)";
+                userLanguageId = swSession["UserLanguageId"]?.ToString() ?? "(null)";
+                sessionStatus = $"Yes ({swSession.Count} keys)";
+            }
+            else
+            {
+                sessionStatus = "No (System.Web session is null)";
+            }
+        }
+        catch (Exception ex)
+        {
+            sessionStatus = $"Error: {ex.Message}";
+        }
+    }
+}
+
+<style>
+    .session-info {
+        background: #f5f5f5;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        padding: 1rem;
+        margin: 1rem 0;
+        font-family: monospace;
+    }
+
+    .session-info h3 {
+        margin-top: 0;
+        color: #1a237e;
+        font-size: 1.1rem;
+    }
+
+    .session-info table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .session-info td {
+        padding: 0.5rem;
+        border-bottom: 1px solid #e0e0e0;
+    }
+
+    .session-info td:first-child {
+        width: 180px;
+        color: #666;
+    }
+
+    .session-info td:last-child {
+        font-weight: bold;
+        color: #1a237e;
+    }
+</style>
