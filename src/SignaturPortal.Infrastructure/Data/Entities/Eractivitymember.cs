@@ -23,5 +23,5 @@ public partial class Eractivitymember
 
     public virtual Eractivity Eractivity { get; set; } = null!;
 
-    public virtual AspnetUser User { get; set; } = null!;
+    public virtual User User { get; set; } = null!;
 }

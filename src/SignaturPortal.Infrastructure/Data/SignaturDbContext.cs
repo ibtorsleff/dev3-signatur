@@ -38,6 +38,8 @@ public partial class SignaturDbContext : DbContext
 
     public virtual DbSet<Ercandidatefile> Ercandidatefiles { get; set; }
 
+    public virtual DbSet<User> Users { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.UseCollation("Latin1_General_CI_AS");
@@ -392,6 +394,29 @@ public partial class SignaturDbContext : DbContext
                 .HasForeignKey(d => d.ErcandidateId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_ERCandidateFile_ERCandidate");
+        });
+
+        modelBuilder.Entity<User>(entity =>
+        {
+            entity.HasKey(e => e.UserId);
+
+            entity.ToTable("User");
+
+            entity.Property(e => e.UserId).ValueGeneratedNever();
+            entity.Property(e => e.CreateDate).HasColumnType("datetime");
+            entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
+            entity.Property(e => e.ObjectData).HasColumnType("xml");
+            entity.Property(e => e.ObjectDataHistory).HasColumnType("xml");
+            entity.Property(e => e.FullName).HasMaxLength(255);
+            entity.Property(e => e.UserName).HasMaxLength(256);
+            entity.Property(e => e.Email).HasMaxLength(256);
+            entity.Property(e => e.Title).HasMaxLength(100);
+            entity.Property(e => e.OfficePhone).HasMaxLength(50);
+            entity.Property(e => e.CellPhone).HasMaxLength(50);
+            entity.Property(e => e.ExtUserId).HasMaxLength(50);
+            entity.Property(e => e.WorkArea).HasMaxLength(255);
+            entity.Property(e => e.EmployeeNumber).HasMaxLength(50);
+            entity.Property(e => e.ForgotPasswordTimestamp).HasColumnType("datetime");
         });
 
         OnModelCreatingPartial(modelBuilder);

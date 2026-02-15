@@ -121,6 +121,129 @@ public class ActivityService : IActivityService
     }
 
     /// <summary>
+    /// Gets detailed information for a specific activity including hiring team members and candidate count.
+    /// Returns null if activity not found or user doesn't have access (tenant filtering).
+    /// </summary>
+    public async Task<ActivityDetailDto?> GetActivityDetailAsync(
+        int activityId,
+        CancellationToken ct = default)
+    {
+        await using var context = await _contextFactory.CreateDbContextAsync(ct);
+
+        // Stamp tenant context for global query filters
+        context.CurrentSiteId = _sessionContext.SiteId;
+        context.CurrentClientId = _sessionContext.ClientId;
+
+        // Query activity with all details
+        // Use AsSplitQuery to avoid cartesian explosion between members and candidates
+        var activity = await context.Eractivities
+            .Where(a => a.EractivityId == activityId && !a.IsCleaned)
+            .Select(a => new
+            {
+                a.EractivityId,
+                a.ClientId,
+                a.Headline,
+                a.Jobtitle,
+                a.JournalNo,
+                a.EractivityStatusId,
+                a.ApplicationDeadline,
+                a.HireDate,
+                a.HireDateFreeText,
+                a.CreateDate,
+                a.StatusChangedTimeStamp,
+                a.ContinuousPosting,
+                a.CandidateEvaluationEnabled,
+                a.IsCleaned,
+                a.EmailOnNewCandidate,
+                a.Responsible,
+                a.CreatedBy,
+                CandidateCount = a.Ercandidates.Count(c => !c.IsDeleted),
+                HiringTeamMembers = a.Eractivitymembers
+                    .Select(m => new
+                    {
+                        m.EractivityMemberId,
+                        m.UserId,
+                        m.EractivityMemberTypeId,
+                        m.ExtUserAllowCandidateManagement,
+                        m.ExtUserAllowCandidateReview,
+                        m.ExtUserAllowViewEditNotes,
+                        m.NotificationMailSendToUser,
+                        // Join to User table for name/email
+                        m.User.UserName,
+                        m.User.FullName,
+                        m.User.Email
+                    })
+                    .ToList()
+            })
+            .AsSplitQuery()
+            .FirstOrDefaultAsync(ct);
+
+        if (activity == null)
+        {
+            return null;
+        }
+
+        // Get responsible and created by user names
+        var userIds = new[] { activity.Responsible, activity.CreatedBy }.Distinct();
+        var userLookup = await context.Users
+            .Where(u => userIds.Contains(u.UserId))
+            .ToDictionaryAsync(u => u.UserId, u => u.FullName ?? u.UserName ?? "", ct);
+
+        var responsibleName = userLookup.GetValueOrDefault(activity.Responsible, "Unknown");
+        var createdByName = userLookup.GetValueOrDefault(activity.CreatedBy, "Unknown");
+
+        // Map hiring team members to DTOs
+        // MemberTypeName must be computed in-memory (StatusMappings cannot be translated to SQL)
+        var hiringTeamDtos = activity.HiringTeamMembers
+            .Select(m => new HiringTeamMemberDto
+            {
+                EractivityMemberId = m.EractivityMemberId,
+                UserId = m.UserId,
+                UserName = m.UserName ?? "",
+                FullName = m.FullName ?? "",
+                Email = m.Email ?? "",
+                MemberTypeId = m.EractivityMemberTypeId,
+                MemberTypeName = StatusMappings.GetActivityMemberTypeName(m.EractivityMemberTypeId),
+                AllowCandidateManagement = m.ExtUserAllowCandidateManagement,
+                AllowCandidateReview = m.ExtUserAllowCandidateReview,
+                AllowViewEditNotes = m.ExtUserAllowViewEditNotes,
+                NotificationMailSendToUser = m.NotificationMailSendToUser
+            })
+            .ToList();
+
+        // Create result DTO
+        // StatusName must be computed in-memory (StatusMappings cannot be translated to SQL)
+        var result = new ActivityDetailDto
+        {
+            EractivityId = activity.EractivityId,
+            ClientId = activity.ClientId,
+            Headline = activity.Headline,
+            Jobtitle = activity.Jobtitle,
+            JournalNo = activity.JournalNo,
+            EractivityStatusId = activity.EractivityStatusId,
+            StatusName = StatusMappings.GetActivityStatusName(activity.EractivityStatusId),
+            ApplicationDeadline = activity.ApplicationDeadline,
+            HireDate = activity.HireDate,
+            HireDateFreeText = activity.HireDateFreeText,
+            CreateDate = activity.CreateDate,
+            StatusChangedTimeStamp = activity.StatusChangedTimeStamp,
+            ContinuousPosting = activity.ContinuousPosting,
+            CandidateEvaluationEnabled = activity.CandidateEvaluationEnabled,
+            IsCleaned = activity.IsCleaned,
+            EmailOnNewCandidate = activity.EmailOnNewCandidate,
+            Responsible = activity.Responsible,
+            ResponsibleName = responsibleName,
+            CreatedBy = activity.CreatedBy,
+            CreatedByName = createdByName,
+            CandidateCount = activity.CandidateCount,
+            HiringTeamMemberCount = hiringTeamDtos.Count,
+            HiringTeamMembers = hiringTeamDtos
+        };
+
+        return result;
+    }
+
+    /// <summary>
     /// Gets a paginated list of candidates for a specific activity.
     /// Supports server-side filtering by name (first name or last name).
     /// Candidates are scoped by tenant through global query filters on activity.

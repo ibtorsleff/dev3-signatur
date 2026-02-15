@@ -65,5 +65,10 @@ public partial class SignaturDbContext
         modelBuilder.Entity<AspnetRole>()
             .HasQueryFilter(r => CurrentSiteId == null ||
                 (r.SiteId == CurrentSiteId && (r.ClientId == null || r.ClientId == CurrentClientId)));
+
+        // [User] table: NO global query filter needed.
+        // User data is accessed only through ERActivityMember joins (already tenant-filtered).
+        // Adding a ClientId filter would break external hiring team member name resolution
+        // (external members may belong to a different client).
     }
 }
