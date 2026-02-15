@@ -10,29 +10,29 @@ See: .planning/PROJECT.md (updated 2026-02-13)
 ## Current Position
 
 Phase: 3 of 6 (Core Read Views)
-Plan: 1 of 4 in current phase
+Plan: 2 of 4 in current phase
 Status: In Progress
-Last activity: 2026-02-15 -- Completed plan 03-01: Infrastructure Foundation for Read Views (MudBlazor + EF entities + domain enums)
+Last activity: 2026-02-15 -- Completed plan 03-02: Activity List Service Layer and MudDataGrid (server-side grid with DTOs + service layer)
 
-Progress: [##........] 31%
+Progress: [###.......] 38%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 5
-- Average duration: 7 minutes
-- Total execution time: 0.62 hours
+- Total plans completed: 6
+- Average duration: 6 minutes
+- Total execution time: 0.67 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 01-infrastructure-shell | 4 | 28 min | 7 min |
-| 03-core-read-views | 1 | 9 min | 9 min |
+| 03-core-read-views | 2 | 12 min | 6 min |
 
 **Recent Trend:**
-- Last 5 plans: 01-02 (6 min), 01-03 (9 min), 01-04 (9 min), 03-01 (9 min)
-- Trend: Consistent execution velocity at 7-9 min per plan
+- Last 5 plans: 01-03 (9 min), 01-04 (9 min), 03-01 (9 min), 03-02 (3 min)
+- Trend: Accelerating velocity on Phase 3 execution
 
 *Updated after each plan completion*
 
@@ -43,6 +43,7 @@ Progress: [##........] 31%
 | 01-03 | 9 min | 2 | 18 |
 | 01-04 | 9 min | 2 | 5 |
 | 03-01 | 9 min | 2 | 13 |
+| 03-02 | 3 min | 2 | 14 |
 
 ## Accumulated Context
 
@@ -69,6 +70,11 @@ Recent decisions affecting current work:
 - [03-01]: ERActivityStatus enum created with values matching legacy system (All=0, OnGoing=1, Closed=2, Deleted=3, Draft=4)
 - [03-01]: StatusMappings static dictionary helper for status name lookups
 - [03-01]: Global query filter for Eractivitymember scopes through activity.ClientId
+- [03-02]: Upgraded System.Linq.Dynamic.Core to 1.7.1 (resolved GHSA-4cv2-4hjh-77rx security vulnerability)
+- [03-02]: StatusName computed in-memory after EF materialization (StatusMappings cannot be translated to SQL)
+- [03-02]: Code-behind pattern (.razor.cs) used for component logic separation
+- [03-02]: Permission-based filtering applied to activity list (non-admin users see only their activities)
+- [03-02]: GridRequest/GridResponse DTO pattern established for all server-side grids
 
 ### Pending Todos
 
@@ -83,7 +89,7 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-15
-Stopped at: Completed 03-01-PLAN.md - Infrastructure foundation for Phase 3 read views (MudBlazor UI framework, EF entities, domain enums)
+Stopped at: Completed 03-02-PLAN.md - Activity List Service Layer and MudDataGrid (server-side grid with Application-layer DTOs, IActivityService, ActivityService, QueryableExtensions, /activities page)
 Resume file: None
 
-**Phase 3 Progress**: 1 of 4 plans complete. MudBlazor UI framework and entity infrastructure ready for service layer (Plan 03-02).
+**Phase 3 Progress**: 2 of 4 plans complete. Activity list page is functional at /activities with server-side data loading. Next: Activity detail page (Plan 03-03).
