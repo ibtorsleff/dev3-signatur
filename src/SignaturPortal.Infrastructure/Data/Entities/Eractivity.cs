@@ -132,4 +132,8 @@ public partial class Eractivity
     public string? DraftData { get; set; }
 
     public virtual Client Client { get; set; } = null!;
+
+    public virtual ICollection<Eractivitymember> Eractivitymembers { get; set; } = new List<Eractivitymember>();
+
+    public virtual ICollection<Ercandidate> Ercandidates { get; set; } = new List<Ercandidate>();
 }

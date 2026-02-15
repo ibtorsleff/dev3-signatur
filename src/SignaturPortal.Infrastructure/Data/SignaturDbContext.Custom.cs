@@ -57,6 +57,10 @@ public partial class SignaturDbContext
         modelBuilder.Entity<Ercandidate>()
             .HasQueryFilter(ec => CurrentClientId == null || ec.Eractivity.ClientId == CurrentClientId);
 
+        // Eractivitymember: filter through Eractivity → ClientId
+        modelBuilder.Entity<Eractivitymember>()
+            .HasQueryFilter(m => CurrentClientId == null || m.Eractivity.ClientId == CurrentClientId);
+
         // AspnetRole: filter by SiteId + ClientId (null ClientId = site-wide role, include those)
         modelBuilder.Entity<AspnetRole>()
             .HasQueryFilter(r => CurrentSiteId == null ||

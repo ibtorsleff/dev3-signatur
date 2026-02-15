@@ -32,6 +32,12 @@ public partial class SignaturDbContext : DbContext
 
     public virtual DbSet<PermissionInRole> PermissionInRoles { get; set; }
 
+    public virtual DbSet<Eractivitymember> Eractivitymembers { get; set; }
+
+    public virtual DbSet<BinaryFile> BinaryFiles { get; set; }
+
+    public virtual DbSet<Ercandidatefile> Ercandidatefiles { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.UseCollation("Latin1_General_CI_AS");
@@ -323,6 +329,69 @@ public partial class SignaturDbContext : DbContext
             entity.Property(e => e.HeaderEmail).HasMaxLength(500);
             entity.Property(e => e.Log).HasColumnType("text");
             entity.Property(e => e.TimeStamp).HasColumnType("datetime");
+        });
+
+        modelBuilder.Entity<Eractivitymember>(entity =>
+        {
+            entity.HasKey(e => e.EractivityMemberId);
+
+            entity.ToTable("ERActivityMember");
+
+            entity.HasIndex(e => new { e.EractivityId, e.EractivityMemberTypeId, e.ExtUserAllowCandidateReview }, "ERActivityMember_IDX01");
+
+            entity.HasIndex(e => e.UserId, "IX_UserId_ExtUserId");
+
+            entity.Property(e => e.EractivityMemberId).HasColumnName("ERActivityMemberId");
+            entity.Property(e => e.EractivityId).HasColumnName("ERActivityId");
+            entity.Property(e => e.EractivityMemberTypeId).HasColumnName("ERActivityMemberTypeId");
+
+            entity.HasOne(d => d.Eractivity).WithMany(p => p.Eractivitymembers)
+                .HasForeignKey(d => d.EractivityId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_ERActivityMember_ERActivity");
+
+            entity.HasOne(d => d.User).WithMany()
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_ERActivityMember_User");
+        });
+
+        modelBuilder.Entity<BinaryFile>(entity =>
+        {
+            entity.HasKey(e => e.BinaryFileId);
+
+            entity.ToTable("BinaryFile");
+
+            entity.Property(e => e.BinaryFileId).ValueGeneratedOnAdd();
+            entity.Property(e => e.FileName).HasMaxLength(500);
+            entity.Property(e => e.FileData).HasColumnType("varbinary(max)");
+        });
+
+        modelBuilder.Entity<Ercandidatefile>(entity =>
+        {
+            entity.HasKey(e => new { e.BinaryFileId, e.ErcandidateId });
+
+            entity.ToTable("ERCandidateFile");
+
+            entity.HasIndex(e => e.ErcandidateId, "IX_ERCandidateId");
+
+            entity.Property(e => e.ErcandidateId).HasColumnName("ERCandidateId");
+            entity.Property(e => e.ErcandidateFileConversionStatusId).HasColumnName("ERCandidateFileConversionStatusId");
+            entity.Property(e => e.EruploadCategoryClientId).HasColumnName("ERUploadCategoryClientId");
+            entity.Property(e => e.ConvertedFileName).HasMaxLength(255);
+            entity.Property(e => e.ConversionErrorMessage).HasMaxLength(255);
+            entity.Property(e => e.ConversionErrorMessageDetails).HasMaxLength(1000);
+            entity.Property(e => e.FileException).HasMaxLength(500);
+
+            entity.HasOne(d => d.BinaryFile).WithMany(p => p.Ercandidatefiles)
+                .HasForeignKey(d => d.BinaryFileId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_ERCandidateFile_BinaryFile");
+
+            entity.HasOne(d => d.Ercandidate).WithMany()
+                .HasForeignKey(d => d.ErcandidateId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_ERCandidateFile_ERCandidate");
         });
 
         OnModelCreatingPartial(modelBuilder);
