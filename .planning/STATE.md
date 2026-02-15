@@ -11,27 +11,27 @@ See: .planning/PROJECT.md (updated 2026-02-13)
 
 Phase: 3 of 6 (Core Read Views)
 Plan: 4 of 4 in current phase
-Status: In Progress
-Last activity: 2026-02-15 -- Completed plan 03-04: Candidate List and Detail with File Download (candidate pages, file download via JS interop)
+Status: Complete
+Last activity: 2026-02-15 -- Completed plan 03-03: Activity Detail View with Hiring Team (detail page, User table, hiring team display)
 
-Progress: [####......] 44%
+Progress: [####......] 50%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 7
+- Total plans completed: 8
 - Average duration: 6 minutes
-- Total execution time: 0.78 hours
+- Total execution time: 0.86 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 01-infrastructure-shell | 4 | 28 min | 7 min |
-| 03-core-read-views | 3 | 17 min | 6 min |
+| 03-core-read-views | 4 | 22 min | 6 min |
 
 **Recent Trend:**
-- Last 5 plans: 01-04 (9 min), 03-01 (9 min), 03-02 (3 min), 03-04 (5 min)
+- Last 5 plans: 03-01 (9 min), 03-02 (3 min), 03-04 (5 min), 03-03 (5 min)
 - Trend: Consistent Phase 3 velocity around 5-6 min per plan
 
 *Updated after each plan completion*
@@ -44,6 +44,7 @@ Progress: [####......] 44%
 | 01-04 | 9 min | 2 | 5 |
 | 03-01 | 9 min | 2 | 13 |
 | 03-02 | 3 min | 2 | 14 |
+| 03-03 | 5 min | 2 | 10 |
 | 03-04 | 5 min | 2 | 13 |
 
 ## Accumulated Context
@@ -76,6 +77,9 @@ Recent decisions affecting current work:
 - [03-02]: Code-behind pattern (.razor.cs) used for component logic separation
 - [03-02]: Permission-based filtering applied to activity list (non-admin users see only their activities)
 - [03-02]: GridRequest/GridResponse DTO pattern established for all server-side grids
+- [03-03]: User table scaffolded with no tenant filter (accessed only through ERActivityMember joins, already tenant-filtered)
+- [03-03]: AsSplitQuery used for activity detail to avoid cartesian explosion between members and candidates
+- [03-03]: StatusMappings and member type names resolved in-memory after EF query materialization
 - [03-04]: Candidate status mapping hardcoded for Phase 3 (TODO Phase 5: database-driven localized lookup)
 - [03-04]: File download via DotNetStreamReference and JS interop (creates blob URL and triggers browser save)
 - [03-04]: SignalR MaximumReceiveMessageSize set to 10MB for file downloads
@@ -94,7 +98,7 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-15
-Stopped at: Completed 03-04-PLAN.md - Candidate List and Detail with File Download (candidate pages with server-side search, file download via JS interop, tenant-scoped file access)
+Stopped at: Completed 03-03-PLAN.md - Activity Detail View with Hiring Team (detail page at /activities/{id}, User table scaffolded, hiring team with names/emails, candidate count)
 Resume file: None
 
-**Phase 3 Progress**: 3 of 4 plans complete. Candidate list and detail pages are functional at /activities/{id}/candidates with file downloads. Next: Activity detail page (Plan 03-03).
+**Phase 3 Progress**: 4 of 4 plans complete. All read views implemented: activity list, activity detail, candidate list, candidate detail. Phase 3 complete - ready to move to Phase 4 (Write Operations).
