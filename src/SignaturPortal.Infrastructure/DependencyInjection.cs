@@ -43,6 +43,9 @@ public static class DependencyInjection
         // Authorization handler for permission-based policies
         services.AddScoped<IAuthorizationHandler, PermissionHandler>();
 
+        // Application services
+        services.AddScoped<IActivityService, ActivityService>();
+
         return services;
     }
 }
