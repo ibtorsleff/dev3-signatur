@@ -1,5 +1,5 @@
 ---
-status: complete
+status: diagnosed
 phase: 03-core-read-views
 source: [03-01-SUMMARY.md, 03-02-SUMMARY.md, 03-03-SUMMARY.md, 03-04-SUMMARY.md]
 started: 2026-02-15T23:00:00Z
@@ -100,13 +100,32 @@ skipped: 11
   reason: "User reported: the page is shown but no data is loaded"
   severity: major
   test: 1
-  artifacts: []
-  missing: []
+  root_cause: "UserSessionContext uses int (defaults to 0) instead of int? (defaults to null) for ClientId/SiteId. Global query filter checks CurrentClientId == null for bypass, but gets 0 instead, filtering for ClientId=0 which matches no activities. SessionPersistence component may also fail to restore session values in the circuit."
+  artifacts:
+    - path: "src/SignaturPortal.Web/Services/UserSessionContext.cs"
+      issue: "ClientId and SiteId are int (default 0) instead of int? (default null)"
+    - path: "src/SignaturPortal.Infrastructure/Data/SignaturDbContext.Custom.cs"
+      issue: "Query filter expects null for no filtering but receives 0"
+    - path: "src/SignaturPortal.Web/Components/Layout/SessionPersistence.razor"
+      issue: "Session restoration may be broken in circuit"
+  missing:
+    - "Change IUserSessionContext to use int? for UserId, SiteId, ClientId"
+    - "Fix SessionPersistence to properly restore session values"
+    - "Update ActivityService to handle nullable tenant context"
+  debug_session: ".planning/debug/resolved/activity-list-no-data.md"
 
 - truth: "Navigating to a non-existent activity ID shows 'Activity not found' alert gracefully"
   status: failed
   reason: "User reported: the page cleared and became unresponsive"
   severity: blocker
   test: 10
-  artifacts: []
-  missing: []
+  root_cause: "Missing try-catch in ActivityDetail.razor.cs OnInitializedAsync. Any exception during GetActivityDetailAsync kills the Blazor Server circuit. The service has multiple exception points (DbContext creation, query execution, navigation property access) that are unprotected."
+  artifacts:
+    - path: "src/SignaturPortal.Web/Components/Pages/Activities/ActivityDetail.razor.cs"
+      issue: "OnInitializedAsync has no try-catch around service call (line 27)"
+    - path: "src/SignaturPortal.Infrastructure/Services/ActivityService.cs"
+      issue: "GetActivityDetailAsync has multiple potential exception points"
+  missing:
+    - "Add try-catch in OnInitializedAsync, set _notFound=true on exception"
+    - "Apply same pattern to all Blazor component lifecycle methods calling services"
+  debug_session: ".planning/debug/activity-999999-circuit-crash.md"
