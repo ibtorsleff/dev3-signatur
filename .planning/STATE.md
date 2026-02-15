@@ -10,29 +10,29 @@ See: .planning/PROJECT.md (updated 2026-02-13)
 ## Current Position
 
 Phase: 3 of 6 (Core Read Views)
-Plan: 4 of 4 in current phase
+Plan: 6 of 6 in current phase
 Status: Complete
-Last activity: 2026-02-15 -- Completed plan 03-03: Activity Detail View with Hiring Team (detail page, User table, hiring team display)
+Last activity: 2026-02-15 -- Completed plan 03-06: Error Handling for all activity/candidate pages (try-catch in lifecycle methods, circuit resilience)
 
-Progress: [####......] 50%
+Progress: [######....] 58%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 8
-- Average duration: 6 minutes
-- Total execution time: 0.86 hours
+- Total plans completed: 10
+- Average duration: 5 minutes
+- Total execution time: 0.93 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 01-infrastructure-shell | 4 | 28 min | 7 min |
-| 03-core-read-views | 4 | 22 min | 6 min |
+| 03-core-read-views | 6 | 30 min | 5 min |
 
 **Recent Trend:**
-- Last 5 plans: 03-01 (9 min), 03-02 (3 min), 03-04 (5 min), 03-03 (5 min)
-- Trend: Consistent Phase 3 velocity around 5-6 min per plan
+- Last 5 plans: 03-02 (3 min), 03-04 (5 min), 03-03 (5 min), 03-05 (4 min), 03-06 (4 min)
+- Trend: Consistent Phase 3 velocity around 4-5 min per plan
 
 *Updated after each plan completion*
 
@@ -46,6 +46,8 @@ Progress: [####......] 50%
 | 03-02 | 3 min | 2 | 14 |
 | 03-03 | 5 min | 2 | 10 |
 | 03-04 | 5 min | 2 | 13 |
+| 03-05 | 4 min | 2 | 6 |
+| 03-06 | 4 min | 2 | 6 |
 
 ## Accumulated Context
 
@@ -84,6 +86,9 @@ Recent decisions affecting current work:
 - [03-04]: File download via DotNetStreamReference and JS interop (creates blob URL and triggers browser save)
 - [03-04]: SignalR MaximumReceiveMessageSize set to 10MB for file downloads
 - [03-04]: File ownership verified before download (joins through candidate-activity-tenant chain)
+- [03-05]: IUserSessionContext changed to nullable int? for UserId/SiteId/ClientId (session may not be available outside SSR)
+- [03-06]: Error handling pattern: detail pages use _errorMessage + MudAlert, list pages use ISnackbar + empty GridData fallback
+- [03-06]: No ILogger added yet -- Phase 5 will add structured logging infrastructure
 
 ### Pending Todos
 
@@ -98,7 +103,7 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-15
-Stopped at: Completed 03-03-PLAN.md - Activity Detail View with Hiring Team (detail page at /activities/{id}, User table scaffolded, hiring team with names/emails, candidate count)
+Stopped at: Completed 03-06-PLAN.md - Error Handling for all activity/candidate Blazor pages (try-catch in lifecycle methods, ISnackbar for list pages)
 Resume file: None
 
-**Phase 3 Progress**: 4 of 4 plans complete. All read views implemented: activity list, activity detail, candidate list, candidate detail. Phase 3 complete - ready to move to Phase 4 (Write Operations).
+**Phase 3 Progress**: 6 of 6 plans complete (including 2 gap-closure plans for session nullability and error handling). All read views implemented with defensive error handling. Phase 3 complete - ready to move to Phase 4 (Write Operations).
