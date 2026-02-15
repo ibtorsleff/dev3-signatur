@@ -10,29 +10,29 @@ See: .planning/PROJECT.md (updated 2026-02-13)
 ## Current Position
 
 Phase: 3 of 6 (Core Read Views)
-Plan: 2 of 4 in current phase
+Plan: 4 of 4 in current phase
 Status: In Progress
-Last activity: 2026-02-15 -- Completed plan 03-02: Activity List Service Layer and MudDataGrid (server-side grid with DTOs + service layer)
+Last activity: 2026-02-15 -- Completed plan 03-04: Candidate List and Detail with File Download (candidate pages, file download via JS interop)
 
-Progress: [###.......] 38%
+Progress: [####......] 44%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 6
+- Total plans completed: 7
 - Average duration: 6 minutes
-- Total execution time: 0.67 hours
+- Total execution time: 0.78 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 01-infrastructure-shell | 4 | 28 min | 7 min |
-| 03-core-read-views | 2 | 12 min | 6 min |
+| 03-core-read-views | 3 | 17 min | 6 min |
 
 **Recent Trend:**
-- Last 5 plans: 01-03 (9 min), 01-04 (9 min), 03-01 (9 min), 03-02 (3 min)
-- Trend: Accelerating velocity on Phase 3 execution
+- Last 5 plans: 01-04 (9 min), 03-01 (9 min), 03-02 (3 min), 03-04 (5 min)
+- Trend: Consistent Phase 3 velocity around 5-6 min per plan
 
 *Updated after each plan completion*
 
@@ -44,6 +44,7 @@ Progress: [###.......] 38%
 | 01-04 | 9 min | 2 | 5 |
 | 03-01 | 9 min | 2 | 13 |
 | 03-02 | 3 min | 2 | 14 |
+| 03-04 | 5 min | 2 | 13 |
 
 ## Accumulated Context
 
@@ -75,6 +76,10 @@ Recent decisions affecting current work:
 - [03-02]: Code-behind pattern (.razor.cs) used for component logic separation
 - [03-02]: Permission-based filtering applied to activity list (non-admin users see only their activities)
 - [03-02]: GridRequest/GridResponse DTO pattern established for all server-side grids
+- [03-04]: Candidate status mapping hardcoded for Phase 3 (TODO Phase 5: database-driven localized lookup)
+- [03-04]: File download via DotNetStreamReference and JS interop (creates blob URL and triggers browser save)
+- [03-04]: SignalR MaximumReceiveMessageSize set to 10MB for file downloads
+- [03-04]: File ownership verified before download (joins through candidate-activity-tenant chain)
 
 ### Pending Todos
 
@@ -89,7 +94,7 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-15
-Stopped at: Completed 03-02-PLAN.md - Activity List Service Layer and MudDataGrid (server-side grid with Application-layer DTOs, IActivityService, ActivityService, QueryableExtensions, /activities page)
+Stopped at: Completed 03-04-PLAN.md - Candidate List and Detail with File Download (candidate pages with server-side search, file download via JS interop, tenant-scoped file access)
 Resume file: None
 
-**Phase 3 Progress**: 2 of 4 plans complete. Activity list page is functional at /activities with server-side data loading. Next: Activity detail page (Plan 03-03).
+**Phase 3 Progress**: 3 of 4 plans complete. Candidate list and detail pages are functional at /activities/{id}/candidates with file downloads. Next: Activity detail page (Plan 03-03).
