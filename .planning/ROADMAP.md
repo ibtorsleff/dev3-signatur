@@ -64,12 +64,12 @@ Plans:
   3. User can view the list of candidates for an activity, open a candidate's CV and application letter, and download attachments
   4. Activity list and application data respect tenant isolation -- users only see data from their own Site/Client
   5. Activity list only shows activities the current user has permission to view based on their role
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 03-01: TBD
-- [ ] 03-02: TBD
-- [ ] 03-03: TBD
+- [ ] 03-01-PLAN.md -- MudBlazor setup, EF Core table scaffolding, Activity Service, and Activity List page with MudDataGrid
+- [ ] 03-02-PLAN.md -- Activity Detail page with hiring team display and candidate summary
+- [ ] 03-03-PLAN.md -- Candidate List, Candidate Detail, and file download functionality
 
 ### Phase 4: Core Write Operations
 **Goal**: Users can create, edit, and delete recruitment activities with full validation, concurrency handling, and audit trails -- completing the core CRUD workflow
@@ -128,13 +128,13 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 
 | Phase | Plans Complete | Status | Completed |
 |-------|---------------|--------|-----------|
-| 1. Infrastructure Shell | 0/4 | Planned | - |
+| 1. Infrastructure Shell | 4/4 | Complete | 2026-02-13 |
 | 2. Multi-Tenancy & Security Foundation | 0/2 | Not started | - |
-| 3. Core Read Views | 0/3 | Not started | - |
+| 3. Core Read Views | 0/3 | Planned | - |
 | 4. Core Write Operations | 0/3 | Not started | - |
 | 5. Localization & UX Polish | 0/2 | Not started | - |
 | 6. Testing, Deployment & Monitoring | 0/3 | Not started | - |
 
 ---
 *Roadmap created: 2026-02-13*
-*Last updated: 2026-02-13*
+*Last updated: 2026-02-15*
