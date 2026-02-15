@@ -10,6 +10,7 @@ public partial class CandidateList
     [Parameter] public int ActivityId { get; set; }
     [Inject] private IActivityService ActivityService { get; set; } = default!;
     [Inject] private NavigationManager Navigation { get; set; } = default!;
+    [Inject] private ISnackbar Snackbar { get; set; } = default!;
 
     private MudDataGrid<CandidateListDto> _dataGrid = default!;
     private string _searchString = "";
@@ -27,27 +28,39 @@ public partial class CandidateList
 
     private async Task<GridData<CandidateListDto>> LoadServerData(GridState<CandidateListDto> state)
     {
-        var request = new GridRequest
+        try
         {
-            Page = state.Page,
-            PageSize = state.PageSize,
-            Sorts = state.SortDefinitions
-                .Select(s => new SortDefinition(s.SortBy, s.Descending))
-                .ToList()
-        };
+            var request = new GridRequest
+            {
+                Page = state.Page,
+                PageSize = state.PageSize,
+                Sorts = state.SortDefinitions
+                    .Select(s => new SortDefinition(s.SortBy, s.Descending))
+                    .ToList()
+            };
 
-        if (!string.IsNullOrWhiteSpace(_searchString))
-        {
-            request.Filters.Add(new FilterDefinition("FullName", "contains", _searchString));
+            if (!string.IsNullOrWhiteSpace(_searchString))
+            {
+                request.Filters.Add(new FilterDefinition("FullName", "contains", _searchString));
+            }
+
+            var response = await ActivityService.GetCandidatesAsync(ActivityId, request);
+
+            return new GridData<CandidateListDto>
+            {
+                Items = response.Items,
+                TotalItems = response.TotalCount
+            };
         }
-
-        var response = await ActivityService.GetCandidatesAsync(ActivityId, request);
-
-        return new GridData<CandidateListDto>
+        catch (Exception)
         {
-            Items = response.Items,
-            TotalItems = response.TotalCount
-        };
+            Snackbar.Add("Error loading candidates. Please refresh the page.", Severity.Error);
+            return new GridData<CandidateListDto>
+            {
+                Items = Array.Empty<CandidateListDto>(),
+                TotalItems = 0
+            };
+        }
     }
 
     private async Task OnSearchChanged()

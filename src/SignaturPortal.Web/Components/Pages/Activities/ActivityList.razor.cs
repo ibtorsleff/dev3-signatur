@@ -9,6 +9,7 @@ public partial class ActivityList
 {
     [Inject] private IActivityService ActivityService { get; set; } = default!;
     [Inject] private NavigationManager Navigation { get; set; } = default!;
+    [Inject] private ISnackbar Snackbar { get; set; } = default!;
 
     private MudDataGrid<ActivityListDto> _dataGrid = default!;
 
@@ -18,39 +19,51 @@ public partial class ActivityList
     /// </summary>
     private async Task<GridData<ActivityListDto>> LoadServerData(GridState<ActivityListDto> state)
     {
-        var request = new GridRequest
+        try
         {
-            Page = state.Page,
-            PageSize = state.PageSize,
-            Sorts = state.SortDefinitions
-                .Select(s => new SortDefinition(s.SortBy, s.Descending))
-                .ToList()
-        };
-
-        // Map MudDataGrid filter definitions to our GridRequest filters
-        // Note: MudBlazor 8.x uses FilterDefinitions property on GridState
-        if (state.FilterDefinitions != null)
-        {
-            foreach (var filterDef in state.FilterDefinitions)
+            var request = new GridRequest
             {
-                if (filterDef.Value != null)
+                Page = state.Page,
+                PageSize = state.PageSize,
+                Sorts = state.SortDefinitions
+                    .Select(s => new SortDefinition(s.SortBy, s.Descending))
+                    .ToList()
+            };
+
+            // Map MudDataGrid filter definitions to our GridRequest filters
+            // Note: MudBlazor 8.x uses FilterDefinitions property on GridState
+            if (state.FilterDefinitions != null)
+            {
+                foreach (var filterDef in state.FilterDefinitions)
                 {
-                    request.Filters.Add(new FilterDefinition(
-                        filterDef.Column?.PropertyName ?? "",
-                        filterDef.Operator ?? "contains",
-                        filterDef.Value
-                    ));
+                    if (filterDef.Value != null)
+                    {
+                        request.Filters.Add(new FilterDefinition(
+                            filterDef.Column?.PropertyName ?? "",
+                            filterDef.Operator ?? "contains",
+                            filterDef.Value
+                        ));
+                    }
                 }
             }
+
+            var response = await ActivityService.GetActivitiesAsync(request);
+
+            return new GridData<ActivityListDto>
+            {
+                Items = response.Items,
+                TotalItems = response.TotalCount
+            };
         }
-
-        var response = await ActivityService.GetActivitiesAsync(request);
-
-        return new GridData<ActivityListDto>
+        catch (Exception)
         {
-            Items = response.Items,
-            TotalItems = response.TotalCount
-        };
+            Snackbar.Add("Error loading activities. Please refresh the page.", Severity.Error);
+            return new GridData<ActivityListDto>
+            {
+                Items = Array.Empty<ActivityListDto>(),
+                TotalItems = 0
+            };
+        }
     }
 
     /// <summary>
