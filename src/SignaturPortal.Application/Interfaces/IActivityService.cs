@@ -14,4 +14,31 @@ public interface IActivityService
     /// Non-admin users see only activities where they are Responsible or CreatedBy.
     /// </summary>
     Task<GridResponse<ActivityListDto>> GetActivitiesAsync(GridRequest request, CancellationToken ct = default);
+
+    /// <summary>
+    /// Gets detailed information for a specific activity including hiring team members and candidate count.
+    /// Returns null if activity not found or user doesn't have access (tenant filtering).
+    /// </summary>
+    Task<ActivityDetailDto?> GetActivityDetailAsync(int activityId, CancellationToken ct = default);
+
+    /// <summary>
+    /// Gets a paginated list of candidates for a specific activity.
+    /// Supports server-side filtering by name (search string).
+    /// Results are scoped to the user's tenant via global query filters.
+    /// </summary>
+    Task<GridResponse<CandidateListDto>> GetCandidatesAsync(int activityId, GridRequest request, CancellationToken ct = default);
+
+    /// <summary>
+    /// Gets detailed information for a specific candidate including file attachments.
+    /// Returns null if candidate not found or belongs to a different tenant.
+    /// Verifies both activityId and candidateId match for security.
+    /// </summary>
+    Task<CandidateDetailDto?> GetCandidateDetailAsync(int activityId, int candidateId, CancellationToken ct = default);
+
+    /// <summary>
+    /// Gets binary file data for a candidate attachment.
+    /// Returns null if file not found or user doesn't have access.
+    /// Verifies file ownership through candidate-activity-tenant chain.
+    /// </summary>
+    Task<(byte[] FileData, string FileName)?> GetCandidateFileDataAsync(int candidateId, int binaryFileId, CancellationToken ct = default);
 }
