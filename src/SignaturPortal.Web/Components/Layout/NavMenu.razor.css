@@ -1,45 +1,290 @@
-.top-nav {
+/* ============================================================
+   Top Menu - 3-row navigation matching legacy WebForms portal
+   Font: Tahoma (legacy default)
+   Color palette: #1a9b89 (primary teal)
+   ============================================================ */
+
+.top-menu {
+    width: 100%;
+    font-family: Tahoma, "Times New Roman", Arial, sans-serif;
+    box-sizing: border-box;
+}
+
+.top-menu *, .top-menu *::before, .top-menu *::after {
+    box-sizing: border-box;
+}
+
+/* --- Shared menu-items layout --- */
+
+.top-menu .menu-items {
+    list-style: none;
+    margin: 0;
+    padding: 0;
     display: flex;
     align-items: center;
-    background-color: #1a237e;
-    color: white;
-    padding: 0 1.5rem;
-    height: 56px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 
-.nav-brand a {
-    color: white;
-    font-size: 1.25rem;
-    font-weight: 600;
-    text-decoration: none;
-    margin-right: 2rem;
-}
-
-.nav-links {
-    display: flex;
-    gap: 0.25rem;
+.top-menu .menu-items-left {
     flex: 1;
+    min-width: 0;
 }
 
-.nav-link {
-    color: rgba(255,255,255,0.85);
-    text-decoration: none;
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
-    transition: background-color 0.2s;
-}
-
-.nav-link:hover {
-    background-color: rgba(255,255,255,0.15);
-    color: white;
-}
-
-.nav-user {
+.top-menu .menu-items-right {
     margin-left: auto;
+    flex-shrink: 0;
 }
 
-.user-name {
-    color: rgba(255,255,255,0.85);
-    font-size: 0.875rem;
+/* ============================================================
+   Row 1: Primary navigation (white background, icons + labels)
+   ============================================================ */
+
+.top-menu > .row-1 {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    height: 90px;
+    padding: 0 50px;
+    background-color: #fff;
+    color: #1a9b89;
+    overflow: hidden;
+}
+
+.top-menu > .row-1 a {
+    color: #1a9b89;
+    text-decoration: none;
+}
+
+/* Logo - background image matching legacy */
+.top-logo {
+    float: left;
+    display: flex;
+    align-items: flex-end;
+    height: 60px;
+    margin: 0 13px 0 0;
+    flex-shrink: 0;
+}
+
+.top-logo a {
+    display: flex;
+    align-items: flex-end;
+    text-decoration: none;
+    color: #1a9b89;
+    height: 60px;
+}
+
+.top-logo a > div {
+    display: flex;
+    align-items: flex-end;
+    height: 60px;
+    padding-left: 65px;
+    font-size: 16px;
+    font-weight: bold;
+    background: transparent url(/Responsive/images/responsive/top-menu/recruitment-top-logo_120x120.png) no-repeat top left;
+    background-size: 60px 60px;
+    line-height: 1;
+    padding-bottom: 2px;
+}
+
+/* Row 1 menu items */
+.top-menu > .row-1 .menu-items > li {
+    font-size: 14px;
+    font-weight: bold;
+    text-align: center;
+    opacity: 0.7;
+    cursor: pointer;
+    flex-shrink: 1;
+    min-width: 0;
+}
+
+.top-menu > .row-1 > .menu-items-left > li {
+    margin: 6px 0 0 4px;
+}
+
+.top-menu > .row-1 > .menu-items-right > li {
+    margin: 6px 4px 0 0;
+}
+
+.top-menu > .row-1 .menu-items > li:hover {
+    opacity: 1;
+}
+
+.top-menu > .row-1 .menu-items > li.selected {
+    opacity: 1;
+    cursor: default;
+}
+
+.top-menu > .row-1 .menu-items > li > a > div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    min-width: 77px;
+    height: 76px;
+    padding: 0 4px 3px 4px;
+}
+
+/* Icon styling - images served from legacy via YARP */
+.top-menu > .row-1 .icon {
+    background-repeat: no-repeat;
+    background-position: center 10px;
+    background-size: 40px 40px;
+}
+
+.icon-activity-list {
+    background-image: url(/Responsive/images/responsive/top-menu/recruitment-activity-list_80x80.png);
+}
+
+.icon-search {
+    background-image: url(/Responsive/images/responsive/top-menu/recruitment-search_80x80.png);
+}
+
+.icon-jobbank {
+    background-image: url(/Responsive/images/responsive/top-menu/recruitment-job-bank_80x80.png);
+}
+
+.icon-help {
+    background-image: url(/Responsive/images/responsive/top-menu/recruitment-help_80x80.png);
+}
+
+.icon-admin {
+    background-image: url(/Responsive/images/responsive/top-menu/recruitment-admin_80x80.png);
+}
+
+.icon-statistics {
+    background-image: url(/Responsive/images/responsive/top-menu/recruitment-statistics_80x80.png);
+}
+
+.icon-employee-portal {
+    background-image: url(/Responsive/images/responsive/top-menu/recruitment-onboarding-portal_80x80.png);
+}
+
+.icon-ad-portal {
+    background-image: url(/Responsive/images/responsive/top-menu/recruitment-ad-portal_80x80.png);
+}
+
+/* ============================================================
+   Row 2: Secondary tabs (teal background)
+   ============================================================ */
+
+.top-menu > .row-2 {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    height: 44px;
+    padding: 0 50px;
+    background-color: #1a9b89;
+    color: #fff;
+    font-size: 14px;
+}
+
+.top-menu > .row-2 a {
+    color: #fff;
+    text-decoration: none;
+}
+
+.top-menu > .row-2 .menu-items > li {
+    text-align: center;
+    height: 44px;
+    display: flex;
+    align-items: center;
+}
+
+.top-menu > .row-2 .menu-items > li > a > div,
+.top-menu > .row-2 .menu-items > li > div {
+    display: flex;
+    align-items: center;
+    height: 44px;
+    padding: 0 50px;
+    border-right: 1px solid #5bb9ad;
+    box-shadow: inset -1px 0 0 #178a79;
+}
+
+.top-menu > .row-2 .menu-items > li:first-child > a > div,
+.top-menu > .row-2 .menu-items > li:first-child > div {
+    border-left: 1px solid #5bb9ad;
+    box-shadow: inset 1px 0 0 #178a79, inset -1px 0 0 #178a79;
+}
+
+.top-menu > .row-2 .menu-items > li:hover {
+    background-color: #139381;
+}
+
+.top-menu > .row-2 .menu-items > li.selected {
+    font-weight: bold;
+    cursor: default;
+    background-color: #178a79;
+    background-image: linear-gradient(to bottom, #054541 0%, #178a7a 100%);
+}
+
+/* User info in row 2 — no tab borders */
+.user-info > div {
+    border: none !important;
+    box-shadow: none !important;
+}
+
+.user-icon {
+    margin-left: 6px;
+    width: 22px;
+    height: 22px;
+    vertical-align: middle;
+}
+
+/* ============================================================
+   Row 3: Tertiary sub-navigation (darker teal)
+   ============================================================ */
+
+.top-menu > .row-3 {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    height: 44px;
+    padding: 0 50px;
+    background-color: #178a79;
+    color: #fff;
+    font-size: 14px;
+}
+
+.top-menu > .row-3 a {
+    color: #fff;
+    text-decoration: none;
+}
+
+.top-menu > .row-3 .menu-items > li {
+    text-align: center;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    padding: 0 50px;
+}
+
+.top-menu > .row-3 .menu-items > li > a > div {
+    position: relative;
+    display: flex;
+    align-items: center;
+    height: 44px;
+}
+
+/* Animated underline on hover */
+.top-menu > .row-3 .menu-items > li > a > div::before {
+    content: '';
+    position: absolute;
+    bottom: 11px;
+    left: 50%;
+    height: 2px;
+    width: 0;
+    background-color: #69a79c;
+    transition: 0.3s;
+}
+
+.top-menu > .row-3 .menu-items > li:hover > a > div::before {
+    left: 0;
+    width: 100%;
+}
+
+.top-menu > .row-3 .menu-items > li.selected > a > div::before {
+    left: 0;
+    width: 100%;
+    bottom: 11px;
+    height: 2px;
+    background-color: #69a79c;
 }
