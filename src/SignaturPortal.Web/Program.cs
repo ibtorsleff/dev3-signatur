@@ -64,8 +64,9 @@ if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error");
     app.UseHsts();
-    app.UseHttpsRedirection(); // Only redirect to HTTPS in production
 }
+
+app.UseHttpsRedirection();
 
 app.UseStaticFiles();
 app.UseRouting();
