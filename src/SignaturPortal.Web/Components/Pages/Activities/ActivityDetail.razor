@@ -1,0 +1,217 @@
+@page "/activities/{ActivityId:int}"
+@attribute [Authorize(Policy = "RecruitmentAccess")]
+
+<PageTitle>Activity Detail - @(_activity?.Headline ?? "Loading...")</PageTitle>
+
+<!-- Breadcrumb / Back navigation -->
+<MudBreadcrumbs Items="_breadcrumbs" Class="mb-4" />
+
+<!-- Loading state -->
+@if (_activity == null && !_notFound)
+{
+    <MudProgressCircular Indeterminate="true" Size="Size.Large" Color="Color.Primary" />
+    <MudText Typo="Typo.body1" Class="mt-4">Loading activity details...</MudText>
+}
+else if (_notFound)
+{
+    <MudAlert Severity="Severity.Warning">Activity not found or you don't have access to view it.</MudAlert>
+}
+else
+{
+    <!-- Activity Header Card -->
+    <MudCard Class="mb-4">
+        <MudCardHeader>
+            <CardHeaderContent>
+                <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="3">
+                    <MudText Typo="Typo.h5">@_activity.Headline</MudText>
+                    <MudChip T="string" Color="@GetStatusColor(_activity.EractivityStatusId)" Size="Size.Medium">
+                        @_activity.StatusName
+                    </MudChip>
+                </MudStack>
+            </CardHeaderContent>
+        </MudCardHeader>
+        <MudCardContent>
+            <MudGrid>
+                <!-- Left column: Core details -->
+                <MudItem xs="12" md="6">
+                    <MudSimpleTable Dense="true" Hover="true" Bordered="true">
+                        <tbody>
+                            <tr>
+                                <td style="font-weight: 500; width: 200px;">Job Title</td>
+                                <td>@_activity.Jobtitle</td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: 500;">Journal Number</td>
+                                <td>@_activity.JournalNo</td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: 500;">Application Deadline</td>
+                                <td>@_activity.ApplicationDeadline.ToString("yyyy-MM-dd HH:mm")</td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: 500;">Hire Date</td>
+                                <td>
+                                    @if (_activity.HireDate.HasValue)
+                                    {
+                                        @_activity.HireDate.Value.ToString("yyyy-MM-dd")
+                                    }
+                                    else if (!string.IsNullOrEmpty(_activity.HireDateFreeText))
+                                    {
+                                        @_activity.HireDateFreeText
+                                    }
+                                    else
+                                    {
+                                        <text>-</text>
+                                    }
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: 500;">Created Date</td>
+                                <td>@_activity.CreateDate.ToString("yyyy-MM-dd HH:mm")</td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: 500;">Status Changed</td>
+                                <td>@_activity.StatusChangedTimeStamp.ToString("yyyy-MM-dd HH:mm")</td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: 500;">Responsible</td>
+                                <td>@_activity.ResponsibleName</td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: 500;">Created By</td>
+                                <td>@_activity.CreatedByName</td>
+                            </tr>
+                        </tbody>
+                    </MudSimpleTable>
+                </MudItem>
+
+                <!-- Right column: Flags and counts -->
+                <MudItem xs="12" md="6">
+                    <MudSimpleTable Dense="true" Hover="true" Bordered="true">
+                        <tbody>
+                            <tr>
+                                <td style="font-weight: 500; width: 220px;">Continuous Posting</td>
+                                <td>@BoolDisplay(_activity.ContinuousPosting)</td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: 500;">Candidate Evaluation</td>
+                                <td>@BoolDisplay(_activity.CandidateEvaluationEnabled)</td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: 500;">Email on New Candidate</td>
+                                <td>@BoolDisplay(_activity.EmailOnNewCandidate)</td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: 500;">Is Cleaned</td>
+                                <td>@BoolDisplay(_activity.IsCleaned)</td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: 500;">Total Candidates</td>
+                                <td>
+                                    <MudChip T="string" Color="Color.Info" Size="Size.Small">
+                                        @_activity.CandidateCount
+                                    </MudChip>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: 500;">Hiring Team Members</td>
+                                <td>
+                                    <MudChip T="string" Color="Color.Success" Size="Size.Small">
+                                        @_activity.HiringTeamMemberCount
+                                    </MudChip>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: 500;">Client ID</td>
+                                <td>@_activity.ClientId</td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: 500;">Activity ID</td>
+                                <td>@_activity.EractivityId</td>
+                            </tr>
+                        </tbody>
+                    </MudSimpleTable>
+                </MudItem>
+            </MudGrid>
+        </MudCardContent>
+    </MudCard>
+
+    <!-- Hiring Team Card -->
+    <MudCard Class="mb-4">
+        <MudCardHeader>
+            <CardHeaderContent>
+                <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                    <MudText Typo="Typo.h6">Hiring Team</MudText>
+                    <MudChip T="string" Size="Size.Small" Color="Color.Success">
+                        @_activity.HiringTeamMemberCount members
+                    </MudChip>
+                </MudStack>
+            </CardHeaderContent>
+        </MudCardHeader>
+        <MudCardContent>
+            @if (_activity.HiringTeamMembers.Any())
+            {
+                <MudSimpleTable Dense="true" Hover="true" Striped="true" Bordered="true">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Type</th>
+                            <th style="text-align: center;">Review</th>
+                            <th style="text-align: center;">Manage</th>
+                            <th style="text-align: center;">Notes</th>
+                            <th style="text-align: center;">Notifications</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var member in _activity.HiringTeamMembers)
+                        {
+                            <tr>
+                                <td>@member.FullName</td>
+                                <td>@member.Email</td>
+                                <td>
+                                    <MudChip T="string" Size="Size.Small" Color="@GetMemberTypeColor(member.MemberTypeId)">
+                                        @member.MemberTypeName
+                                    </MudChip>
+                                </td>
+                                <td style="text-align: center;">@BoolDisplay(member.AllowCandidateReview)</td>
+                                <td style="text-align: center;">@BoolDisplay(member.AllowCandidateManagement)</td>
+                                <td style="text-align: center;">@BoolDisplay(member.AllowViewEditNotes)</td>
+                                <td style="text-align: center;">@BoolDisplay(member.NotificationMailSendToUser)</td>
+                            </tr>
+                        }
+                    </tbody>
+                </MudSimpleTable>
+            }
+            else
+            {
+                <MudText Typo="Typo.body2" Color="Color.Secondary">No hiring team members assigned to this activity.</MudText>
+            }
+        </MudCardContent>
+    </MudCard>
+
+    <!-- Candidates Summary Card -->
+    <MudCard>
+        <MudCardHeader>
+            <CardHeaderContent>
+                <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                    <MudText Typo="Typo.h6">Candidates</MudText>
+                    <MudChip T="string" Size="Size.Small" Color="Color.Info">
+                        @_activity.CandidateCount candidates
+                    </MudChip>
+                </MudStack>
+            </CardHeaderContent>
+        </MudCardHeader>
+        <MudCardContent>
+            <MudText Typo="Typo.body1" Class="mb-3">
+                This activity has @_activity.CandidateCount candidate(s) associated with it.
+            </MudText>
+            <MudButton Variant="Variant.Outlined"
+                       Color="Color.Primary"
+                       Href="@($"/activities/{ActivityId}/candidates")"
+                       StartIcon="@Icons.Material.Filled.People">
+                View Candidates
+            </MudButton>
+        </MudCardContent>
+    </MudCard>
+}
