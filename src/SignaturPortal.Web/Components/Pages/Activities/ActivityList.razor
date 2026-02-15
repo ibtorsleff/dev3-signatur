@@ -1,0 +1,45 @@
+@page "/activities"
+@using SignaturPortal.Application.DTOs
+@attribute [Authorize(Policy = "RecruitmentAccess")]
+@attribute [StreamRendering]
+
+<PageTitle>Recruitment Activities</PageTitle>
+
+<div class="activity-list-container">
+    <MudDataGrid T="ActivityListDto"
+                 @ref="_dataGrid"
+                 ServerData="LoadServerData"
+                 Filterable="true"
+                 FilterMode="DataGridFilterMode.ColumnFilterRow"
+                 SortMode="SortMode.Multiple"
+                 Hover="true"
+                 Dense="true"
+                 RowClick="OnRowClick"
+                 RowStyle="cursor: pointer;">
+        <ToolBarContent>
+            <MudText Typo="Typo.h6">Recruitment Activities</MudText>
+            <MudSpacer />
+        </ToolBarContent>
+        <Columns>
+            <PropertyColumn Property="x => x.Headline" Title="Activity" />
+            <PropertyColumn Property="x => x.JournalNo" Title="Journal No" />
+            <PropertyColumn Property="x => x.ApplicationDeadline" Title="Deadline" Format="yyyy-MM-dd" />
+            <PropertyColumn Property="x => x.StatusName" Title="Status" />
+            <PropertyColumn Property="x => x.CandidateCount" Title="Candidates" Filterable="false" />
+            <PropertyColumn Property="x => x.CreateDate" Title="Created" Format="yyyy-MM-dd" />
+            <TemplateColumn Title="" Sortable="false" Filterable="false">
+                <CellTemplate>
+                    <MudIconButton Icon="@Icons.Material.Filled.Visibility"
+                                   Size="Size.Small"
+                                   OnClick="@(() => NavigateToDetail(context.Item.EractivityId))" />
+                </CellTemplate>
+            </TemplateColumn>
+        </Columns>
+        <PagerContent>
+            <MudDataGridPager T="ActivityListDto" PageSizeOptions="new int[] { 10, 25, 50, 100 }" />
+        </PagerContent>
+        <NoRecordsContent>
+            <MudText>No recruitment activities found.</MudText>
+        </NoRecordsContent>
+    </MudDataGrid>
+</div>
