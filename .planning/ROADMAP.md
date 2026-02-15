@@ -14,7 +14,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [ ] **Phase 1: Infrastructure Shell** - YARP proxy, session/auth sharing, project structure, EF Core, and test scaffolding
 - [ ] **Phase 2: Multi-Tenancy & Security Foundation** - Tenant isolation, role/permission enforcement, and cross-tenant verification
-- [x] **Phase 3: Core Read Views** - Activity list, activity detail, application viewing, and hiring team display
+- [ ] **Phase 3: Core Read Views** - Activity list, activity detail, application viewing, and hiring team display
 - [ ] **Phase 4: Core Write Operations** - Activity CRUD with validation, concurrency, audit logging, and auto-save
 - [ ] **Phase 5: Localization & UX Polish** - GetText localization, error handling, loading states, and circuit resilience
 - [ ] **Phase 6: Testing, Deployment & Monitoring** - E2E tests, performance verification, deployment procedures, and production monitoring
@@ -64,13 +64,15 @@ Plans:
   3. User can view the list of candidates for an activity, open a candidate's CV and application letter, and download attachments
   4. Activity list and application data respect tenant isolation -- users only see data from their own Site/Client
   5. Activity list only shows activities the current user has permission to view based on their role
-**Plans**: 4 plans
+**Plans**: 6 plans
 
 Plans:
 - [x] 03-01-PLAN.md -- MudBlazor setup, EF Core entity scaffolding, domain enums, and status mapping helpers
 - [x] 03-02-PLAN.md -- Application-layer DTOs, ActivityService, QueryableExtensions, and Activity List page with MudDataGrid
 - [x] 03-03-PLAN.md -- Activity Detail page with hiring team display, [User] table scaffolding, and candidate summary
 - [x] 03-04-PLAN.md -- Candidate List, Candidate Detail, and file download functionality
+- [ ] 03-05-PLAN.md -- Gap closure: Fix nullable session context types for tenant query filter bypass
+- [ ] 03-06-PLAN.md -- Gap closure: Add error handling to all Blazor page lifecycle methods
 
 ### Phase 4: Core Write Operations
 **Goal**: Users can create, edit, and delete recruitment activities with full validation, concurrency handling, and audit trails -- completing the core CRUD workflow
@@ -133,7 +135,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 |-------|---------------|--------|-----------|
 | 1. Infrastructure Shell | 4/4 | Complete | 2026-02-13 |
 | 2. Multi-Tenancy & Security Foundation | 0/2 | Not started | - |
-| 3. Core Read Views | 4/4 | Complete | 2026-02-15 |
+| 3. Core Read Views | 4/6 | Gap closure | - |
 | 4. Core Write Operations | 0/4 | Planned | - |
 | 5. Localization & UX Polish | 0/3 | Planned | - |
 | 6. Testing, Deployment & Monitoring | 0/3 | Not started | - |
