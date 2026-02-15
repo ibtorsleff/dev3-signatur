@@ -17,23 +17,38 @@ public partial class CandidateDetail
 
     private CandidateDetailDto? _candidate;
     private bool _loading = true;
+    private bool _notFound;
+    private string? _errorMessage;
     private List<BreadcrumbItem> _breadcrumbs = new();
     private int? _downloadingFileId;
 
     protected override async Task OnInitializedAsync()
     {
-        _candidate = await ActivityService.GetCandidateDetailAsync(ActivityId, CandidateId);
-        _loading = false;
-
-        if (_candidate != null)
+        try
         {
-            _breadcrumbs = new List<BreadcrumbItem>
+            _candidate = await ActivityService.GetCandidateDetailAsync(ActivityId, CandidateId);
+            _loading = false;
+
+            if (_candidate != null)
             {
-                new("Activities", "/activities"),
-                new(_candidate.ActivityHeadline, $"/activities/{ActivityId}"),
-                new("Candidates", $"/activities/{ActivityId}/candidates"),
-                new(_candidate.FullName, null, disabled: true)
-            };
+                _breadcrumbs = new List<BreadcrumbItem>
+                {
+                    new("Activities", "/activities"),
+                    new(_candidate.ActivityHeadline, $"/activities/{ActivityId}"),
+                    new("Candidates", $"/activities/{ActivityId}/candidates"),
+                    new(_candidate.FullName, null, disabled: true)
+                };
+            }
+            else
+            {
+                _notFound = true;
+            }
+        }
+        catch (Exception)
+        {
+            _loading = false;
+            _notFound = true;
+            _errorMessage = "An error occurred while loading the candidate. Please try again.";
         }
     }
 

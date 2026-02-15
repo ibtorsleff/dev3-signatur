@@ -12,7 +12,11 @@
 {
     <MudProgressCircular Indeterminate="true" />
 }
-else if (_candidate == null)
+else if (_errorMessage is not null)
+{
+    <MudAlert Severity="Severity.Error">@_errorMessage</MudAlert>
+}
+else if (_candidate == null || _notFound)
 {
     <MudAlert Severity="Severity.Warning">Candidate not found or you don't have access.</MudAlert>
 }

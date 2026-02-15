@@ -14,6 +14,7 @@ public partial class ActivityDetail
 
     private ActivityDetailDto? _activity;
     private bool _notFound;
+    private string? _errorMessage;
     private List<BreadcrumbItem> _breadcrumbs = new();
 
     protected override async Task OnInitializedAsync()
@@ -24,16 +25,24 @@ public partial class ActivityDetail
             new("Detail", null, disabled: true)
         };
 
-        _activity = await ActivityService.GetActivityDetailAsync(ActivityId);
+        try
+        {
+            _activity = await ActivityService.GetActivityDetailAsync(ActivityId);
 
-        if (_activity == null)
+            if (_activity == null)
+            {
+                _notFound = true;
+            }
+            else
+            {
+                // Update breadcrumb with activity headline
+                _breadcrumbs[1] = new BreadcrumbItem(_activity.Headline, null, disabled: true);
+            }
+        }
+        catch (Exception)
         {
             _notFound = true;
-        }
-        else
-        {
-            // Update breadcrumb with activity headline
-            _breadcrumbs[1] = new BreadcrumbItem(_activity.Headline, null, disabled: true);
+            _errorMessage = "An error occurred while loading the activity. Please try again.";
         }
     }
 

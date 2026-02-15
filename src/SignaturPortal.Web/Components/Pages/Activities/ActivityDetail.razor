@@ -12,6 +12,10 @@
     <MudProgressCircular Indeterminate="true" Size="Size.Large" Color="Color.Primary" />
     <MudText Typo="Typo.body1" Class="mt-4">Loading activity details...</MudText>
 }
+else if (_errorMessage is not null)
+{
+    <MudAlert Severity="Severity.Error">@_errorMessage</MudAlert>
+}
 else if (_notFound)
 {
     <MudAlert Severity="Severity.Warning">Activity not found or you don't have access to view it.</MudAlert>
