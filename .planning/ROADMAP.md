@@ -82,12 +82,13 @@ Plans:
   3. User can delete an activity after confirming a dialog, and the deletion respects permissions and cascades correctly
   4. All create/edit/delete operations are recorded in the UserActivityLog audit table
   5. Form data survives a brief network disconnection (circuit loss) because it is auto-saved
-**Plans**: TBD
+**Plans**: 4 plans
 
 Plans:
-- [ ] 04-01: TBD
-- [ ] 04-02: TBD
-- [ ] 04-03: TBD
+- [ ] 04-01-PLAN.md -- FluentValidation setup, write DTOs (Create/Edit), validators, and ActivityResult type
+- [ ] 04-02-PLAN.md -- EditedId concurrency token configuration and SaveChangesAsync audit logging override
+- [ ] 04-03-PLAN.md -- ActivityService write methods (Create/Update/Delete) with permission checks and unit tests
+- [ ] 04-04-PLAN.md -- Blazor UI: Create/Edit forms with Blazilla validation, Delete dialog, PersistentComponentState
 
 ### Phase 5: Localization & UX Polish
 **Goal**: The E-recruitment portal displays in the correct language (Danish/English), handles errors gracefully, and provides smooth async loading and circuit resilience matching or exceeding the legacy experience
@@ -132,7 +133,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 | 1. Infrastructure Shell | 4/4 | Complete | 2026-02-13 |
 | 2. Multi-Tenancy & Security Foundation | 0/2 | Not started | - |
 | 3. Core Read Views | 0/4 | Planned | - |
-| 4. Core Write Operations | 0/3 | Not started | - |
+| 4. Core Write Operations | 0/4 | Planned | - |
 | 5. Localization & UX Polish | 0/2 | Not started | - |
 | 6. Testing, Deployment & Monitoring | 0/3 | Not started | - |
 
