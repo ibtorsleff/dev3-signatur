@@ -1,5 +1,11 @@
 ﻿@page "/"
+@rendermode InteractiveServer
+@using Microsoft.EntityFrameworkCore
+@using SignaturPortal.Infrastructure.Data
+@using SignaturPortal.Infrastructure.Data.Entities
+@using SignaturPortal.Infrastructure.Repositories
 @using SignaturPortal.Web.Components.Layout
+@inject IDbContextFactory<SignaturDbContext> DbContextFactory
 
 <PageTitle>SignaturPortal</PageTitle>
 
@@ -22,3 +28,61 @@
         <p>Configured - System.Web Adapters remote authentication</p>
     </div>
 </div>
+
+<div class="db-test">
+    <h2>Database Query Test</h2>
+    <button @onclick="TestDatabaseQuery" disabled="@_loading">
+        @(_loading ? "Querying..." : "Test Repository<Client>.GetAllAsync()")
+    </button>
+
+    @if (_error is not null)
+    {
+        <div class="test-error">@_error</div>
+    }
+
+    @if (_clients is not null)
+    {
+        <div class="test-success">
+            Returned @_clients.Count client(s) from SignaturAnnoncePortal database.
+        </div>
+        <table class="test-table">
+            <thead>
+                <tr><th>ClientId</th><th>SiteId</th><th>CreateDate</th></tr>
+            </thead>
+            <tbody>
+                @foreach (var c in _clients)
+                {
+                    <tr><td>@c.ClientId</td><td>@c.SiteId</td><td>@c.CreateDate.ToString("yyyy-MM-dd")</td></tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>
+
+@code {
+    private List<Client>? _clients;
+    private string? _error;
+    private bool _loading;
+
+    private async Task TestDatabaseQuery()
+    {
+        _loading = true;
+        _error = null;
+        _clients = null;
+
+        try
+        {
+            await using var uow = new UnitOfWork(DbContextFactory);
+            var clients = await uow.Repository<Client>().GetAllAsync();
+            _clients = clients.ToList();
+        }
+        catch (Exception ex)
+        {
+            _error = $"{ex.GetType().Name}: {ex.Message}";
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+}

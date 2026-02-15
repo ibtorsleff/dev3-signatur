@@ -15,7 +15,7 @@
 .status-card h3 {
     margin-top: 0;
     margin-bottom: 0.5rem;
-    color: #1a237e;
+    color: #1a9b89;
     font-size: 1.125rem;
 }
 
@@ -23,4 +23,80 @@
     margin: 0;
     color: #666;
     font-size: 0.875rem;
+}
+
+.db-test {
+    margin-top: 2rem;
+    padding: 1.5rem;
+    background-color: #f5f5f5;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+}
+
+.db-test h2 {
+    margin-top: 0;
+    color: #1a9b89;
+    font-size: 1.25rem;
+}
+
+.db-test button {
+    padding: 0.5rem 1rem;
+    background-color: #1a9b89;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.875rem;
+}
+
+.db-test button:hover:not(:disabled) {
+    background-color: #139381;
+}
+
+.db-test button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.test-error {
+    margin-top: 1rem;
+    padding: 0.75rem;
+    background-color: #ffebee;
+    color: #c62828;
+    border-radius: 4px;
+    font-size: 0.875rem;
+}
+
+.test-success {
+    margin-top: 1rem;
+    padding: 0.75rem;
+    background-color: #e8f5e9;
+    color: #2e7d32;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.test-table {
+    margin-top: 1rem;
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+}
+
+.test-table th,
+.test-table td {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #e0e0e0;
+    text-align: left;
+}
+
+.test-table th {
+    background-color: #e0f2ef;
+    color: #1a9b89;
+    font-weight: 600;
+}
+
+.test-table tr:nth-child(even) {
+    background-color: #fafafa;
 }
