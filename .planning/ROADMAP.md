@@ -100,11 +100,12 @@ Plans:
   3. Async operations display loading indicators, and errors show user-friendly messages matching legacy text and positioning
   4. Validation errors appear inline next to the offending form field, matching legacy behavior
   5. A circuit disconnection shows a custom reconnection message, and the circuit retention period allows reasonable reconnection time
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 05-01: TBD
-- [ ] 05-02: TBD
+- [ ] 05-01-PLAN.md -- Localization infrastructure: LocalizationEntry entity, DbStringLocalizer, DbStringLocalizerFactory, cache warmer, culture middleware
+- [ ] 05-02-PLAN.md -- Localize existing UI pages, MudBlazor localization bridge, navigation menu localization
+- [ ] 05-03-PLAN.md -- UX polish: ErrorBoundary, reconnect modal localization/branding, circuit resilience configuration
 
 ### Phase 6: Testing, Deployment & Monitoring
 **Goal**: The migrated E-recruitment portal is verified as production-ready with comprehensive tests, proven deployment procedures, and operational monitoring in place
@@ -134,7 +135,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 | 2. Multi-Tenancy & Security Foundation | 0/2 | Not started | - |
 | 3. Core Read Views | 0/4 | Planned | - |
 | 4. Core Write Operations | 0/4 | Planned | - |
-| 5. Localization & UX Polish | 0/2 | Not started | - |
+| 5. Localization & UX Polish | 0/3 | Planned | - |
 | 6. Testing, Deployment & Monitoring | 0/3 | Not started | - |
 
 ---
