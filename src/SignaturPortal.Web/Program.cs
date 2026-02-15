@@ -1,6 +1,9 @@
 using Microsoft.AspNetCore.SystemWebAdapters;
+using SignaturPortal.Application.Interfaces;
 using SignaturPortal.Infrastructure;
 using SignaturPortal.Web.Components;
+using SignaturPortal.Web.Middleware;
+using SignaturPortal.Web.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -51,6 +54,9 @@ builder.Services.Configure<Microsoft.AspNetCore.SystemWebAdapters.SessionState.S
 // HttpContext accessor for session access in services
 builder.Services.AddHttpContextAccessor();
 
+// Scoped session context — caches legacy session values for the Blazor circuit lifetime
+builder.Services.AddScoped<IUserSessionContext, UserSessionContext>();
+
 var app = builder.Build();
 
 // Middleware pipeline - ORDER IS CRITICAL
@@ -65,6 +71,7 @@ app.UseStaticFiles();
 app.UseRouting();
 app.UseSession();
 app.UseSystemWebAdapters(); // MUST be before UseAuthentication to set up remote auth/session
+app.UseMiddleware<UserSessionMiddleware>(); // Populate scoped session context from legacy session
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseAntiforgery();

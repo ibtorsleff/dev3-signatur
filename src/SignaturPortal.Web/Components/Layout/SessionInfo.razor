@@ -1,52 +1,19 @@
+@using SignaturPortal.Application.Interfaces
+@inject IUserSessionContext Session
+
 <div class="session-info">
     <h3>Session Debug Info</h3>
     <table>
         <tbody>
-            <tr><td><strong>UserId:</strong></td><td>@userId</td></tr>
-            <tr><td><strong>SiteId:</strong></td><td>@siteId</td></tr>
-            <tr><td><strong>ClientId:</strong></td><td>@clientId</td></tr>
-            <tr><td><strong>UserName:</strong></td><td>@userName</td></tr>
-            <tr><td><strong>UserLanguageId:</strong></td><td>@userLanguageId</td></tr>
-            <tr><td><strong>Session Available:</strong></td><td>@sessionStatus</td></tr>
+            <tr><td><strong>UserId:</strong></td><td>@Session.UserId</td></tr>
+            <tr><td><strong>SiteId:</strong></td><td>@Session.SiteId</td></tr>
+            <tr><td><strong>ClientId:</strong></td><td>@Session.ClientId</td></tr>
+            <tr><td><strong>UserName:</strong></td><td>@Session.UserName</td></tr>
+            <tr><td><strong>UserLanguageId:</strong></td><td>@Session.UserLanguageId</td></tr>
+            <tr><td><strong>Session Available:</strong></td><td>@(Session.IsInitialized ? "Yes" : "No")</td></tr>
         </tbody>
     </table>
 </div>
-
-@code {
-    private string userId = "";
-    private string siteId = "";
-    private string clientId = "";
-    private string userName = "";
-    private string userLanguageId = "";
-    private string sessionStatus = "";
-
-    protected override void OnInitialized()
-    {
-        // Remote session from System.Web Adapters is accessed via System.Web.HttpContext.Current.Session
-        // (NOT via HttpContext.Session which is the local ASP.NET Core session)
-        try
-        {
-            var swSession = System.Web.HttpContext.Current?.Session;
-            if (swSession != null)
-            {
-                userId = swSession["UserId"]?.ToString() ?? "(null)";
-                siteId = swSession["SiteId"]?.ToString() ?? "(null)";
-                clientId = swSession["ClientId"]?.ToString() ?? "(null)";
-                userName = swSession["UserName"]?.ToString() ?? "(null)";
-                userLanguageId = swSession["UserLanguageId"]?.ToString() ?? "(null)";
-                sessionStatus = $"Yes ({swSession.Count} keys)";
-            }
-            else
-            {
-                sessionStatus = "No (System.Web session is null)";
-            }
-        }
-        catch (Exception ex)
-        {
-            sessionStatus = $"Error: {ex.Message}";
-        }
-    }
-}
 
 <style>
     .session-info {
