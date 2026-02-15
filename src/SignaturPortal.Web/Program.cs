@@ -12,7 +12,12 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Blazor Server
 builder.Services.AddRazorComponents()
-    .AddInteractiveServerComponents();
+    .AddInteractiveServerComponents()
+    .AddHubOptions(options =>
+    {
+        // Increase max message size for file downloads (10 MB)
+        options.MaximumReceiveMessageSize = 10 * 1024 * 1024;
+    });
 
 // MudBlazor
 builder.Services.AddMudServices();

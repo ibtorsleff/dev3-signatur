@@ -1,0 +1,54 @@
+@page "/activities/{ActivityId:int}/candidates"
+@using Microsoft.AspNetCore.Authorization
+@using MudBlazor
+@using SignaturPortal.Application.DTOs
+@attribute [Authorize(Policy = "RecruitmentAccess")]
+
+<PageTitle>Candidates</PageTitle>
+
+<MudBreadcrumbs Items="_breadcrumbs" Class="mb-4" />
+
+<MudCard>
+    <MudCardContent>
+        <MudTextField @bind-Value="_searchString"
+                      Placeholder="Search by name..."
+                      Adornment="Adornment.Start"
+                      AdornmentIcon="@Icons.Material.Filled.Search"
+                      Immediate="true"
+                      DebounceInterval="300"
+                      OnDebounceIntervalElapsed="OnSearchChanged"
+                      Class="mb-4" />
+
+        <MudDataGrid T="CandidateListDto"
+                     @ref="_dataGrid"
+                     ServerData="LoadServerData"
+                     SortMode="SortMode.Single"
+                     Hover="true"
+                     Dense="true"
+                     RowClick="OnRowClick"
+                     RowStyle="cursor: pointer;">
+            <Columns>
+                <PropertyColumn Property="x => x.FullName" Title="Name" />
+                <PropertyColumn Property="x => x.Email" Title="Email" />
+                <PropertyColumn Property="x => x.Telephone" Title="Phone" />
+                <PropertyColumn Property="x => x.City" Title="City" />
+                <PropertyColumn Property="x => x.RegistrationDate" Title="Applied" Format="yyyy-MM-dd" />
+                <PropertyColumn Property="x => x.StatusName" Title="Status" />
+                <PropertyColumn Property="x => x.FileCount" Title="Files" Sortable="false" />
+                <TemplateColumn Title="" Sortable="false">
+                    <CellTemplate>
+                        <MudIconButton Icon="@Icons.Material.Filled.Visibility"
+                                       Size="Size.Small"
+                                       OnClick="@(() => NavigateToDetail(context.Item.ErcandidateId))" />
+                    </CellTemplate>
+                </TemplateColumn>
+            </Columns>
+            <PagerContent>
+                <MudDataGridPager T="CandidateListDto" PageSizeOptions="new int[] { 10, 25, 50 }" />
+            </PagerContent>
+            <NoRecordsContent>
+                <MudText>No candidates found for this activity.</MudText>
+            </NoRecordsContent>
+        </MudDataGrid>
+    </MudCardContent>
+</MudCard>

@@ -1,0 +1,104 @@
+@page "/activities/{ActivityId:int}/candidates/{CandidateId:int}"
+@using Microsoft.AspNetCore.Authorization
+@using MudBlazor
+@using SignaturPortal.Application.DTOs
+@attribute [Authorize(Policy = "RecruitmentAccess")]
+
+<PageTitle>@(_candidate?.FullName ?? "Candidate")</PageTitle>
+
+<MudBreadcrumbs Items="_breadcrumbs" Class="mb-4" />
+
+@if (_loading)
+{
+    <MudProgressCircular Indeterminate="true" />
+}
+else if (_candidate == null)
+{
+    <MudAlert Severity="Severity.Warning">Candidate not found or you don't have access.</MudAlert>
+}
+else
+{
+    <MudGrid>
+        <MudItem xs="12" md="8">
+            <MudCard>
+                <MudCardHeader>
+                    <CardHeaderContent>
+                        <MudText Typo="Typo.h5">@_candidate.FullName</MudText>
+                        <MudChip T="string" Size="Size.Small" Color="Color.Primary">@_candidate.StatusName</MudChip>
+                    </CardHeaderContent>
+                </MudCardHeader>
+                <MudCardContent>
+                    <MudSimpleTable Dense="true">
+                        <tbody>
+                            <tr>
+                                <td><strong>Email</strong></td>
+                                <td>@_candidate.Email</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Phone</strong></td>
+                                <td>@_candidate.Telephone</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Address</strong></td>
+                                <td>@_candidate.Address</td>
+                            </tr>
+                            <tr>
+                                <td><strong>City</strong></td>
+                                <td>@_candidate.City @_candidate.ZipCode</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Date of Birth</strong></td>
+                                <td>@(_candidate.DateOfBirth?.ToString("yyyy-MM-dd") ?? "-")</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Applied</strong></td>
+                                <td>@_candidate.RegistrationDate.ToString("yyyy-MM-dd HH:mm")</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Internal Candidate</strong></td>
+                                <td>@(_candidate.IsInternalCandidate ? "Yes" : "No")</td>
+                            </tr>
+                        </tbody>
+                    </MudSimpleTable>
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+
+        <MudItem xs="12" md="4">
+            <MudCard>
+                <MudCardHeader>
+                    <CardHeaderContent>
+                        <MudText Typo="Typo.h6">Attachments</MudText>
+                    </CardHeaderContent>
+                </MudCardHeader>
+                <MudCardContent>
+                    @if (_candidate.Files.Count == 0)
+                    {
+                        <MudText Color="Color.Secondary">No files attached</MudText>
+                    }
+                    else
+                    {
+                        <MudList T="string" Dense="true">
+                            @foreach (var file in _candidate.Files)
+                            {
+                                <MudListItem T="string">
+                                    <div class="d-flex justify-space-between align-center">
+                                        <div>
+                                            <MudText Typo="Typo.body2">@file.FileName</MudText>
+                                            <MudText Typo="Typo.caption" Color="Color.Secondary">@file.FileSizeFormatted</MudText>
+                                        </div>
+                                        <MudIconButton Icon="@Icons.Material.Filled.Download"
+                                                       Size="Size.Small"
+                                                       Color="Color.Primary"
+                                                       OnClick="@(() => DownloadFileAsync(file.BinaryFileId, file.FileName))"
+                                                       Disabled="@_downloadingFileId.HasValue" />
+                                    </div>
+                                </MudListItem>
+                            }
+                        </MudList>
+                    }
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+    </MudGrid>
+}
