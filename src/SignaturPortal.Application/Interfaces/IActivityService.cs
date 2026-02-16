@@ -1,4 +1,5 @@
 using SignaturPortal.Application.DTOs;
+using SignaturPortal.Domain.Enums;
 
 namespace SignaturPortal.Application.Interfaces;
 
@@ -13,7 +14,7 @@ public interface IActivityService
     /// Results are automatically scoped to the current user's tenant (ClientId).
     /// Non-admin users see only activities where they are Responsible or CreatedBy.
     /// </summary>
-    Task<GridResponse<ActivityListDto>> GetActivitiesAsync(GridRequest request, CancellationToken ct = default);
+    Task<GridResponse<ActivityListDto>> GetActivitiesAsync(GridRequest request, ERActivityStatus? statusFilter = null, CancellationToken ct = default);
 
     /// <summary>
     /// Gets detailed information for a specific activity including hiring team members and candidate count.

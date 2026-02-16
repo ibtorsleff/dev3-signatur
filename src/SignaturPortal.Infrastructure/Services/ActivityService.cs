@@ -4,6 +4,7 @@ using SignaturPortal.Application.DTOs;
 using SignaturPortal.Application.Interfaces;
 using SignaturPortal.Domain.Helpers;
 using SignaturPortal.Infrastructure.Data;
+using SignaturPortal.Domain.Enums;
 using SignaturPortal.Infrastructure.Extensions;
 
 namespace SignaturPortal.Infrastructure.Services;
@@ -35,6 +36,7 @@ public class ActivityService : IActivityService
     /// </summary>
     public async Task<GridResponse<ActivityListDto>> GetActivitiesAsync(
         GridRequest request,
+        ERActivityStatus? statusFilter = null,
         CancellationToken ct = default)
     {
         await using var context = await _contextFactory.CreateDbContextAsync(ct);
@@ -66,6 +68,13 @@ public class ActivityService : IActivityService
             query = query.Where(a =>
                 a.Responsible == currentUserGuid.Value ||
                 a.CreatedBy == currentUserGuid.Value);
+        }
+
+        // Filter by activity status mode (Ongoing, Closed, Draft)
+        if (statusFilter.HasValue)
+        {
+            var statusId = (int)statusFilter.Value;
+            query = query.Where(a => a.EractivityStatusId == statusId);
         }
 
         // Apply filters from request
