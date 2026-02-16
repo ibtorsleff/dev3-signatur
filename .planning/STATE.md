@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-13)
 
 **Core value:** The activity list view must work perfectly. Users must be able to see and navigate their recruitment activities with correct status.
-**Current focus:** Phase 3.3 COMPLETE -- Activity List Conditional Columns (both backend + UI done)
+**Current focus:** Phase 3.4 COMPLETE -- Activity List Row Height & Pagination Styling
 
 ## Current Position
 
-Phase: 3.3 of 8 (Activity List Conditional Columns) -- PHASE COMPLETE
-Plan: 2 of 2 in current phase -- COMPLETE
-Status: Phase 03.3 complete (both plans done), ready for next phase
-Last activity: 2026-02-16 -- Plan 03.3-02 complete (mode-aware column visibility UI)
+Phase: 3.4 of 8 (Activity List Row Height & Pagination Styling) -- PHASE COMPLETE
+Plan: 1 of 1 in current phase -- COMPLETE
+Status: Phase 03.4 complete, ready for next phase
+Last activity: 2026-02-16 -- Plan 03.4-01 complete (row height & pagination styling)
 
-Progress: [########..] 73%
+Progress: [########..] 76%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 15
+- Total plans completed: 16
 - Average duration: 5 minutes
-- Total execution time: 1.30 hours
+- Total execution time: 1.53 hours
 
 **By Phase:**
 
@@ -32,10 +32,11 @@ Progress: [########..] 73%
 | 03.1-route-aware-nav-activity-modes | 2 | 5 min | 2.5 min |
 | 03.2-activity-list-layout-matching | 1 | 6 min | 6 min |
 | 03.3-activity-list-conditional-columns | 2 | 11 min | 5.5 min |
+| 03.4-activity-list-row-height-pagination-styling | 1 | 2 min | 2 min |
 
 **Recent Trend:**
-- Last 5 plans: 03.1-02 (3 min), 03.2-01 (6 min), 03.3-01 (3 min), 03.3-02 (8 min)
-- Trend: Steady -- UI plan with checkpoint review took 8 min
+- Last 5 plans: 03.2-01 (6 min), 03.3-01 (3 min), 03.3-02 (8 min), 03.4-01 (2 min)
+- Trend: CSS-only plan completed very fast (2 min)
 
 *Updated after each plan completion*
 
@@ -56,6 +57,7 @@ Progress: [########..] 73%
 | 03.2-01 | 6 min | 3 | 10 |
 | 03.3-01 | 3 min | 2 | 6 |
 | 03.3-02 | 8 min | 2 | 7 |
+| 03.4-01 | 2 min | 2 | 3 |
 
 ## Accumulated Context
 
@@ -120,6 +122,10 @@ Recent decisions affecting current work:
 - [03.3-02]: Headline as PropertyColumn not TemplateColumn (consistent header styling)
 - [03.3-02]: WebAdVisitor entity for click count column (client config check hardcoded as TODO)
 - [03.3-02]: Copy action icon served from legacy via YARP (same pattern as nav icons)
+- [03.4-01]: 1px vertical padding + 17px line-height = 19px row height (math: 1+17+1=19)
+- [03.4-01]: Height on both tr and td for cross-browser compatibility
+- [03.4-01]: overflow:hidden on cells to prevent content overflow at reduced height
+- [03.4-01]: Pagination toolbar border-top uses theme cell border color (replaces MudBlazor default)
 
 ### Pending Todos
 
@@ -129,6 +135,7 @@ None yet.
 
 - Phase 3.2 inserted after Phase 3: Activity List Layout Matching (URGENT) — research legacy activity list layout and replicate in Blazor MudDataGrid, hide filter options behind toggle
 - Phase 3.3 inserted after Phase 3.2: Activity List Conditional Columns (URGENT) — research and fix column visibility per mode/role/permission to match legacy for all 3 modes
+- Phase 3.4 inserted after Phase 3.3: Activity List Row Height & Pagination Styling (URGENT) — reduce row height to 19px, style pagination footer to match grid header
 
 ### Blockers/Concerns
 
@@ -139,7 +146,7 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-16
-Stopped at: Completed 03.3-02-PLAN.md (mode-aware column visibility UI -- Phase 03.3 complete)
+Stopped at: Completed 03.4-01-PLAN.md (row height & pagination styling -- Phase 03.4 complete)
 Resume file: None
 
-**Phase 03.3 Complete**: Activity list now shows correct columns per mode matching legacy WebForms. Backend (plan 01) + UI (plan 02) both done. Additional columns (Antal klik, copy icon) and HeaderStyle fix added during checkpoint review. Ready for next phase.
+**Phase 03.4 Complete**: Activity list rows reduced to 19px via CSS custom properties. Pagination footer now matches grid header background color. CSS-only phase, no code changes needed. Ready for next phase.
