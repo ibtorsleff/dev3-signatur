@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-13)
 
 **Core value:** The activity list view must work perfectly. Users must be able to see and navigate their recruitment activities with correct status.
-**Current focus:** Phase 3 complete, ready for Phase 4: Core Write Operations
+**Current focus:** Phase 3.1 in progress -- Route-aware navigation and activity list modes
 
 ## Current Position
 
-Phase: 3 of 6 (Core Read Views) — COMPLETE
-Plan: 6 of 6 in current phase
-Status: Phase verified and complete
-Last activity: 2026-02-15 -- Phase 3 verified (5/5 success criteria passed), gap closure plans 03-05 and 03-06 executed
+Phase: 3.1 of 6 (Route-Aware Nav & Activity Modes)
+Plan: 1 of 2 in current phase
+Status: Executing phase 3.1
+Last activity: 2026-02-16 -- Plan 03.1-01 complete (route-aware navigation config service + NavMenu code-behind)
 
-Progress: [######....] 58%
+Progress: [######....] 60%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 10
+- Total plans completed: 11
 - Average duration: 5 minutes
-- Total execution time: 0.93 hours
+- Total execution time: 0.97 hours
 
 **By Phase:**
 
@@ -29,10 +29,11 @@ Progress: [######....] 58%
 |-------|-------|-------|----------|
 | 01-infrastructure-shell | 4 | 28 min | 7 min |
 | 03-core-read-views | 6 | 30 min | 5 min |
+| 03.1-route-aware-nav-activity-modes | 1 | 2 min | 2 min |
 
 **Recent Trend:**
-- Last 5 plans: 03-02 (3 min), 03-04 (5 min), 03-03 (5 min), 03-05 (4 min), 03-06 (4 min)
-- Trend: Consistent Phase 3 velocity around 4-5 min per plan
+- Last 5 plans: 03-04 (5 min), 03-03 (5 min), 03-05 (4 min), 03-06 (4 min), 03.1-01 (2 min)
+- Trend: Accelerating -- Phase 3.1 plan 01 completed in 2 min
 
 *Updated after each plan completion*
 
@@ -48,6 +49,7 @@ Progress: [######....] 58%
 | 03-04 | 5 min | 2 | 13 |
 | 03-05 | 4 min | 2 | 6 |
 | 03-06 | 4 min | 2 | 6 |
+| 03.1-01 | 2 min | 2 | 5 |
 
 ## Accumulated Context
 
@@ -89,6 +91,10 @@ Recent decisions affecting current work:
 - [03-05]: IUserSessionContext changed to nullable int? for UserId/SiteId/ClientId (session may not be available outside SSR)
 - [03-06]: Error handling pattern: detail pages use _errorMessage + MudAlert, list pages use ISnackbar + empty GridData fallback
 - [03-06]: No ILogger added yet -- Phase 5 will add structured logging infrastructure
+- [03.1-01]: NavigationConfigService registered as Singleton (stateless pure function of path)
+- [03.1-01]: Row 2 mode tabs shown unconditionally (permission-based visibility deferred to later phase)
+- [03.1-01]: Detail page /activities/123 maps to Ongoing tab (detail is within ongoing context)
+- [03.1-01]: Service registered in Program.cs since it lives in Web project namespace
 
 ### Pending Todos
 
@@ -102,8 +108,8 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-15
-Stopped at: Phase 3 complete and verified. Gap closure plans 03-05 (nullable session context) and 03-06 (error handling) executed. Verification passed 5/5.
+Last session: 2026-02-16
+Stopped at: Completed 03.1-01-PLAN.md (route-aware navigation config service + NavMenu code-behind)
 Resume file: None
 
-**Phase 3 Progress**: 6 of 6 plans complete, phase verified. All read views: activity list, activity detail, candidate list, candidate detail. Gap closures: nullable session types, error handling. Ready for Phase 4 (Write Operations).
+**Phase 3.1 Progress**: 1 of 2 plans complete. Plan 01 added INavigationConfigService, NavigationConfigService, NavMenu code-behind with LocationChanged. Ready for Plan 02 (activity list modes with filtered views).
