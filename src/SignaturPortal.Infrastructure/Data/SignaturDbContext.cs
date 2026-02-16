@@ -46,7 +46,7 @@ public partial class SignaturDbContext : DbContext
 
     public virtual DbSet<WebAdVisitor> WebAdVisitors { get; set; }
 
-    public virtual DbSet<Localization> Localizations { get; set; }
+    public virtual DbSet<Entities.Localization> Localizations { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -463,7 +463,7 @@ public partial class SignaturDbContext : DbContext
             entity.Property(e => e.Visitors);
         });
 
-        modelBuilder.Entity<Localization>(entity =>
+        modelBuilder.Entity<Entities.Localization>(entity =>
         {
             entity.ToTable("Localization");
 

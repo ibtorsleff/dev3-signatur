@@ -7,6 +7,7 @@ using SignaturPortal.Domain.Interfaces;
 using SignaturPortal.Infrastructure.Authorization;
 using SignaturPortal.Infrastructure.Data;
 using SignaturPortal.Infrastructure.Interceptors;
+using SignaturPortal.Infrastructure.Localization;
 using SignaturPortal.Infrastructure.Repositories;
 using SignaturPortal.Infrastructure.Services;
 
@@ -45,6 +46,11 @@ public static class DependencyInjection
 
         // Application services
         services.AddScoped<IActivityService, ActivityService>();
+
+        // Localization: in-memory cache + scoped service + startup warmup
+        services.AddMemoryCache();
+        services.AddScoped<ILocalizationService, LocalizationService>();
+        services.AddHostedService<LocalizationCacheWarmupService>();
 
         return services;
     }
