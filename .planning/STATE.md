@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-13)
 ## Current Position
 
 Phase: 3.5 of 8 (Localization/Globalization) -- IN PROGRESS
-Plan: 2 of 4 in current phase -- COMPLETE
-Status: Plan 03.5-02 complete, continuing with 03.5-03
-Last activity: 2026-02-17 -- Plan 03.5-02 complete (ActivityList localization)
+Plan: 3 of 4 in current phase -- COMPLETE
+Status: Plan 03.5-03 complete, continuing with 03.5-04
+Last activity: 2026-02-17 -- Plan 03.5-03 complete (navigation label localization)
 
 Progress: [########..] 78%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 18
+- Total plans completed: 19
 - Average duration: 5 minutes
-- Total execution time: 1.69 hours
+- Total execution time: 1.72 hours
 
 **By Phase:**
 
@@ -33,11 +33,11 @@ Progress: [########..] 78%
 | 03.2-activity-list-layout-matching | 1 | 6 min | 6 min |
 | 03.3-activity-list-conditional-columns | 2 | 11 min | 5.5 min |
 | 03.4-activity-list-row-height-pagination-styling | 1 | 2 min | 2 min |
-| 03.5-localization (in progress) | 2 | 10 min | 5 min |
+| 03.5-localization (in progress) | 3 | 12 min | 4 min |
 
 **Recent Trend:**
-- Last 5 plans: 03.3-02 (8 min), 03.4-01 (2 min), 03.5-01 (8 min), 03.5-02 (2 min)
-- Trend: Simple localization application completed in 2 min
+- Last 5 plans: 03.4-01 (2 min), 03.5-01 (8 min), 03.5-02 (2 min), 03.5-03 (2 min)
+- Trend: Navigation localization completed in 2 min
 
 *Updated after each plan completion*
 
@@ -61,6 +61,7 @@ Progress: [########..] 78%
 | 03.4-01 | 2 min | 2 | 3 |
 | 03.5-01 | 8 min | 3 | 8 |
 | 03.5-02 | 2 min | 1 | 2 |
+| 03.5-03 | 2 min | 2 | 4 |
 
 ## Accumulated Context
 
@@ -135,6 +136,9 @@ Recent decisions affecting current work:
 - [03.5-01]: Language fallback chain: requested -> English (1) -> [key] bracket notation
 - [Phase 03.5-02]: PascalCase English identifier keys as localization placeholders -- exact legacy DB keys matched during full migration
 - [Phase 03.5-02]: L alias for ILocalizationService via [Inject] property for concise Razor template syntax
+- [Phase 03.5-03]: LabelKey as optional nullable property on NavMenuItem for localization key mapping
+- [Phase 03.5-03]: Singleton-returns-keys/scoped-resolves-text pattern for DI lifetime mismatch between NavigationConfigService and ILocalizationService
+- [Phase 03.5-03]: Bracket-notation fallback check (StartsWith '[') to detect unresolved keys
 
 ### Pending Todos
 
@@ -156,7 +160,7 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-17
-Stopped at: Completed 03.5-02-PLAN.md (ActivityList localization)
+Stopped at: Completed 03.5-03-PLAN.md (navigation label localization)
 Resume file: None
 
-**Plan 03.5-02 Complete**: All hardcoded Danish strings in ActivityList replaced with ILocalizationService.GetText calls using PascalCase English keys. Ready for 03.5-03.
+**Plan 03.5-03 Complete**: NavigationConfigService returns LabelKey identifiers resolved by NavMenu via ILocalizationService.GetText with Label fallback. Ready for 03.5-04.
