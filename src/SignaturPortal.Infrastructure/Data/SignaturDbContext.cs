@@ -40,6 +40,10 @@ public partial class SignaturDbContext : DbContext
 
     public virtual DbSet<User> Users { get; set; }
 
+    public virtual DbSet<ClientSection> ClientSections { get; set; }
+
+    public virtual DbSet<ErTemplateGroup> ErTemplateGroups { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.UseCollation("Latin1_General_CI_AS");
@@ -225,6 +229,14 @@ public partial class SignaturDbContext : DbContext
                 .HasForeignKey(d => d.ClientId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_ERActivity_Client");
+
+            entity.HasOne(d => d.ClientSection).WithMany()
+                .HasForeignKey(d => d.ClientSectionId)
+                .OnDelete(DeleteBehavior.ClientSetNull);
+
+            entity.HasOne(d => d.ErTemplateGroup).WithMany()
+                .HasForeignKey(d => d.ErtemplateGroupId)
+                .OnDelete(DeleteBehavior.ClientSetNull);
         });
 
         modelBuilder.Entity<Ercandidate>(entity =>
@@ -417,6 +429,25 @@ public partial class SignaturDbContext : DbContext
             entity.Property(e => e.WorkArea).HasMaxLength(255);
             entity.Property(e => e.EmployeeNumber).HasMaxLength(50);
             entity.Property(e => e.ForgotPasswordTimestamp).HasColumnType("datetime");
+        });
+
+        modelBuilder.Entity<ClientSection>(entity =>
+        {
+            entity.ToTable("ClientSection");
+
+            entity.HasKey(e => e.ClientSectionId);
+
+            entity.Property(e => e.Name).HasMaxLength(255);
+        });
+
+        modelBuilder.Entity<ErTemplateGroup>(entity =>
+        {
+            entity.ToTable("ERTemplateGroup");
+
+            entity.HasKey(e => e.ErtemplateGroupId);
+
+            entity.Property(e => e.ErtemplateGroupId).HasColumnName("ERTemplateGroupId");
+            entity.Property(e => e.Name).HasMaxLength(255);
         });
 
         OnModelCreatingPartial(modelBuilder);

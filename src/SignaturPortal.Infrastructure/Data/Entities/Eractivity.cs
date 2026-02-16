@@ -133,6 +133,10 @@ public partial class Eractivity
 
     public virtual Client Client { get; set; } = null!;
 
+    public virtual ClientSection? ClientSection { get; set; }
+
+    public virtual ErTemplateGroup? ErTemplateGroup { get; set; }
+
     public virtual ICollection<Eractivitymember> Eractivitymembers { get; set; } = new List<Eractivitymember>();
 
     public virtual ICollection<Ercandidate> Ercandidates { get; set; } = new List<Ercandidate>();
