@@ -86,7 +86,10 @@ Plans:
   2. MudDataGrid column filters are hidden by default and can be toggled visible via a UI control
   3. Row styling (hover, selection, density) matches the legacy look and feel
   4. The activity list is usable and visually polished without needing the filter controls visible
-**Plans**: TBD (run /gsd:plan-phase 3.2 to break down)
+**Plans**: 1 plan
+
+Plans:
+- [ ] 03.2-01-PLAN.md -- Portal theme CSS infrastructure (recruiting teal + ad portal stub), activity list grid styling with filter toggle
 
 ### Phase 3.1: Route-Aware Navigation & Activity List Modes (INSERTED)
 **Goal**: The top navigation adapts to the current page context, and the activity list supports the 3 status modes (Draft, Ongoing, Closed) with matching sub-navigation -- replicating the legacy navigation behavior exactly
@@ -167,7 +170,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 3.1 -> 3.2 -> 4 -> 5 -> 6
 | 2. Multi-Tenancy & Security Foundation | 2/2 | Complete | 2026-02-15 |
 | 3. Core Read Views | 6/6 | Complete | 2026-02-15 |
 | 3.1 Route-Aware Nav & Activity Modes | 2/2 | Complete | 2026-02-16 |
-| 3.2 Activity List Layout Matching | 0/? | Not started | - |
+| 3.2 Activity List Layout Matching | 0/1 | Planned | - |
 | 4. Core Write Operations | 0/4 | Planned | - |
 | 5. Localization & UX Polish | 0/3 | Planned | - |
 | 6. Testing, Deployment & Monitoring | 0/3 | Not started | - |
