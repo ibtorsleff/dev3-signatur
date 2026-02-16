@@ -78,6 +78,18 @@ Plans:
 - [x] 03-05-PLAN.md -- Gap closure: Fix nullable session context types for tenant query filter bypass
 - [x] 03-06-PLAN.md -- Gap closure: Add error handling to all Blazor page lifecycle methods
 
+### Phase 03.5: make the full legacy localization/globalization system available in the blazor app. example is the GetText, which is available via the basepage.cs in the legacy app. the database cannot be altered (INSERTED)
+
+**Goal:** The full legacy localization/globalization system is available in the Blazor app -- ILocalizationService.GetText returns database-backed translations with cache warming, language fallback, and per-user language resolution, replacing all hardcoded Danish strings
+**Depends on:** Phase 3.4
+**Requirements:** LOC-01, LOC-02, LOC-03, LOC-04
+**Plans:** 3 plans
+
+Plans:
+- [ ] 03.5-01-PLAN.md -- Localization infrastructure: entity, ILocalizationService, LocalizationService with IMemoryCache, cache warmup hosted service
+- [ ] 03.5-02-PLAN.md -- Replace hardcoded Danish strings in ActivityList with GetText calls
+- [ ] 03.5-03-PLAN.md -- Refactor NavigationConfigService to return localization keys, resolve in NavMenu
+
 ### Phase 03.2: Activity List Layout Matching (INSERTED)
 
 **Goal**: The Blazor activity list visually matches the legacy WebForms activity list layout -- same columns, spacing, visual hierarchy, and row styling. MudDataGrid column filters are hidden by default behind a toggleable UI control, since the legacy layout has no visible filters.
@@ -194,7 +206,7 @@ Plans:
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 -> 2 -> 3 -> 3.1 -> 3.2 -> 3.3 -> 3.4 -> 4 -> 5 -> 6
+Phases execute in numeric order: 1 -> 2 -> 3 -> 3.1 -> 3.2 -> 3.3 -> 3.4 -> 3.5 -> 4 -> 5 -> 6
 
 | Phase | Plans Complete | Status | Completed |
 |-------|---------------|--------|-----------|
@@ -205,6 +217,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 3.1 -> 3.2 -> 3.3 -> 3.4 -> 4 ->
 | 3.2 Activity List Layout Matching | 1/1 | Complete | 2026-02-16 |
 | 3.3 Activity List Conditional Columns | 2/2 | Complete | 2026-02-16 |
 | 3.4 Activity List Row Height & Pagination Styling | 1/1 | Complete | 2026-02-16 |
+| 3.5 Legacy Localization/Globalization in Blazor | 0/3 | Planned | - |
 | 4. Core Write Operations | 0/4 | Planned | - |
 | 5. Localization & UX Polish | 0/3 | Planned | - |
 | 6. Testing, Deployment & Monitoring | 0/3 | Not started | - |
