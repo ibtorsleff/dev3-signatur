@@ -28,7 +28,7 @@
         </MudTooltip>
     </ToolBarContent>
     <Columns>
-        <PropertyColumn Property="x => x.EractivityId" Title="Id" HeaderStyle="width:80px;" CellStyle="width:80px; text-align:right;" />
+        <PropertyColumn Property="x => x.EractivityId" Title="Id" HeaderStyle="width:80px;" CellStyle="text-align:right;" />
         <PropertyColumn Property="x => x.Headline" Title="Headline">
             <CellTemplate>
                 @if (_showCandidateCount && context.Item.CandidateCount > 0)
@@ -41,8 +41,8 @@
                 }
             </CellTemplate>
         </PropertyColumn>
-        <PropertyColumn Property="x => x.WebAdVisitors" Title="Clicks" Sortable="false" Hidden="@_hideVisitorsColumn" HeaderStyle="width:108px;" CellStyle="width:108px; text-align:right;" />
-        <PropertyColumn Property="x => x.ApplicationDeadline" Title="Deadline" HeaderStyle="width:120px;" CellStyle="width:120px;">
+        <PropertyColumn Property="x => x.WebAdVisitors" Title="Clicks" Sortable="false" Hidden="@_hideVisitorsColumn" HeaderStyle="width:108px;" CellStyle="text-align:right;" />
+        <PropertyColumn Property="x => x.ApplicationDeadline" Title="Deadline" HeaderStyle="width:120px;">
             <CellTemplate>
                 @if (context.Item.ContinuousPosting)
                 {
@@ -56,12 +56,12 @@
                 }
             </CellTemplate>
         </PropertyColumn>
-        <PropertyColumn Property="x => x.ClientSectionName" Title="Client Section" HeaderStyle="width:240px;" CellStyle="width:240px;" />
-        <PropertyColumn Property="x => x.RecruitingResponsibleName" Title="Responsible" Sortable="false" HeaderStyle="width:150px;" CellStyle="width:150px;" />
-        <PropertyColumn Property="x => x.CreateDate" Title="Created" Format="dd-MM-yyyy" InitialDirection="SortDirection.Descending" HeaderStyle="width:110px;" CellStyle="width:110px;" />
-        <PropertyColumn Property="x => x.CreatedByName" Title="Created By" Sortable="false" Hidden="@_hideCreatedByColumn" HeaderStyle="width:130px;" CellStyle="width:130px;" />
-        <PropertyColumn Property="x => x.DraftResponsibleName" Title="Draft Responsible" Sortable="false" Hidden="@_hideDraftResponsibleColumn" HeaderStyle="width:170px;" CellStyle="width:170px;" />
-        <PropertyColumn Property="x => x.TemplateGroupName" Title="Template Group" Hidden="@_hideTemplateGroupColumn" HeaderStyle="width:140px;" CellStyle="width:140px;" />
+        <PropertyColumn Property="x => x.ClientSectionName" Title="Client Section" HeaderStyle="width:240px;" />
+        <PropertyColumn Property="x => x.RecruitingResponsibleName" Title="Responsible" Sortable="false" HeaderStyle="width:150px;" />
+        <PropertyColumn Property="x => x.CreateDate" Title="Created" Format="dd-MM-yyyy" InitialDirection="SortDirection.Descending" HeaderStyle="width:110px;" />
+        <PropertyColumn Property="x => x.CreatedByName" Title="Created By" Sortable="false" Hidden="@_hideCreatedByColumn" HeaderStyle="width:130px;" />
+        <PropertyColumn Property="x => x.DraftResponsibleName" Title="Draft Responsible" Sortable="false" Hidden="@_hideDraftResponsibleColumn" HeaderStyle="width:170px;" />
+        <PropertyColumn Property="x => x.TemplateGroupName" Title="Template Group" Hidden="@_hideTemplateGroupColumn" HeaderStyle="width:140px;" />
         <TemplateColumn T="ActivityListDto" Hidden="@_hideActionsColumn" Sortable="false" Filterable="false"
                         HeaderStyle="width:36px; padding:0;" CellStyle="padding:2px 4px; text-align:center;">
             <CellTemplate>
