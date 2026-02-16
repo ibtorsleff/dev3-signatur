@@ -55,8 +55,12 @@ public partial class ActivityList
                 TotalItems = response.TotalCount
             };
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            System.Diagnostics.Debug.WriteLine($"[ERROR] LoadServerData failed: {ex.GetType().Name}: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"[ERROR] StackTrace: {ex.StackTrace}");
+            if (ex.InnerException != null)
+                System.Diagnostics.Debug.WriteLine($"[ERROR] Inner: {ex.InnerException.GetType().Name}: {ex.InnerException.Message}");
             Snackbar.Add("Error loading activities. Please refresh the page.", Severity.Error);
             return new GridData<ActivityListDto>
             {

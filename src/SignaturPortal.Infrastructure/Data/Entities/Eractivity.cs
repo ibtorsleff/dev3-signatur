@@ -15,9 +15,9 @@ public partial class Eractivity
 
     public int? ClientSectionId { get; set; }
 
-    public Guid Responsible { get; set; }
+    public Guid? Responsible { get; set; }
 
-    public Guid CreatedBy { get; set; }
+    public Guid? CreatedBy { get; set; }
 
     public Guid? DraftResponsible { get; set; }
 

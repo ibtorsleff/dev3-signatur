@@ -15,6 +15,6 @@ public record ActivityListDto
     public string StatusName { get; init; } = "";
     public DateTime CreateDate { get; init; }
     public int CandidateCount { get; init; }
-    public Guid Responsible { get; init; }
-    public Guid CreatedBy { get; init; }
+    public Guid? Responsible { get; init; }
+    public Guid? CreatedBy { get; init; }
 }

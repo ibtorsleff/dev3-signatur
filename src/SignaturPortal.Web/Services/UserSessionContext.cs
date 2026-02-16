@@ -25,8 +25,8 @@ public class UserSessionContext : IUserSessionContext
             return;
 
         UserId = swSession["UserId"] is int uid ? uid : null;
-        SiteId = swSession["SiteId"] is int sid ? sid : null;
-        ClientId = swSession["ClientId"] is int cid ? cid : null;
+        SiteId = swSession["SiteId"] is int sid && sid > 0 ? sid : null;
+        ClientId = swSession["ClientId"] is int cid && cid > 0 ? cid : null;
         UserName = swSession["UserName"] as string ?? string.Empty;
         UserLanguageId = swSession["UserLanguageId"] is int lid ? lid : 0;
 
@@ -44,8 +44,8 @@ public class UserSessionContext : IUserSessionContext
             return;
 
         UserId = userId;
-        SiteId = siteId;
-        ClientId = clientId;
+        SiteId = siteId > 0 ? siteId : null;
+        ClientId = clientId > 0 ? clientId : null;
         UserName = userName;
         UserLanguageId = userLanguageId;
         IsInitialized = true;

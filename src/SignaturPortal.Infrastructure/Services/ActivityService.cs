@@ -43,6 +43,8 @@ public class ActivityService : IActivityService
         context.CurrentSiteId = _sessionContext.SiteId;
         context.CurrentClientId = _sessionContext.ClientId;
 
+        System.Diagnostics.Debug.WriteLine($"[DEBUG] Session: Init={_sessionContext.IsInitialized}, User='{_sessionContext.UserName}', SiteId={_sessionContext.SiteId}, ClientId={_sessionContext.ClientId}");
+
         // Get current user's UserGuid for permission filtering
         var currentUserGuid = await GetUserGuidAsync(context, _sessionContext.UserName, ct);
 
@@ -51,6 +53,8 @@ public class ActivityService : IActivityService
             _sessionContext.UserName,
             (int)ERecruitmentPermission.AdminAccess,
             ct);
+
+        System.Diagnostics.Debug.WriteLine($"[DEBUG] UserGuid={currentUserGuid}, Admin={hasAdminAccess}");
 
         // Build base query
         var query = context.Eractivities
@@ -69,11 +73,12 @@ public class ActivityService : IActivityService
 
         // Get total count AFTER filters but BEFORE pagination
         var totalCount = await query.CountAsync(ct);
+        System.Diagnostics.Debug.WriteLine($"[DEBUG] TotalCount={totalCount}");
 
-        // Apply sorts (default: ApplicationDeadline descending)
+        // Apply sorts (default: CreateDate descending — newest first)
         if (request.Sorts.Count == 0)
         {
-            query = query.OrderByDescending(a => a.ApplicationDeadline);
+            query = query.OrderByDescending(a => a.CreateDate);
         }
         else
         {
@@ -104,13 +109,9 @@ public class ActivityService : IActivityService
             .ToListAsync(ct);
 
         // Compute StatusName in-memory using StatusMappings
-        foreach (var item in items)
+        for (var i = 0; i < items.Count; i++)
         {
-            // Use with statement to assign to init-only property
-            var statusName = StatusMappings.GetActivityStatusName(item.EractivityStatusId);
-            // Create new instance with updated StatusName
-            var index = items.IndexOf(item);
-            items[index] = item with { StatusName = statusName };
+            items[i] = items[i] with { StatusName = StatusMappings.GetActivityStatusName(items[i].EractivityStatusId) };
         }
 
         return new GridResponse<ActivityListDto>
@@ -184,13 +185,16 @@ public class ActivityService : IActivityService
         }
 
         // Get responsible and created by user names
-        var userIds = new[] { activity.Responsible, activity.CreatedBy }.Distinct();
+        var userIds = new[] { activity.Responsible, activity.CreatedBy }
+            .Where(id => id.HasValue).Select(id => id!.Value).Distinct().ToList();
         var userLookup = await context.Users
             .Where(u => userIds.Contains(u.UserId))
             .ToDictionaryAsync(u => u.UserId, u => u.FullName ?? u.UserName ?? "", ct);
 
-        var responsibleName = userLookup.GetValueOrDefault(activity.Responsible, "Unknown");
-        var createdByName = userLookup.GetValueOrDefault(activity.CreatedBy, "Unknown");
+        var responsibleName = activity.Responsible.HasValue
+            ? userLookup.GetValueOrDefault(activity.Responsible.Value, "Unknown") : "Unknown";
+        var createdByName = activity.CreatedBy.HasValue
+            ? userLookup.GetValueOrDefault(activity.CreatedBy.Value, "Unknown") : "Unknown";
 
         // Map hiring team members to DTOs
         // MemberTypeName must be computed in-memory (StatusMappings cannot be translated to SQL)
@@ -313,11 +317,9 @@ public class ActivityService : IActivityService
             .ToListAsync(ct);
 
         // Compute StatusName in-memory using StatusMappings
-        foreach (var item in items)
+        for (var i = 0; i < items.Count; i++)
         {
-            var statusName = StatusMappings.GetCandidateStatusName(item.ErcandidateStatusId);
-            var index = items.IndexOf(item);
-            items[index] = item with { StatusName = statusName };
+            items[i] = items[i] with { StatusName = StatusMappings.GetCandidateStatusName(items[i].ErcandidateStatusId) };
         }
 
         return new GridResponse<CandidateListDto>

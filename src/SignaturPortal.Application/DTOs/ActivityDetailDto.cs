@@ -22,9 +22,9 @@ public record ActivityDetailDto
     public bool CandidateEvaluationEnabled { get; init; }
     public bool IsCleaned { get; init; }
     public bool EmailOnNewCandidate { get; init; }
-    public Guid Responsible { get; init; }
+    public Guid? Responsible { get; init; }
     public string ResponsibleName { get; init; } = "";
-    public Guid CreatedBy { get; init; }
+    public Guid? CreatedBy { get; init; }
     public string CreatedByName { get; init; } = "";
     public int CandidateCount { get; init; }
     public int HiringTeamMemberCount { get; init; }

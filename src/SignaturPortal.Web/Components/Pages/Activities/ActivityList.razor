@@ -1,7 +1,6 @@
 @page "/activities"
 @using SignaturPortal.Application.DTOs
 @attribute [Authorize(Policy = "RecruitmentAccess")]
-@attribute [StreamRendering]
 
 <PageTitle>Recruitment Activities</PageTitle>
 
@@ -23,7 +22,18 @@
         <Columns>
             <PropertyColumn Property="x => x.Headline" Title="Activity" />
             <PropertyColumn Property="x => x.JournalNo" Title="Journal No" />
-            <PropertyColumn Property="x => x.ApplicationDeadline" Title="Deadline" Format="yyyy-MM-dd" />
+            <PropertyColumn Property="x => x.ApplicationDeadline" Title="Deadline">
+                <CellTemplate>
+                    @if (context.Item.ApplicationDeadline.Year >= 9999)
+                    {
+                        <MudText>-</MudText>
+                    }
+                    else
+                    {
+                        <MudText>@context.Item.ApplicationDeadline.ToString("yyyy-MM-dd")</MudText>
+                    }
+                </CellTemplate>
+            </PropertyColumn>
             <PropertyColumn Property="x => x.StatusName" Title="Status" />
             <PropertyColumn Property="x => x.CandidateCount" Title="Candidates" Filterable="false" />
             <PropertyColumn Property="x => x.CreateDate" Title="Created" Format="yyyy-MM-dd" />

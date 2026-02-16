@@ -22,7 +22,7 @@ public partial class SignaturDbContext
         // Ercandidate → Eractivity navigation (needed for tenant filtering through nav property)
         modelBuilder.Entity<Ercandidate>(entity =>
         {
-            entity.HasOne(d => d.Eractivity).WithMany()
+            entity.HasOne(d => d.Eractivity).WithMany(p => p.Ercandidates)
                 .HasForeignKey(d => d.EractivityId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_ERCandidate_ERActivity");
