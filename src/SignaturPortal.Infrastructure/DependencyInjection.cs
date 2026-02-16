@@ -50,7 +50,8 @@ public static class DependencyInjection
         // Localization: in-memory cache + scoped service + startup warmup
         services.AddMemoryCache();
         services.AddScoped<ILocalizationService, LocalizationService>();
-        services.AddHostedService<LocalizationCacheWarmupService>();
+        services.AddSingleton<LocalizationCacheWarmupService>();
+        services.AddHostedService(sp => sp.GetRequiredService<LocalizationCacheWarmupService>());
 
         return services;
     }
