@@ -5,6 +5,7 @@ using SignaturPortal.Application.Interfaces;
 using SignaturPortal.Infrastructure;
 using SignaturPortal.Infrastructure.Authorization;
 using SignaturPortal.Web.Components;
+using SignaturPortal.Web.Components.Services;
 using SignaturPortal.Web.Middleware;
 using SignaturPortal.Web.Services;
 
@@ -74,6 +75,9 @@ builder.Services.AddHttpContextAccessor();
 
 // Scoped session context — caches legacy session values for the Blazor circuit lifetime
 builder.Services.AddScoped<IUserSessionContext, UserSessionContext>();
+
+// Navigation config — stateless route-to-nav-config resolution (singleton)
+builder.Services.AddSingleton<INavigationConfigService, NavigationConfigService>();
 
 var app = builder.Build();
 
