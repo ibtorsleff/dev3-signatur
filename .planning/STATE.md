@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-13)
 
 **Core value:** The activity list view must work perfectly. Users must be able to see and navigate their recruitment activities with correct status.
-**Current focus:** Phase 3.2 complete, ready for Phase 4: Core Write Operations
+**Current focus:** Phase 3.3 in progress -- Activity List Conditional Columns (backend data layer complete, UI next)
 
 ## Current Position
 
-Phase: 3.2 of 8 (Activity List Layout Matching) -- COMPLETE
-Plan: 1 of 1 in current phase
-Status: Phase 3.2 complete
-Last activity: 2026-02-16 -- Plan 03.2-01 complete (portal theme CSS + activity list grid styling)
+Phase: 3.3 of 8 (Activity List Conditional Columns)
+Plan: 1 of 2 in current phase -- COMPLETE
+Status: Plan 03.3-01 complete, ready for Plan 03.3-02 (UI)
+Last activity: 2026-02-16 -- Plan 03.3-01 complete (backend data layer expansion)
 
-Progress: [#######...] 65%
+Progress: [#######...] 67%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 13
+- Total plans completed: 14
 - Average duration: 5 minutes
-- Total execution time: 1.12 hours
+- Total execution time: 1.17 hours
 
 **By Phase:**
 
@@ -31,10 +31,11 @@ Progress: [#######...] 65%
 | 03-core-read-views | 6 | 30 min | 5 min |
 | 03.1-route-aware-nav-activity-modes | 2 | 5 min | 2.5 min |
 | 03.2-activity-list-layout-matching | 1 | 6 min | 6 min |
+| 03.3-activity-list-conditional-columns | 1 | 3 min | 3 min |
 
 **Recent Trend:**
-- Last 5 plans: 03-06 (4 min), 03.1-01 (2 min), 03.1-02 (3 min), 03.2-01 (6 min)
-- Trend: Steady -- Phase 3.2 completed in 6 min (1 plan with human visual checkpoint)
+- Last 5 plans: 03.1-01 (2 min), 03.1-02 (3 min), 03.2-01 (6 min), 03.3-01 (3 min)
+- Trend: Steady -- backend data layer expansion completed in 3 min
 
 *Updated after each plan completion*
 
@@ -53,6 +54,7 @@ Progress: [#######...] 65%
 | 03.1-01 | 2 min | 2 | 5 |
 | 03.1-02 | 3 min | 2 | 4 |
 | 03.2-01 | 6 min | 3 | 10 |
+| 03.3-01 | 3 min | 2 | 6 |
 
 ## Accumulated Context
 
@@ -109,6 +111,10 @@ Recent decisions affecting current work:
 - [03.2-01]: Sort icons always visible at 0.4 opacity
 - [03.2-01]: Hover color lighter than header for visual distinction
 - [03.2-01]: Dense mode removed, explicit CSS padding for exact legacy match
+- [03.3-01]: User name resolution via correlated SQL subqueries (Guid FKs without navigation properties)
+- [03.3-01]: ClientSection and ErTemplateGroup as minimal Id+Name entities (lookup tables)
+- [03.3-01]: No global query filters on lookup tables (shared reference data)
+- [03.3-01]: JournalNo and StatusName removed from ActivityListDto (legacy list does not display these)
 
 ### Pending Todos
 
@@ -117,6 +123,7 @@ None yet.
 ### Roadmap Evolution
 
 - Phase 3.2 inserted after Phase 3: Activity List Layout Matching (URGENT) — research legacy activity list layout and replicate in Blazor MudDataGrid, hide filter options behind toggle
+- Phase 3.3 inserted after Phase 3.2: Activity List Conditional Columns (URGENT) — research and fix column visibility per mode/role/permission to match legacy for all 3 modes
 
 ### Blockers/Concerns
 
@@ -127,7 +134,7 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-16
-Stopped at: Completed 03.2-01-PLAN.md (portal theme CSS + activity list grid styling) -- Phase 3.2 COMPLETE
+Stopped at: Completed 03.3-01-PLAN.md (backend data layer expansion for conditional columns)
 Resume file: None
 
-**Phase 3.2 Complete**: Single plan delivered with human visual checkpoint. Created reusable portal theme CSS system with CSS custom properties, legacy-matching activity list grid styling, filter toggle, and visual polish. Both recruiting teal and ad portal purple themes verified. Ready for Phase 4: Core Write Operations.
+**Plan 03.3-01 Complete**: Backend data layer expanded with ClientSection/ErTemplateGroup entities, ActivityListDto with 5 resolved name fields + ContinuousPosting, and single-query SQL projection. Ready for Plan 03.3-02 (UI mode-aware column visibility).
