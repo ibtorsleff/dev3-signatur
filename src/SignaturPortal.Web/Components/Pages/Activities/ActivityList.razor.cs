@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Components;
 using MudBlazor;
 using SignaturPortal.Application.DTOs;
 using SignaturPortal.Application.Interfaces;
+using SignaturPortal.Domain.Enums;
 
 namespace SignaturPortal.Web.Components.Pages.Activities;
 
@@ -11,7 +12,35 @@ public partial class ActivityList
     [Inject] private NavigationManager Navigation { get; set; } = default!;
     [Inject] private ISnackbar Snackbar { get; set; } = default!;
 
+    [Parameter] public string? Mode { get; set; }
+
     private MudDataGrid<ActivityListDto> _dataGrid = default!;
+    private ERActivityStatus _currentStatus = ERActivityStatus.OnGoing;
+    private string _headlineText = "Igangvaerende sager";
+    private int _totalCount;
+
+    protected override void OnParametersSet()
+    {
+        var newStatus = Mode?.ToLowerInvariant() switch
+        {
+            "draft" => ERActivityStatus.Draft,
+            "closed" => ERActivityStatus.Closed,
+            _ => ERActivityStatus.OnGoing
+        };
+
+        _headlineText = newStatus switch
+        {
+            ERActivityStatus.Draft => "Kladdesager",
+            ERActivityStatus.Closed => "Afsluttede sager",
+            _ => "Igangvaerende sager"
+        };
+
+        if (newStatus != _currentStatus)
+        {
+            _currentStatus = newStatus;
+            _dataGrid?.ReloadServerData();
+        }
+    }
 
     /// <summary>
     /// Server-side data loading callback for MudDataGrid.
@@ -47,7 +76,8 @@ public partial class ActivityList
                 }
             }
 
-            var response = await ActivityService.GetActivitiesAsync(request);
+            var response = await ActivityService.GetActivitiesAsync(request, _currentStatus);
+            _totalCount = response.TotalCount;
 
             return new GridData<ActivityListDto>
             {

@@ -1,8 +1,10 @@
 @page "/activities"
+@page "/activities/{Mode}"
 @using SignaturPortal.Application.DTOs
+@using SignaturPortal.Domain.Enums
 @attribute [Authorize(Policy = "RecruitmentAccess")]
 
-<PageTitle>Recruitment Activities</PageTitle>
+<PageTitle>@_headlineText</PageTitle>
 
 <div class="activity-list-container">
     <MudDataGrid T="ActivityListDto"
@@ -16,7 +18,7 @@
                  RowClick="OnRowClick"
                  RowStyle="cursor: pointer;">
         <ToolBarContent>
-            <MudText Typo="Typo.h6">Recruitment Activities</MudText>
+            <MudText Typo="Typo.h6">@_headlineText (@_totalCount)</MudText>
             <MudSpacer />
         </ToolBarContent>
         <Columns>
