@@ -85,13 +85,41 @@ public class ActivityService : IActivityService
         System.Diagnostics.Debug.WriteLine($"[DEBUG] TotalCount={totalCount}");
 
         // Apply sorts (default: CreateDate descending — newest first)
+        // Map DTO property names to entity property paths for server-side sorting
+        var sortPropertyMap = new Dictionary<string, string?>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["ClientSectionName"] = "ClientSection.Name",
+            ["TemplateGroupName"] = "ErTemplateGroup.Name",
+            // These are resolved via correlated subqueries after sort+pagination — no sortable entity path.
+            // Sorting is disabled on these columns in the UI (Sortable="false").
+            // To make them sortable: rewrite query to JOIN aspnet_Users/WebAdVisitor upfront, project
+            // all sortable columns into an intermediate queryable, then apply Dynamic LINQ sort + pagination
+            // on the joined result. This keeps sorting in SQL but requires a more complex query.
+            ["RecruitingResponsibleName"] = null,
+            ["CreatedByName"] = null,
+            ["DraftResponsibleName"] = null,
+            ["WebAdVisitors"] = null
+        };
+
         if (request.Sorts.Count == 0)
         {
             query = query.OrderByDescending(a => a.CreateDate);
         }
         else
         {
-            query = query.ApplySorts(request.Sorts);
+            var mappedSorts = request.Sorts
+                .Select(s =>
+                {
+                    if (sortPropertyMap.TryGetValue(s.PropertyName, out var mapped))
+                        return mapped != null ? new Application.DTOs.SortDefinition(mapped, s.Descending) : null;
+                    return s;
+                })
+                .Where(s => s != null)
+                .ToList()!;
+
+            query = mappedSorts.Count > 0
+                ? query.ApplySorts(mappedSorts!)
+                : query.OrderByDescending(a => a.CreateDate);
         }
 
         // Apply pagination
