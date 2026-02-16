@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.Configuration;
 using MudBlazor;
 using SignaturPortal.Application.DTOs;
 using SignaturPortal.Application.Interfaces;
@@ -11,6 +12,7 @@ public partial class ActivityList
     [Inject] private IActivityService ActivityService { get; set; } = default!;
     [Inject] private NavigationManager Navigation { get; set; } = default!;
     [Inject] private ISnackbar Snackbar { get; set; } = default!;
+    [Inject] private IConfiguration Configuration { get; set; } = default!;
 
     [Parameter] public string? Mode { get; set; }
 
@@ -131,11 +133,23 @@ public partial class ActivityList
     }
 
     /// <summary>
-    /// Navigates to the activity detail page.
+    /// Navigates to the activity detail page or legacy candidate list based on configuration.
     /// </summary>
     private void NavigateToDetail(int activityId)
     {
-        Navigation.NavigateTo($"/activities/{activityId}");
+        var useLegacyUrls = Configuration.GetValue<bool>("ERActivityListUseLegacyUrls");
+
+        if (useLegacyUrls)
+        {
+            // Navigate to legacy CandidateList.aspx when ERActivityListUseLegacyUrls is enabled
+            // forceLoad: true triggers a full page load so YARP can proxy to legacy app
+            Navigation.NavigateTo($"/Responsive/Recruiting/CandidateList.aspx?ErId={activityId}", forceLoad: true);
+        }
+        else
+        {
+            // Navigate to Blazor activity detail page (SPA navigation)
+            Navigation.NavigateTo($"/activities/{activityId}");
+        }
     }
 
     /// <summary>
