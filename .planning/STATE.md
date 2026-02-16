@@ -5,7 +5,7 @@
 See: .planning/PROJECT.md (updated 2026-02-13)
 
 **Core value:** The activity list view must work perfectly. Users must be able to see and navigate their recruitment activities with correct status.
-**Current focus:** Phase 3.1 in progress -- Route-aware navigation and activity list modes
+**Current focus:** Phase 3.1 complete, ready for Phase 4: Core Write Operations
 
 ## Current Position
 

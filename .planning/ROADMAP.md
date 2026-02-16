@@ -15,7 +15,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: Infrastructure Shell** - YARP proxy, session/auth sharing, project structure, EF Core, and test scaffolding
 - [x] **Phase 2: Multi-Tenancy & Security Foundation** - Tenant isolation, role/permission enforcement, and cross-tenant verification
 - [x] **Phase 3: Core Read Views** - Activity list, activity detail, application viewing, and hiring team display
-- [ ] **Phase 3.1: Route-Aware Navigation & Activity List Modes** - INSERTED - Context-aware nav rows and Draft/Ongoing/Closed activity list filtering
+- [x] **Phase 3.1: Route-Aware Navigation & Activity List Modes** - INSERTED - Context-aware nav rows and Draft/Ongoing/Closed activity list filtering
 - [ ] **Phase 4: Core Write Operations** - Activity CRUD with validation, concurrency, audit logging, and auto-save
 - [ ] **Phase 5: Localization & UX Polish** - GetText localization, error handling, loading states, and circuit resilience
 - [ ] **Phase 6: Testing, Deployment & Monitoring** - E2E tests, performance verification, deployment procedures, and production monitoring
@@ -88,8 +88,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 03.1-01-PLAN.md -- INavigationConfigService, route-aware NavMenu code-behind, dynamic Row 1/2/3 tab configuration
-- [ ] 03.1-02-PLAN.md -- Activity list Mode route parameter, status filtering in ActivityService, headline with count badge
+- [x] 03.1-01-PLAN.md -- INavigationConfigService, route-aware NavMenu code-behind, dynamic Row 1/2/3 tab configuration
+- [x] 03.1-02-PLAN.md -- Activity list Mode route parameter, status filtering in ActivityService, headline with count badge
 
 ### Phase 4: Core Write Operations
 **Goal**: Users can create, edit, and delete recruitment activities with full validation, concurrency handling, and audit trails -- completing the core CRUD workflow
@@ -153,7 +153,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 3.1 -> 4 -> 5 -> 6
 | 1. Infrastructure Shell | 4/4 | Complete | 2026-02-13 |
 | 2. Multi-Tenancy & Security Foundation | 2/2 | Complete | 2026-02-15 |
 | 3. Core Read Views | 6/6 | Complete | 2026-02-15 |
-| 3.1 Route-Aware Nav & Activity Modes | 0/2 | Not started | - |
+| 3.1 Route-Aware Nav & Activity Modes | 2/2 | Complete | 2026-02-16 |
 | 4. Core Write Operations | 0/4 | Planned | - |
 | 5. Localization & UX Polish | 0/3 | Planned | - |
 | 6. Testing, Deployment & Monitoring | 0/3 | Not started | - |
