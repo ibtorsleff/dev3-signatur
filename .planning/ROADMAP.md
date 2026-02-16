@@ -17,7 +17,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 3: Core Read Views** - Activity list, activity detail, application viewing, and hiring team display
 - [x] **Phase 3.1: Route-Aware Navigation & Activity List Modes** - INSERTED - Context-aware nav rows and Draft/Ongoing/Closed activity list filtering
 - [x] **Phase 3.2: Activity List Layout Matching** - INSERTED - Research legacy layout and replicate in Blazor, hide filters behind toggle
-- [ ] **Phase 3.3: Activity List Conditional Columns** - INSERTED - Research and fix column visibility per mode/role/permission to match legacy
+- [x] **Phase 3.3: Activity List Conditional Columns** - INSERTED - Research and fix column visibility per mode/role/permission to match legacy
 - [ ] **Phase 4: Core Write Operations** - Activity CRUD with validation, concurrency, audit logging, and auto-save
 - [ ] **Phase 5: Localization & UX Polish** - GetText localization, error handling, loading states, and circuit resilience
 - [ ] **Phase 6: Testing, Deployment & Monitoring** - E2E tests, performance verification, deployment procedures, and production monitoring
@@ -105,8 +105,8 @@ Plans:
 **Plans:** 2 plans
 
 Plans:
-- [ ] 03.3-01-PLAN.md -- Scaffold ClientSection/ErTemplateGroup entities, expand ActivityListDto with resolved names, update service query JOINs
-- [ ] 03.3-02-PLAN.md -- Mode-aware column visibility in ActivityList grid (remove wrong columns, add correct columns, Headline with count)
+- [x] 03.3-01-PLAN.md -- Scaffold ClientSection/ErTemplateGroup entities, expand ActivityListDto with resolved names, update service query JOINs
+- [x] 03.3-02-PLAN.md -- Mode-aware column visibility in ActivityList grid (remove wrong columns, add correct columns, Headline with count)
 
 ### Phase 3.1: Route-Aware Navigation & Activity List Modes (INSERTED)
 **Goal**: The top navigation adapts to the current page context, and the activity list supports the 3 status modes (Draft, Ongoing, Closed) with matching sub-navigation -- replicating the legacy navigation behavior exactly
@@ -188,11 +188,11 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 3.1 -> 3.2 -> 3.3 -> 4 -> 5 -> 6
 | 3. Core Read Views | 6/6 | Complete | 2026-02-15 |
 | 3.1 Route-Aware Nav & Activity Modes | 2/2 | Complete | 2026-02-16 |
 | 3.2 Activity List Layout Matching | 1/1 | Complete | 2026-02-16 |
-| 3.3 Activity List Conditional Columns | 0/2 | Planned | - |
+| 3.3 Activity List Conditional Columns | 2/2 | Complete | 2026-02-16 |
 | 4. Core Write Operations | 0/4 | Planned | - |
 | 5. Localization & UX Polish | 0/3 | Planned | - |
 | 6. Testing, Deployment & Monitoring | 0/3 | Not started | - |
 
 ---
 *Roadmap created: 2026-02-13*
-*Last updated: 2026-02-16 (Phase 3.3 planned — 2 plans in 2 waves)*
+*Last updated: 2026-02-16 (Phase 3.3 complete)*
