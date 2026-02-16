@@ -99,6 +99,22 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.UseAntiforgery();
 
+// Legacy URL redirects to Blazor routes
+app.MapGet("/Responsive/Recruiting/ActivityList.aspx", (HttpContext context) =>
+{
+    // Parse Mode query parameter (1=Ongoing, 2=Closed, 3=Draft)
+    var modeParam = context.Request.Query["Mode"].ToString();
+    var blazorRoute = modeParam switch
+    {
+        "2" => "/activities/closed",
+        "3" => "/activities/draft",
+        "1" or "" => "/activities/ongoing",
+        _ => "/activities/ongoing" // Default to ongoing
+    };
+
+    return Results.Redirect(blazorRoute, permanent: false);
+});
+
 // Blazor components (higher precedence - matched first)
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode()
