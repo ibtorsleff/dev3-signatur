@@ -16,6 +16,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 2: Multi-Tenancy & Security Foundation** - Tenant isolation, role/permission enforcement, and cross-tenant verification
 - [x] **Phase 3: Core Read Views** - Activity list, activity detail, application viewing, and hiring team display
 - [x] **Phase 3.1: Route-Aware Navigation & Activity List Modes** - INSERTED - Context-aware nav rows and Draft/Ongoing/Closed activity list filtering
+- [ ] **Phase 3.2: Activity List Layout Matching** - INSERTED - Research legacy layout and replicate in Blazor, hide filters behind toggle
 - [ ] **Phase 4: Core Write Operations** - Activity CRUD with validation, concurrency, audit logging, and auto-save
 - [ ] **Phase 5: Localization & UX Polish** - GetText localization, error handling, loading states, and circuit resilience
 - [ ] **Phase 6: Testing, Deployment & Monitoring** - E2E tests, performance verification, deployment procedures, and production monitoring
@@ -74,6 +75,18 @@ Plans:
 - [x] 03-04-PLAN.md -- Candidate List, Candidate Detail, and file download functionality
 - [x] 03-05-PLAN.md -- Gap closure: Fix nullable session context types for tenant query filter bypass
 - [x] 03-06-PLAN.md -- Gap closure: Add error handling to all Blazor page lifecycle methods
+
+### Phase 03.2: Activity List Layout Matching (INSERTED)
+
+**Goal**: The Blazor activity list visually matches the legacy WebForms activity list layout -- same columns, spacing, visual hierarchy, and row styling. MudDataGrid column filters are hidden by default behind a toggleable UI control, since the legacy layout has no visible filters.
+**Depends on**: Phase 3.1
+**Requirements**: ELIST-01, ELIST-03, ELIST-04 (layout/visual aspects not yet delivered)
+**Success Criteria** (what must be TRUE):
+  1. The Blazor activity list columns, widths, and visual hierarchy match the legacy WebForms activity list
+  2. MudDataGrid column filters are hidden by default and can be toggled visible via a UI control
+  3. Row styling (hover, selection, density) matches the legacy look and feel
+  4. The activity list is usable and visually polished without needing the filter controls visible
+**Plans**: TBD (run /gsd:plan-phase 3.2 to break down)
 
 ### Phase 3.1: Route-Aware Navigation & Activity List Modes (INSERTED)
 **Goal**: The top navigation adapts to the current page context, and the activity list supports the 3 status modes (Draft, Ongoing, Closed) with matching sub-navigation -- replicating the legacy navigation behavior exactly
@@ -146,7 +159,7 @@ Plans:
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 -> 2 -> 3 -> 3.1 -> 4 -> 5 -> 6
+Phases execute in numeric order: 1 -> 2 -> 3 -> 3.1 -> 3.2 -> 4 -> 5 -> 6
 
 | Phase | Plans Complete | Status | Completed |
 |-------|---------------|--------|-----------|
@@ -154,6 +167,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 3.1 -> 4 -> 5 -> 6
 | 2. Multi-Tenancy & Security Foundation | 2/2 | Complete | 2026-02-15 |
 | 3. Core Read Views | 6/6 | Complete | 2026-02-15 |
 | 3.1 Route-Aware Nav & Activity Modes | 2/2 | Complete | 2026-02-16 |
+| 3.2 Activity List Layout Matching | 0/? | Not started | - |
 | 4. Core Write Operations | 0/4 | Planned | - |
 | 5. Localization & UX Polish | 0/3 | Planned | - |
 | 6. Testing, Deployment & Monitoring | 0/3 | Not started | - |

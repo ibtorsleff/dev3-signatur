@@ -105,6 +105,10 @@ Recent decisions affecting current work:
 
 None yet.
 
+### Roadmap Evolution
+
+- Phase 3.2 inserted after Phase 3: Activity List Layout Matching (URGENT) — research legacy activity list layout and replicate in Blazor MudDataGrid, hide filter options behind toggle
+
 ### Blockers/Concerns
 
 - [Research]: MediatR licensing eligibility needs verification before Phase 1 -- consider Wolverine as alternative if ineligible
