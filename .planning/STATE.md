@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-13)
 
 **Core value:** The activity list view must work perfectly. Users must be able to see and navigate their recruitment activities with correct status.
-**Current focus:** Phase 3.1 complete, ready for Phase 4: Core Write Operations
+**Current focus:** Phase 3.2 complete, ready for Phase 4: Core Write Operations
 
 ## Current Position
 
-Phase: 3.1 of 6 (Route-Aware Nav & Activity Modes) -- COMPLETE
-Plan: 2 of 2 in current phase
-Status: Phase 3.1 complete
-Last activity: 2026-02-16 -- Plan 03.1-02 complete (activity list status mode filtering)
+Phase: 3.2 of 8 (Activity List Layout Matching) -- COMPLETE
+Plan: 1 of 1 in current phase
+Status: Phase 3.2 complete
+Last activity: 2026-02-16 -- Plan 03.2-01 complete (portal theme CSS + activity list grid styling)
 
-Progress: [######....] 65%
+Progress: [#######...] 65%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 12
+- Total plans completed: 13
 - Average duration: 5 minutes
-- Total execution time: 1.02 hours
+- Total execution time: 1.12 hours
 
 **By Phase:**
 
@@ -30,10 +30,11 @@ Progress: [######....] 65%
 | 01-infrastructure-shell | 4 | 28 min | 7 min |
 | 03-core-read-views | 6 | 30 min | 5 min |
 | 03.1-route-aware-nav-activity-modes | 2 | 5 min | 2.5 min |
+| 03.2-activity-list-layout-matching | 1 | 6 min | 6 min |
 
 **Recent Trend:**
-- Last 5 plans: 03-05 (4 min), 03-06 (4 min), 03.1-01 (2 min), 03.1-02 (3 min)
-- Trend: Accelerating -- Phase 3.1 completed in 5 min total (2 plans)
+- Last 5 plans: 03-06 (4 min), 03.1-01 (2 min), 03.1-02 (3 min), 03.2-01 (6 min)
+- Trend: Steady -- Phase 3.2 completed in 6 min (1 plan with human visual checkpoint)
 
 *Updated after each plan completion*
 
@@ -51,6 +52,7 @@ Progress: [######....] 65%
 | 03-06 | 4 min | 2 | 6 |
 | 03.1-01 | 2 min | 2 | 5 |
 | 03.1-02 | 3 min | 2 | 4 |
+| 03.2-01 | 6 min | 3 | 10 |
 
 ## Accumulated Context
 
@@ -100,6 +102,13 @@ Recent decisions affecting current work:
 - [03.1-02]: OnParametersSet used for mode detection (Blazor reuses component during SPA navigation)
 - [03.1-02]: Default null statusFilter parameter ensures backward compatibility with existing callers
 - [03.1-02]: No route conflict: /activities/{Mode} (string) vs /activities/{ActivityId:int} (constrained)
+- [03.2-01]: CSS custom properties for portal theming — zero hardcoded colors in grid base
+- [03.2-01]: theme-recruitingportal / theme-adportal naming convention
+- [03.2-01]: 7px solid border instead of padding for visible grid frame
+- [03.2-01]: inline-flex on .column-header keeps sort icons next to label text
+- [03.2-01]: Sort icons always visible at 0.4 opacity
+- [03.2-01]: Hover color lighter than header for visual distinction
+- [03.2-01]: Dense mode removed, explicit CSS padding for exact legacy match
 
 ### Pending Todos
 
@@ -118,7 +127,7 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-16
-Stopped at: Completed 03.1-02-PLAN.md (activity list status mode filtering) -- Phase 3.1 COMPLETE
+Stopped at: Completed 03.2-01-PLAN.md (portal theme CSS + activity list grid styling) -- Phase 3.2 COMPLETE
 Resume file: None
 
-**Phase 3.1 Complete**: Both plans delivered. Plan 01 added route-aware navigation config service. Plan 02 added activity list mode filtering with server-side status filtering and Danish headlines. Ready for next phase.
+**Phase 3.2 Complete**: Single plan delivered with human visual checkpoint. Created reusable portal theme CSS system with CSS custom properties, legacy-matching activity list grid styling, filter toggle, and visual polish. Both recruiting teal and ad portal purple themes verified. Ready for Phase 4: Core Write Operations.
