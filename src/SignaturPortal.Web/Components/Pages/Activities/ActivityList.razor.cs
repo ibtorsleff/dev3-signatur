@@ -18,6 +18,7 @@ public partial class ActivityList
     private ERActivityStatus _currentStatus = ERActivityStatus.OnGoing;
     private string _headlineText = "Igangværende sager";
     private int _totalCount;
+    private bool _showFilters;
 
     protected override void OnParametersSet()
     {
@@ -98,6 +99,14 @@ public partial class ActivityList
                 TotalItems = 0
             };
         }
+    }
+
+    /// <summary>
+    /// Toggles column filter row visibility.
+    /// </summary>
+    private void ToggleFilters()
+    {
+        _showFilters = !_showFilters;
     }
 
     /// <summary>

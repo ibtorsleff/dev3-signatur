@@ -61,9 +61,4 @@ h1:focus {
     text-align: start;
 }
 
-/* Activity List Page */
-.activity-list-container {
-    padding: 1rem;
-    max-width: 1400px;
-    margin: 0 auto;
-}
+/* Activity List Page -- grid styling is in css/portal-themes/_grid-base.css */
