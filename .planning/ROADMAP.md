@@ -83,12 +83,13 @@ Plans:
 **Goal:** The full legacy localization/globalization system is available in the Blazor app -- ILocalizationService.GetText returns database-backed translations with cache warming, language fallback, and per-user language resolution, replacing all hardcoded Danish strings
 **Depends on:** Phase 3.4
 **Requirements:** LOC-01, LOC-02, LOC-03, LOC-04
-**Plans:** 3 plans
+**Plans:** 4 plans
 
 Plans:
-- [ ] 03.5-01-PLAN.md -- Localization infrastructure: entity, ILocalizationService, LocalizationService with IMemoryCache, cache warmup hosted service
+- [ ] 03.5-01-PLAN.md -- Localization infrastructure: entity, ILocalizationService, LocalizationService with IMemoryCache, cache warmup hosted service, TUnit tests
 - [ ] 03.5-02-PLAN.md -- Replace hardcoded Danish strings in ActivityList with GetText calls
 - [ ] 03.5-03-PLAN.md -- Refactor NavigationConfigService to return localization keys, resolve in NavMenu
+- [ ] 03.5-04-PLAN.md -- Cache management admin page with reload functionality
 
 ### Phase 03.2: Activity List Layout Matching (INSERTED)
 
@@ -217,7 +218,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 3.1 -> 3.2 -> 3.3 -> 3.4 -> 3.5 
 | 3.2 Activity List Layout Matching | 1/1 | Complete | 2026-02-16 |
 | 3.3 Activity List Conditional Columns | 2/2 | Complete | 2026-02-16 |
 | 3.4 Activity List Row Height & Pagination Styling | 1/1 | Complete | 2026-02-16 |
-| 3.5 Legacy Localization/Globalization in Blazor | 0/3 | Planned | - |
+| 3.5 Legacy Localization/Globalization in Blazor | 0/4 | Planned | - |
 | 4. Core Write Operations | 0/4 | Planned | - |
 | 5. Localization & UX Polish | 0/3 | Planned | - |
 | 6. Testing, Deployment & Monitoring | 0/3 | Not started | - |
