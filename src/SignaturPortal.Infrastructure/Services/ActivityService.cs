@@ -97,31 +97,35 @@ public class ActivityService : IActivityService
         // Apply pagination
         query = query.ApplyPage(request.Page, request.PageSize);
 
-        // Project to DTO with candidate count subquery
-        // NOTE: StatusName cannot be computed in SQL, so we project EractivityStatusId
-        // and compute StatusName after materialization
+        // Project to DTO with candidate count subquery and resolved display names
+        // User names resolved via correlated subqueries (translate to SQL scalar subselects)
+        // ClientSection/TemplateGroup names resolved via navigation properties (LEFT JOIN)
         var items = await query
             .Select(a => new ActivityListDto
             {
                 EractivityId = a.EractivityId,
                 Headline = a.Headline,
                 Jobtitle = a.Jobtitle,
-                JournalNo = a.JournalNo,
                 ApplicationDeadline = a.ApplicationDeadline,
+                ContinuousPosting = a.ContinuousPosting,
                 EractivityStatusId = a.EractivityStatusId,
-                StatusName = "", // Will be filled in-memory
                 CreateDate = a.CreateDate,
                 CandidateCount = a.Ercandidates.Count(c => !c.IsDeleted),
-                Responsible = a.Responsible,
-                CreatedBy = a.CreatedBy
+                // Resolve user names via correlated subqueries (equivalent to LEFT JOIN)
+                RecruitingResponsibleName = a.Responsible.HasValue
+                    ? context.Users.Where(u => u.UserId == a.Responsible.Value).Select(u => u.FullName ?? u.UserName ?? "").FirstOrDefault() ?? ""
+                    : "",
+                CreatedByName = a.CreatedBy.HasValue
+                    ? context.Users.Where(u => u.UserId == a.CreatedBy.Value).Select(u => u.FullName ?? u.UserName ?? "").FirstOrDefault() ?? ""
+                    : "",
+                DraftResponsibleName = a.DraftResponsible.HasValue
+                    ? context.Users.Where(u => u.UserId == a.DraftResponsible.Value).Select(u => u.FullName ?? u.UserName ?? "").FirstOrDefault() ?? ""
+                    : "",
+                // Resolve lookup names via navigation properties (LEFT JOIN)
+                ClientSectionName = a.ClientSection != null ? a.ClientSection.Name : "",
+                TemplateGroupName = a.ErTemplateGroup != null ? a.ErTemplateGroup.Name : ""
             })
             .ToListAsync(ct);
-
-        // Compute StatusName in-memory using StatusMappings
-        for (var i = 0; i < items.Count; i++)
-        {
-            items[i] = items[i] with { StatusName = StatusMappings.GetActivityStatusName(items[i].EractivityStatusId) };
-        }
 
         return new GridResponse<ActivityListDto>
         {
