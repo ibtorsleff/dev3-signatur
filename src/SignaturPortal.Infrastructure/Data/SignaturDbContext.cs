@@ -46,6 +46,8 @@ public partial class SignaturDbContext : DbContext
 
     public virtual DbSet<WebAdVisitor> WebAdVisitors { get; set; }
 
+    public virtual DbSet<Localization> Localizations { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.UseCollation("Latin1_General_CI_AS");
@@ -459,6 +461,34 @@ public partial class SignaturDbContext : DbContext
             entity.HasKey(e => e.WebAdId);
 
             entity.Property(e => e.Visitors);
+        });
+
+        modelBuilder.Entity<Localization>(entity =>
+        {
+            entity.ToTable("Localization");
+
+            // Composite PK: (Key, LanguageId, SiteId) -- Id is identity but not the PK
+            entity.HasKey(e => new { e.Key, e.LanguageId, e.SiteId });
+
+            entity.Property(e => e.Id)
+                .ValueGeneratedOnAdd();
+
+            entity.Property(e => e.Area)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+
+            entity.Property(e => e.Key)
+                .HasMaxLength(128)
+                .IsUnicode(false);
+
+            entity.Property(e => e.Value)
+                .HasColumnType("nvarchar(max)");
+
+            entity.Property(e => e.CreateDate)
+                .HasColumnType("datetime");
+
+            entity.Property(e => e.ModifiedDate)
+                .HasColumnType("datetime");
         });
 
         OnModelCreatingPartial(modelBuilder);
