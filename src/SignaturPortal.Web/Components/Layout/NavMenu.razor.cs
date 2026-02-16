@@ -16,6 +16,9 @@ public partial class NavMenu : IDisposable
     [Inject]
     private IUserSessionContext Session { get; set; } = default!;
 
+    [Inject]
+    private ILocalizationService L { get; set; } = default!;
+
     private NavMenuConfig _config = new();
 
     protected override void OnInitialized()
@@ -35,6 +38,29 @@ public partial class NavMenu : IDisposable
         var uri = new Uri(Navigation.Uri);
         var path = uri.AbsolutePath;
         _config = NavConfigService.GetConfigForRoute(path);
+    }
+
+    private string ResolveLabel(NavMenuItem item)
+    {
+        if (!string.IsNullOrEmpty(item.LabelKey))
+        {
+            var text = L.GetText(item.LabelKey);
+            // If GetText returns the key wrapped in brackets (not found), fall back to Label
+            if (!text.StartsWith('['))
+                return text;
+        }
+        return item.Label;
+    }
+
+    private string ResolvePortalName()
+    {
+        if (!string.IsNullOrEmpty(_config.PortalNameKey))
+        {
+            var text = L.GetText(_config.PortalNameKey);
+            if (!text.StartsWith('['))
+                return text;
+        }
+        return _config.PortalName;
     }
 
     public void Dispose()

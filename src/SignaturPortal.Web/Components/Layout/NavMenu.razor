@@ -3,7 +3,7 @@
     <div class="row-1">
         <div class="top-logo">
             <a href="@_config.PortalUrl">
-                <div>@_config.PortalName</div>
+                <div>@ResolvePortalName()</div>
             </a>
         </div>
         <ul class="menu-items menu-items-left">
@@ -11,7 +11,7 @@
             {
                 <li class="@(item.IsSelected ? "selected" : "")">
                     <a href="@item.Url">
-                        <div class="icon @item.IconClass">@item.Label</div>
+                        <div class="icon @item.IconClass">@ResolveLabel(item)</div>
                     </a>
                 </li>
             }
@@ -21,7 +21,7 @@
             {
                 <li>
                     <a href="@item.Url">
-                        <div class="icon @item.IconClass">@item.Label</div>
+                        <div class="icon @item.IconClass">@ResolveLabel(item)</div>
                     </a>
                 </li>
             }
@@ -35,7 +35,7 @@
             {
                 <li class="@(item.IsSelected ? "selected" : "")">
                     <a href="@item.Url">
-                        <div>@item.Label</div>
+                        <div>@ResolveLabel(item)</div>
                     </a>
                 </li>
             }
@@ -56,7 +56,7 @@
                 {
                     <li class="@(item.IsSelected ? "selected" : "")">
                         <a href="@item.Url">
-                            <div>@item.Label</div>
+                            <div>@ResolveLabel(item)</div>
                         </a>
                     </li>
                 }
