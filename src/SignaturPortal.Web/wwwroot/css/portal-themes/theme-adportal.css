@@ -6,7 +6,7 @@
     --portal-grid-header-bg: #f0edf2;
     --portal-grid-cell-bg: #fff;
     --portal-grid-cell-border: #f0edf2;
-    --portal-grid-hover-bg: #f0edf2;
+    --portal-grid-hover-bg: #f7f5f9;
     --portal-grid-selected-bg: #f8f6fa;
     --portal-grid-hover-cursor: pointer;
     --portal-grid-header-font-size: 14px;
@@ -18,7 +18,7 @@
     --portal-grid-headline-bg: #f0edf2;
     --portal-grid-headline-color: #000;
     --portal-grid-headline-font-size: 15px;
-    --portal-grid-headline-padding: 11px 20px;
+    --portal-grid-headline-padding: 11px 13px;
     --portal-grid-headline-border-radius: 4px;
     --portal-primary: #421a56;
     --portal-primary-dark: #2c0740;

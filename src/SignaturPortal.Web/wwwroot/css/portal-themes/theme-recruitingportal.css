@@ -1,12 +1,12 @@
 /* Recruiting portal theme -- teal color scheme matching legacy default.css */
 /* Values derived from legacy .list-desktop, .table-hover, .content-headline styles */
 
-.theme-recruiting {
+.theme-recruitingportal {
     --portal-grid-bg: #e6f6f6;
     --portal-grid-header-bg: #e6f6f6;
     --portal-grid-cell-bg: #fff;
     --portal-grid-cell-border: #e6f6f6;
-    --portal-grid-hover-bg: #e6f6f6;
+    --portal-grid-hover-bg: #f2fbfa;
     --portal-grid-selected-bg: #f6fbfb;
     --portal-grid-hover-cursor: pointer;
     --portal-grid-header-font-size: 14px;
@@ -18,7 +18,7 @@
     --portal-grid-headline-bg: #e6f6f6;
     --portal-grid-headline-color: #000;
     --portal-grid-headline-font-size: 15px;
-    --portal-grid-headline-padding: 11px 20px;
+    --portal-grid-headline-padding: 11px 13px;
     --portal-grid-headline-border-radius: 4px;
     --portal-primary: #1a9b89;
     --portal-primary-dark: #178a79;

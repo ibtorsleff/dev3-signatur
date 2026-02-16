@@ -16,5 +16,5 @@ public class NavMenuConfig
     public List<NavMenuItem> Row1RightItems { get; set; } = [];
     public List<NavMenuItem> Row2Items { get; set; } = [];
     public List<NavMenuItem> Row3Items { get; set; } = [];
-    public string ThemeCssClass { get; set; } = "theme-recruiting";
+    public string ThemeCssClass { get; set; } = "theme-recruitingportal";
 }
