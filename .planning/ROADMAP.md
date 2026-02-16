@@ -12,9 +12,10 @@ This roadmap delivers the incremental migration of the E-recruitment portal from
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Infrastructure Shell** - YARP proxy, session/auth sharing, project structure, EF Core, and test scaffolding
-- [ ] **Phase 2: Multi-Tenancy & Security Foundation** - Tenant isolation, role/permission enforcement, and cross-tenant verification
+- [x] **Phase 1: Infrastructure Shell** - YARP proxy, session/auth sharing, project structure, EF Core, and test scaffolding
+- [x] **Phase 2: Multi-Tenancy & Security Foundation** - Tenant isolation, role/permission enforcement, and cross-tenant verification
 - [x] **Phase 3: Core Read Views** - Activity list, activity detail, application viewing, and hiring team display
+- [ ] **Phase 3.1: Route-Aware Navigation & Activity List Modes** - INSERTED - Context-aware nav rows and Draft/Ongoing/Closed activity list filtering
 - [ ] **Phase 4: Core Write Operations** - Activity CRUD with validation, concurrency, audit logging, and auto-save
 - [ ] **Phase 5: Localization & UX Polish** - GetText localization, error handling, loading states, and circuit resilience
 - [ ] **Phase 6: Testing, Deployment & Monitoring** - E2E tests, performance verification, deployment procedures, and production monitoring
@@ -48,11 +49,11 @@ Plans:
   2. A SaveChanges call that attempts to write an entity with a mismatched ClientId is rejected before hitting the database
   3. A user without the required role or permission is denied access to protected E-recruitment pages and sees an appropriate message
   4. Cross-tenant integration tests pass, proving that tenant isolation holds under concurrent access from different tenants
-**Plans**: TBD
+**Plans**: 2 plans (implemented alongside Phase 3)
 
 Plans:
-- [ ] 02-01: TBD
-- [ ] 02-02: TBD
+- [x] 02-01 -- Global query filters, TenantSaveChangesInterceptor, UnitOfWork tenant stamping
+- [x] 02-02 -- PermissionService, PermissionHandler, authorization policies, cross-tenant integration tests
 
 ### Phase 3: Core Read Views
 **Goal**: Users can see and navigate their recruitment activities, view application details, and review hiring teams -- the core read-only value of the E-recruitment portal
@@ -73,6 +74,22 @@ Plans:
 - [x] 03-04-PLAN.md -- Candidate List, Candidate Detail, and file download functionality
 - [x] 03-05-PLAN.md -- Gap closure: Fix nullable session context types for tenant query filter bypass
 - [x] 03-06-PLAN.md -- Gap closure: Add error handling to all Blazor page lifecycle methods
+
+### Phase 3.1: Route-Aware Navigation & Activity List Modes (INSERTED)
+**Goal**: The top navigation adapts to the current page context, and the activity list supports the 3 status modes (Draft, Ongoing, Closed) with matching sub-navigation -- replicating the legacy navigation behavior exactly
+**Depends on**: Phase 3
+**Requirements**: ELIST-01, ELIST-02 (navigation aspects not yet delivered)
+**Success Criteria** (what must be TRUE):
+  1. Row 2 and Row 3 navigation content changes based on the current route (e.g., activity pages show activity-related tabs, statistics pages show statistics tabs)
+  2. Activity list has 3 distinct modes -- Draft, Ongoing, Closed -- each accessible via sub-navigation tabs, matching the legacy app's behavior
+  3. Each mode filters the activity list to show only activities with the corresponding status
+  4. The currently active mode is visually highlighted in the navigation
+  5. Navigation structure and labels match the original legacy WebForms implementation
+**Plans**: 2 plans
+
+Plans:
+- [ ] 03.1-01-PLAN.md -- INavigationConfigService, route-aware NavMenu code-behind, dynamic Row 1/2/3 tab configuration
+- [ ] 03.1-02-PLAN.md -- Activity list Mode route parameter, status filtering in ActivityService, headline with count badge
 
 ### Phase 4: Core Write Operations
 **Goal**: Users can create, edit, and delete recruitment activities with full validation, concurrency handling, and audit trails -- completing the core CRUD workflow
@@ -129,17 +146,18 @@ Plans:
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
+Phases execute in numeric order: 1 -> 2 -> 3 -> 3.1 -> 4 -> 5 -> 6
 
 | Phase | Plans Complete | Status | Completed |
 |-------|---------------|--------|-----------|
 | 1. Infrastructure Shell | 4/4 | Complete | 2026-02-13 |
-| 2. Multi-Tenancy & Security Foundation | 0/2 | Not started | - |
+| 2. Multi-Tenancy & Security Foundation | 2/2 | Complete | 2026-02-15 |
 | 3. Core Read Views | 6/6 | Complete | 2026-02-15 |
+| 3.1 Route-Aware Nav & Activity Modes | 0/2 | Not started | - |
 | 4. Core Write Operations | 0/4 | Planned | - |
 | 5. Localization & UX Polish | 0/3 | Planned | - |
 | 6. Testing, Deployment & Monitoring | 0/3 | Not started | - |
 
 ---
 *Roadmap created: 2026-02-13*
-*Last updated: 2026-02-15*
+*Last updated: 2026-02-16*
