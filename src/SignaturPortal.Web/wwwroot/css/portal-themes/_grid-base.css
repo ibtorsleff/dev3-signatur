@@ -40,6 +40,11 @@
     font-weight: bold;
 }
 
+/* === Body rows === */
+.portal-data-grid .mud-table-body .mud-table-row {
+    height: var(--portal-grid-row-height, auto);
+}
+
 /* === Body cells === */
 .portal-data-grid .mud-table-body .mud-table-cell {
     background-color: var(--portal-grid-cell-bg);
@@ -47,6 +52,9 @@
     font-size: var(--portal-grid-cell-font-size);
     border: 1px solid var(--portal-grid-cell-border);
     vertical-align: middle;
+    line-height: var(--portal-grid-cell-line-height, normal);
+    height: var(--portal-grid-row-height, auto);
+    overflow: hidden;
 }
 
 /* === Hover state === */
@@ -64,6 +72,12 @@
 .portal-data-grid .mud-table-pagination {
     font-size: 14px;
     font-family: var(--portal-grid-font-family);
+    background-color: var(--portal-grid-header-bg);
+}
+
+.portal-data-grid .mud-table-pagination .mud-table-pagination-toolbar {
+    background-color: var(--portal-grid-header-bg);
+    border-top: 1px solid var(--portal-grid-cell-border);
 }
 
 /* === Header content: keep sort icon next to label text === */
