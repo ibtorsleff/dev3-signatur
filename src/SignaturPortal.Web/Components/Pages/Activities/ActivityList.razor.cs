@@ -16,7 +16,7 @@ public partial class ActivityList
 
     private MudDataGrid<ActivityListDto> _dataGrid = default!;
     private ERActivityStatus _currentStatus = ERActivityStatus.OnGoing;
-    private string _headlineText = "Igangvaerende sager";
+    private string _headlineText = "Igangværende sager";
     private int _totalCount;
 
     protected override void OnParametersSet()
@@ -32,7 +32,7 @@ public partial class ActivityList
         {
             ERActivityStatus.Draft => "Kladdesager",
             ERActivityStatus.Closed => "Afsluttede sager",
-            _ => "Igangvaerende sager"
+            _ => "Igangværende sager"
         };
 
         if (newStatus != _currentStatus)

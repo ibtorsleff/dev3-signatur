@@ -78,7 +78,7 @@ public class NavigationConfigService : INavigationConfigService
         return
         [
             new() { Label = "Kladdesager", Url = "/activities/draft", IsSelected = isDraft },
-            new() { Label = "Ig\u00e5ngv\u00e6rende sager", Url = "/activities", IsSelected = isOngoing },
+            new() { Label = "Igangv\u00e6rende sager", Url = "/activities", IsSelected = isOngoing },
             new() { Label = "Afsluttede sager", Url = "/activities/closed", IsSelected = isClosed },
         ];
     }
