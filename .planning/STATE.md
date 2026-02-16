@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-13)
 
 **Core value:** The activity list view must work perfectly. Users must be able to see and navigate their recruitment activities with correct status.
-**Current focus:** Phase 3.5 IN PROGRESS -- Localization Infrastructure
+**Current focus:** Phase 3.5 COMPLETE -- Localization Infrastructure
 
 ## Current Position
 
-Phase: 3.5 of 8 (Localization/Globalization) -- IN PROGRESS
-Plan: 3 of 4 in current phase -- COMPLETE
-Status: Plan 03.5-03 complete, continuing with 03.5-04
-Last activity: 2026-02-17 -- Plan 03.5-03 complete (navigation label localization)
+Phase: 3.5 of 8 (Localization/Globalization) -- COMPLETE
+Plan: 4 of 4 in current phase -- COMPLETE
+Status: Phase 03.5 complete (all 4 plans done)
+Last activity: 2026-02-17 -- Plan 03.5-04 complete (admin cache status page)
 
 Progress: [########..] 78%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 19
+- Total plans completed: 20
 - Average duration: 5 minutes
-- Total execution time: 1.72 hours
+- Total execution time: 1.75 hours
 
 **By Phase:**
 
@@ -33,11 +33,11 @@ Progress: [########..] 78%
 | 03.2-activity-list-layout-matching | 1 | 6 min | 6 min |
 | 03.3-activity-list-conditional-columns | 2 | 11 min | 5.5 min |
 | 03.4-activity-list-row-height-pagination-styling | 1 | 2 min | 2 min |
-| 03.5-localization (in progress) | 3 | 12 min | 4 min |
+| 03.5-localization | 4 | 14 min | 3.5 min |
 
 **Recent Trend:**
-- Last 5 plans: 03.4-01 (2 min), 03.5-01 (8 min), 03.5-02 (2 min), 03.5-03 (2 min)
-- Trend: Navigation localization completed in 2 min
+- Last 5 plans: 03.5-01 (8 min), 03.5-02 (2 min), 03.5-03 (2 min), 03.5-04 (2 min)
+- Trend: Cache admin page completed in 2 min
 
 *Updated after each plan completion*
 
@@ -62,6 +62,7 @@ Progress: [########..] 78%
 | 03.5-01 | 8 min | 3 | 8 |
 | 03.5-02 | 2 min | 1 | 2 |
 | 03.5-03 | 2 min | 2 | 4 |
+| 03.5-04 | 2 min | 2 | 4 |
 
 ## Accumulated Context
 
@@ -139,6 +140,8 @@ Recent decisions affecting current work:
 - [Phase 03.5-03]: LabelKey as optional nullable property on NavMenuItem for localization key mapping
 - [Phase 03.5-03]: Singleton-returns-keys/scoped-resolves-text pattern for DI lifetime mismatch between NavigationConfigService and ILocalizationService
 - [Phase 03.5-03]: Bracket-notation fallback check (StartsWith '[') to detect unresolved keys
+- [Phase 03.5-04]: Singleton + hosted service pattern (AddSingleton + AddHostedService factory) for injectable IHostedService
+- [Phase 03.5-04]: Admin page pattern at /admin/* with [Authorize] and MudBlazor layout
 
 ### Pending Todos
 
@@ -160,7 +163,7 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-17
-Stopped at: Completed 03.5-03-PLAN.md (navigation label localization)
+Stopped at: Completed 03.5-04-PLAN.md (admin cache status page) -- Phase 03.5 complete
 Resume file: None
 
-**Plan 03.5-03 Complete**: NavigationConfigService returns LabelKey identifiers resolved by NavMenu via ILocalizationService.GetText with Label fallback. Ready for 03.5-04.
+**Phase 03.5 Complete**: Full localization infrastructure -- ILocalizationService with IMemoryCache-backed GetText, startup cache warmup, ActivityList and NavMenu localization, admin cache management page at /admin/cache-status.
