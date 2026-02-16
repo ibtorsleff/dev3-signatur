@@ -11,9 +11,9 @@
     --portal-grid-hover-cursor: pointer;
     --portal-grid-header-font-size: 14px;
     --portal-grid-cell-font-size: 14px;
-    --portal-grid-cell-padding: 1px 13px;
-    --portal-grid-row-height: 19px;
-    --portal-grid-cell-line-height: 17px;
+    --portal-grid-cell-padding: 11px 13px;
+    --portal-grid-row-height: 41px;
+    --portal-grid-cell-line-height: 19px;
     --portal-grid-header-padding: 11px 13px;
     --portal-grid-font-family: Tahoma, "Times New Roman", Arial, sans-serif;
     --portal-grid-text-color: #000;

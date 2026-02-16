@@ -16,7 +16,8 @@
     color: var(--portal-grid-headline-color);
     font-size: var(--portal-grid-headline-font-size);
     font-weight: bold;
-    min-height: 44px;
+    height: 60px;
+    min-height: 60px;
     padding: var(--portal-grid-headline-padding);
     border-top-left-radius: var(--portal-grid-headline-border-radius);
     border-top-right-radius: var(--portal-grid-headline-border-radius);
@@ -54,7 +55,10 @@
     vertical-align: middle;
     line-height: var(--portal-grid-cell-line-height, normal);
     height: var(--portal-grid-row-height, auto);
+    max-height: var(--portal-grid-row-height, none);
     overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
 
 /* === Hover state === */
@@ -113,5 +117,6 @@
 /* === Table fills container width — no trailing whitespace === */
 .portal-data-grid .mud-table-container table {
     width: 100%;
+    table-layout: fixed;
 }
 
