@@ -118,5 +118,6 @@
 .portal-data-grid .mud-table-container table {
     width: 100%;
     table-layout: fixed;
+    background-color: var(--portal-grid-header-bg);
 }
 
