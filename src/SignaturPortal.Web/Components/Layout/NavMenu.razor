@@ -1,6 +1,3 @@
-@using SignaturPortal.Application.Interfaces
-@inject IUserSessionContext Session
-
 <nav class="top-menu">
     @* Row 1: Primary navigation with icons *@
     <div class="row-1">
@@ -67,36 +64,3 @@
         </div>
     }
 </nav>
-
-@code {
-    private readonly NavMenuConfig _config = new()
-    {
-        PortalName = "Rekruttering",
-        PortalUrl = "/",
-        Row1Items =
-        [
-            new() { Label = "Sagsliste", Url = "/activities", IconClass = "icon-activity-list", IsSelected = true },
-            new() { Label = "S\u00f8g", Url = "/Responsive/Recruiting/Search.aspx", IconClass = "icon-search" },
-            new() { Label = "Jobbank", Url = "/Responsive/Recruiting/JobBank.aspx", IconClass = "icon-jobbank" },
-            new() { Label = "Hj\u00e6lp", Url = "/Responsive/Recruiting/Help.aspx", IconClass = "icon-help" },
-            new() { Label = "Admin", Url = "/Responsive/Recruiting/Admin.aspx", IconClass = "icon-admin" },
-            new() { Label = "Statistik", Url = "/Responsive/Recruiting/StatisticsQuestionnaire.aspx", IconClass = "icon-statistics" },
-        ],
-        Row1RightItems =
-        [
-            new() { Label = "Medarbejderportal", Url = "/Responsive/OnBoarding/Default.aspx", IconClass = "icon-employee-portal" },
-            new() { Label = "Annonceportal", Url = "/Responsive/AdPortal/ActivityList.aspx", IconClass = "icon-ad-portal" },
-        ],
-        Row2Items =
-        [
-            new() { Label = "Rekruttering", Url = "/activities" },
-            new() { Label = "Sp\u00f8rgeskema", Url = "/Responsive/Recruiting/StatisticsQuestionnaire.aspx", IsSelected = true },
-            new() { Label = "Medie", Url = "/Responsive/Recruiting/MediaStatistics.aspx" },
-        ],
-        Row3Items =
-        [
-            new() { Label = "Tendenser", Url = "/Responsive/Recruiting/StatisticsQuestionnaire.aspx", IsSelected = true },
-            new() { Label = "Besvarelser", Url = "/Responsive/Recruiting/StatisticsQuestionnaireAnswers.aspx" },
-        ],
-    };
-}
