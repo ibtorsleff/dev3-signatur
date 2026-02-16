@@ -18,6 +18,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 3.1: Route-Aware Navigation & Activity List Modes** - INSERTED - Context-aware nav rows and Draft/Ongoing/Closed activity list filtering
 - [x] **Phase 3.2: Activity List Layout Matching** - INSERTED - Research legacy layout and replicate in Blazor, hide filters behind toggle
 - [x] **Phase 3.3: Activity List Conditional Columns** - INSERTED - Research and fix column visibility per mode/role/permission to match legacy
+- [ ] **Phase 3.4: Activity List Row Height & Pagination Styling** - INSERTED - Reduce row height to 19px, style pagination footer to match grid header
 - [ ] **Phase 4: Core Write Operations** - Activity CRUD with validation, concurrency, audit logging, and auto-save
 - [ ] **Phase 5: Localization & UX Polish** - GetText localization, error handling, loading states, and circuit resilience
 - [ ] **Phase 6: Testing, Deployment & Monitoring** - E2E tests, performance verification, deployment procedures, and production monitoring
@@ -108,6 +109,20 @@ Plans:
 - [x] 03.3-01-PLAN.md -- Scaffold ClientSection/ErTemplateGroup entities, expand ActivityListDto with resolved names, update service query JOINs
 - [x] 03.3-02-PLAN.md -- Mode-aware column visibility in ActivityList grid (remove wrong columns, add correct columns, Headline with count)
 
+### Phase 03.4: Activity List Row Height & Pagination Styling (INSERTED)
+
+**Goal:** The activity list grid rows are reduced to 19px height (from 24px) for a denser, more compact view matching the legacy layout. The pagination footer row is styled with the same background color as the grid header for visual consistency.
+**Depends on:** Phase 3.3
+**Requirements:** ELIST-01, ELIST-03 (visual polish aspects)
+**Success Criteria** (what must be TRUE):
+  1. Activity list data rows are 19px tall instead of the current 24px
+  2. The pagination footer row has the same background color as the grid header
+  3. The grid remains readable and usable at the reduced row height
+**Plans:** 1 plan
+
+Plans:
+- [ ] 03.4-01-PLAN.md -- Compact row height (19px) via CSS custom properties and pagination footer background matching header
+
 ### Phase 3.1: Route-Aware Navigation & Activity List Modes (INSERTED)
 **Goal**: The top navigation adapts to the current page context, and the activity list supports the 3 status modes (Draft, Ongoing, Closed) with matching sub-navigation -- replicating the legacy navigation behavior exactly
 **Depends on**: Phase 3
@@ -179,7 +194,7 @@ Plans:
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 -> 2 -> 3 -> 3.1 -> 3.2 -> 3.3 -> 4 -> 5 -> 6
+Phases execute in numeric order: 1 -> 2 -> 3 -> 3.1 -> 3.2 -> 3.3 -> 3.4 -> 4 -> 5 -> 6
 
 | Phase | Plans Complete | Status | Completed |
 |-------|---------------|--------|-----------|
@@ -189,10 +204,11 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 3.1 -> 3.2 -> 3.3 -> 4 -> 5 -> 6
 | 3.1 Route-Aware Nav & Activity Modes | 2/2 | Complete | 2026-02-16 |
 | 3.2 Activity List Layout Matching | 1/1 | Complete | 2026-02-16 |
 | 3.3 Activity List Conditional Columns | 2/2 | Complete | 2026-02-16 |
+| 3.4 Activity List Row Height & Pagination Styling | 0/1 | Planned | - |
 | 4. Core Write Operations | 0/4 | Planned | - |
 | 5. Localization & UX Polish | 0/3 | Planned | - |
 | 6. Testing, Deployment & Monitoring | 0/3 | Not started | - |
 
 ---
 *Roadmap created: 2026-02-13*
-*Last updated: 2026-02-16 (Phase 3.3 complete)*
+*Last updated: 2026-02-16 (Phase 3.4 planned)*
