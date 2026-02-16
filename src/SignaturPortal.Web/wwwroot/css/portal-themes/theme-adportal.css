@@ -1,0 +1,27 @@
+/* Ad portal theme -- stub for reusability validation. Activate by switching ThemeCssClass. */
+/* Purple color scheme derived from legacy default-ad-portal.css */
+
+.theme-adportal {
+    --portal-grid-bg: #f0edf2;
+    --portal-grid-header-bg: #f0edf2;
+    --portal-grid-cell-bg: #fff;
+    --portal-grid-cell-border: #f0edf2;
+    --portal-grid-hover-bg: #f0edf2;
+    --portal-grid-selected-bg: #f8f6fa;
+    --portal-grid-hover-cursor: pointer;
+    --portal-grid-header-font-size: 14px;
+    --portal-grid-cell-font-size: 14px;
+    --portal-grid-cell-padding: 11px 13px;
+    --portal-grid-header-padding: 11px 13px;
+    --portal-grid-font-family: Tahoma, "Times New Roman", Arial, sans-serif;
+    --portal-grid-text-color: #000;
+    --portal-grid-headline-bg: #f0edf2;
+    --portal-grid-headline-color: #000;
+    --portal-grid-headline-font-size: 15px;
+    --portal-grid-headline-padding: 11px 20px;
+    --portal-grid-headline-border-radius: 4px;
+    --portal-primary: #421a56;
+    --portal-primary-dark: #2c0740;
+    --portal-primary-darkest: #0f001c;
+    --portal-action-hover-bg: #421a56;
+}

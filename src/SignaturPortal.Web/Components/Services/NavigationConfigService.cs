@@ -24,6 +24,7 @@ public class NavigationConfigService : INavigationConfigService
         {
             PortalName = "Rekruttering",
             PortalUrl = "/activities",
+            ThemeCssClass = "theme-recruiting",
             Row1Items = GetRow1Items(area),
             Row1RightItems = GetRow1RightItems(),
             Row2Items = GetRow2Items(path, area),

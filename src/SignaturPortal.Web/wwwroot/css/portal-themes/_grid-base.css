@@ -1,0 +1,64 @@
+/* Shared grid styles for all portal themes.
+   All values reference CSS custom properties defined in theme-*.css files.
+   No hardcoded colors -- portal themes control the palette. */
+
+/* === Root grid container === */
+.portal-data-grid {
+    font-family: var(--portal-grid-font-family);
+    color: var(--portal-grid-text-color);
+    background-color: var(--portal-grid-bg);
+    padding: 0 7px 7px 7px;
+}
+
+/* === Toolbar (legacy content-headline equivalent) === */
+.portal-data-grid .mud-table-toolbar {
+    background-color: var(--portal-grid-headline-bg);
+    color: var(--portal-grid-headline-color);
+    font-size: var(--portal-grid-headline-font-size);
+    font-weight: bold;
+    min-height: 44px;
+    padding: var(--portal-grid-headline-padding);
+    border-top-left-radius: var(--portal-grid-headline-border-radius);
+    border-top-right-radius: var(--portal-grid-headline-border-radius);
+}
+
+/* === Header cells === */
+.portal-data-grid .mud-table-head .mud-table-cell {
+    background-color: var(--portal-grid-header-bg);
+    padding: var(--portal-grid-header-padding);
+    font-size: var(--portal-grid-header-font-size);
+    white-space: nowrap;
+    border: 1px solid var(--portal-grid-cell-border);
+    color: var(--portal-grid-text-color);
+}
+
+/* === Body cells === */
+.portal-data-grid .mud-table-body .mud-table-cell {
+    background-color: var(--portal-grid-cell-bg);
+    padding: var(--portal-grid-cell-padding);
+    font-size: var(--portal-grid-cell-font-size);
+    border: 1px solid var(--portal-grid-cell-border);
+    vertical-align: middle;
+}
+
+/* === Hover state === */
+.portal-data-grid .mud-table-body .mud-table-row:hover .mud-table-cell {
+    background-color: var(--portal-grid-hover-bg);
+    cursor: var(--portal-grid-hover-cursor);
+}
+
+/* === Selected state === */
+.portal-data-grid .mud-table-body .mud-table-row.selected .mud-table-cell {
+    background-color: var(--portal-grid-selected-bg);
+}
+
+/* === Pagination area === */
+.portal-data-grid .mud-table-pagination {
+    font-size: 14px;
+    font-family: var(--portal-grid-font-family);
+}
+
+/* === Remove MudBlazor elevation shadow -- legacy has no shadow === */
+.portal-data-grid.mud-table {
+    box-shadow: none;
+}
