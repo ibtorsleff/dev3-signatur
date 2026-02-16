@@ -13,12 +13,13 @@ public partial class ActivityList
     [Inject] private NavigationManager Navigation { get; set; } = default!;
     [Inject] private ISnackbar Snackbar { get; set; } = default!;
     [Inject] private IConfiguration Configuration { get; set; } = default!;
+    [Inject] private ILocalizationService L { get; set; } = default!;
 
     [Parameter] public string? Mode { get; set; }
 
     private MudDataGrid<ActivityListDto> _dataGrid = default!;
     private ERActivityStatus _currentStatus = ERActivityStatus.OnGoing;
-    private string _headlineText = "Igangværende sager";
+    private string _headlineText = "";
     private int _totalCount;
     private bool _showFilters;
 
@@ -54,9 +55,9 @@ public partial class ActivityList
 
         _headlineText = newStatus switch
         {
-            ERActivityStatus.Draft => "Kladdesager",
-            ERActivityStatus.Closed => "Afsluttede sager",
-            _ => "Igangværende sager"
+            ERActivityStatus.Draft => L.GetText("DraftActivities"),
+            ERActivityStatus.Closed => L.GetText("ClosedActivities"),
+            _ => L.GetText("OngoingActivities")
         };
 
         if (newStatus != _currentStatus)
@@ -115,7 +116,7 @@ public partial class ActivityList
             System.Diagnostics.Debug.WriteLine($"[ERROR] StackTrace: {ex.StackTrace}");
             if (ex.InnerException != null)
                 System.Diagnostics.Debug.WriteLine($"[ERROR] Inner: {ex.InnerException.GetType().Name}: {ex.InnerException.Message}");
-            Snackbar.Add("Error loading activities. Please refresh the page.", Severity.Error);
+            Snackbar.Add(L.GetText("ErrorLoadingActivities"), Severity.Error);
             return new GridData<ActivityListDto>
             {
                 Items = Array.Empty<ActivityListDto>(),
