@@ -9,19 +9,19 @@ See: .planning/PROJECT.md (updated 2026-02-13)
 
 ## Current Position
 
-Phase: 3.1 of 6 (Route-Aware Nav & Activity Modes)
-Plan: 1 of 2 in current phase
-Status: Executing phase 3.1
-Last activity: 2026-02-16 -- Plan 03.1-01 complete (route-aware navigation config service + NavMenu code-behind)
+Phase: 3.1 of 6 (Route-Aware Nav & Activity Modes) -- COMPLETE
+Plan: 2 of 2 in current phase
+Status: Phase 3.1 complete
+Last activity: 2026-02-16 -- Plan 03.1-02 complete (activity list status mode filtering)
 
-Progress: [######....] 60%
+Progress: [######....] 65%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 11
+- Total plans completed: 12
 - Average duration: 5 minutes
-- Total execution time: 0.97 hours
+- Total execution time: 1.02 hours
 
 **By Phase:**
 
@@ -29,11 +29,11 @@ Progress: [######....] 60%
 |-------|-------|-------|----------|
 | 01-infrastructure-shell | 4 | 28 min | 7 min |
 | 03-core-read-views | 6 | 30 min | 5 min |
-| 03.1-route-aware-nav-activity-modes | 1 | 2 min | 2 min |
+| 03.1-route-aware-nav-activity-modes | 2 | 5 min | 2.5 min |
 
 **Recent Trend:**
-- Last 5 plans: 03-04 (5 min), 03-03 (5 min), 03-05 (4 min), 03-06 (4 min), 03.1-01 (2 min)
-- Trend: Accelerating -- Phase 3.1 plan 01 completed in 2 min
+- Last 5 plans: 03-05 (4 min), 03-06 (4 min), 03.1-01 (2 min), 03.1-02 (3 min)
+- Trend: Accelerating -- Phase 3.1 completed in 5 min total (2 plans)
 
 *Updated after each plan completion*
 
@@ -50,6 +50,7 @@ Progress: [######....] 60%
 | 03-05 | 4 min | 2 | 6 |
 | 03-06 | 4 min | 2 | 6 |
 | 03.1-01 | 2 min | 2 | 5 |
+| 03.1-02 | 3 min | 2 | 4 |
 
 ## Accumulated Context
 
@@ -95,6 +96,10 @@ Recent decisions affecting current work:
 - [03.1-01]: Row 2 mode tabs shown unconditionally (permission-based visibility deferred to later phase)
 - [03.1-01]: Detail page /activities/123 maps to Ongoing tab (detail is within ongoing context)
 - [03.1-01]: Service registered in Program.cs since it lives in Web project namespace
+- [03.1-02]: Status filter applied server-side in SQL WHERE clause before count and pagination
+- [03.1-02]: OnParametersSet used for mode detection (Blazor reuses component during SPA navigation)
+- [03.1-02]: Default null statusFilter parameter ensures backward compatibility with existing callers
+- [03.1-02]: No route conflict: /activities/{Mode} (string) vs /activities/{ActivityId:int} (constrained)
 
 ### Pending Todos
 
@@ -109,7 +114,7 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-16
-Stopped at: Completed 03.1-01-PLAN.md (route-aware navigation config service + NavMenu code-behind)
+Stopped at: Completed 03.1-02-PLAN.md (activity list status mode filtering) -- Phase 3.1 COMPLETE
 Resume file: None
 
-**Phase 3.1 Progress**: 1 of 2 plans complete. Plan 01 added INavigationConfigService, NavigationConfigService, NavMenu code-behind with LocationChanged. Ready for Plan 02 (activity list modes with filtered views).
+**Phase 3.1 Complete**: Both plans delivered. Plan 01 added route-aware navigation config service. Plan 02 added activity list mode filtering with server-side status filtering and Danish headlines. Ready for next phase.
