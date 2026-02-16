@@ -28,39 +28,49 @@
         </MudTooltip>
     </ToolBarContent>
     <ColGroup>
-        <col />                         @* Headline - flexible fill *@
-        <col style="width: 110px;" />   @* Journal No *@
-        <col style="width: 130px;" />   @* Deadline *@
-        <col style="width: 110px;" />   @* Status *@
-        <col style="width: 100px;" />   @* Candidates *@
-        <col style="width: 120px;" />   @* Created *@
-        <col style="width: 48px;" />    @* View action *@
+        <col style="width: 70px;" />     @* Id *@
+        <col />                           @* Headline - flexible fill *@
+        <col style="width: 120px;" />    @* Deadline *@
+        <col style="width: 150px;" />    @* Client Section *@
+        <col style="width: 150px;" />    @* Responsible *@
+        <col style="width: 110px;" />    @* Created *@
+        <col style="width: 130px;" />    @* Created By / Draft Responsible *@
+        <col style="width: 140px;" />    @* Template Group *@
     </ColGroup>
     <Columns>
-        <PropertyColumn Property="x => x.Headline" Title="Activity" />
-        <PropertyColumn Property="x => x.JournalNo" Title="Journal No" />
-        <PropertyColumn Property="x => x.ApplicationDeadline" Title="Deadline">
+        <PropertyColumn Property="x => x.EractivityId" Title="Id" />
+        <TemplateColumn T="ActivityListDto" Title="Headline" SortBy="x => x.Headline">
             <CellTemplate>
-                @if (context.Item.ApplicationDeadline.Year >= 9999)
+                @if (_showCandidateCount && context.Item.CandidateCount > 0)
                 {
-                    <MudText>-</MudText>
+                    @($"{context.Item.Headline} ({context.Item.CandidateCount})")
                 }
                 else
                 {
-                    <MudText>@context.Item.ApplicationDeadline.ToString("yyyy-MM-dd")</MudText>
+                    @context.Item.Headline
+                }
+            </CellTemplate>
+        </TemplateColumn>
+        <PropertyColumn Property="x => x.ApplicationDeadline" Title="Deadline">
+            <CellTemplate>
+                @if (context.Item.ContinuousPosting)
+                {
+                    <MudTooltip Text="Continuous Posting">
+                        <MudText>-</MudText>
+                    </MudTooltip>
+                }
+                else
+                {
+                    <MudText>@context.Item.ApplicationDeadline.ToString("dd-MM-yyyy")</MudText>
                 }
             </CellTemplate>
         </PropertyColumn>
-        <PropertyColumn Property="x => x.StatusName" Title="Status" />
-        <PropertyColumn Property="x => x.CandidateCount" Title="Candidates" Filterable="false" />
-        <PropertyColumn Property="x => x.CreateDate" Title="Created" Format="yyyy-MM-dd" />
-        <TemplateColumn Title="" Sortable="false" Filterable="false">
-            <CellTemplate>
-                <MudIconButton Icon="@Icons.Material.Filled.Visibility"
-                               Size="Size.Small"
-                               OnClick="@(() => NavigateToDetail(context.Item.EractivityId))" />
-            </CellTemplate>
-        </TemplateColumn>
+        <PropertyColumn Property="x => x.ClientSectionName" Title="Client Section" />
+        <PropertyColumn Property="x => x.RecruitingResponsibleName" Title="Responsible" />
+        <PropertyColumn Property="x => x.CreateDate" Title="Created" Format="dd-MM-yyyy" />
+        <PropertyColumn Property="x => x.CreatedByName" Title="Created By" Hidden="@_hideCreatedByColumn" />
+        <PropertyColumn Property="x => x.DraftResponsibleName" Title="Draft Responsible" Hidden="@_hideDraftResponsibleColumn" />
+        <PropertyColumn Property="x => x.TemplateGroupName" Title="Template Group" Hidden="@_hideTemplateGroupColumn" />
     </Columns>
     <PagerContent>
         <MudDataGridPager T="ActivityListDto" PageSizeOptions="new int[] { 10, 25, 50, 100 }" />

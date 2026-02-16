@@ -20,6 +20,16 @@ public partial class ActivityList
     private int _totalCount;
     private bool _showFilters;
 
+    // Column visibility: computed from current mode
+    // CreatedBy: visible in Ongoing and Closed, hidden in Draft
+    private bool _hideCreatedByColumn => _currentStatus == ERActivityStatus.Draft;
+    // DraftResponsible: visible in Draft only
+    private bool _hideDraftResponsibleColumn => _currentStatus != ERActivityStatus.Draft;
+    // TemplateGroup: visible in Ongoing and Closed, hidden in Draft
+    private bool _hideTemplateGroupColumn => _currentStatus == ERActivityStatus.Draft;
+    // Whether to show candidate count in Headline
+    private bool _showCandidateCount => _currentStatus != ERActivityStatus.Draft;
+
     protected override void OnParametersSet()
     {
         var newStatus = Mode?.ToLowerInvariant() switch
