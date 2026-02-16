@@ -44,6 +44,8 @@ public partial class SignaturDbContext : DbContext
 
     public virtual DbSet<ErTemplateGroup> ErTemplateGroups { get; set; }
 
+    public virtual DbSet<WebAdVisitor> WebAdVisitors { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.UseCollation("Latin1_General_CI_AS");
@@ -448,6 +450,15 @@ public partial class SignaturDbContext : DbContext
 
             entity.Property(e => e.ErtemplateGroupId).HasColumnName("ERTemplateGroupId");
             entity.Property(e => e.Name).HasMaxLength(255);
+        });
+
+        modelBuilder.Entity<WebAdVisitor>(entity =>
+        {
+            entity.ToTable("WebAdVisitors");
+
+            entity.HasKey(e => e.WebAdId);
+
+            entity.Property(e => e.Visitors);
         });
 
         OnModelCreatingPartial(modelBuilder);

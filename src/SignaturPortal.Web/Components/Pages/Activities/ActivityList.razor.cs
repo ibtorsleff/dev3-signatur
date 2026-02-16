@@ -25,8 +25,19 @@ public partial class ActivityList
     private bool _hideCreatedByColumn => _currentStatus == ERActivityStatus.Draft;
     // DraftResponsible: visible in Draft only
     private bool _hideDraftResponsibleColumn => _currentStatus != ERActivityStatus.Draft;
-    // TemplateGroup: visible in Ongoing and Closed, hidden in Draft
-    private bool _hideTemplateGroupColumn => _currentStatus == ERActivityStatus.Draft;
+    // Visitors: visible in Ongoing and Closed, hidden in Draft, AND only if client has WebAdVisitorStatistics enabled
+    // TODO: Replace _clientHasWebAdVisitorStatistics with actual check from ClientHlp.ClientWebAdVisitorStatisticsEnabled(siteId, clientId)
+    //       This requires reading the Client.ObjectData XML config. See legacy: ActivityList.ascx.cs line 808.
+    private bool _clientHasWebAdVisitorStatistics = true; // Hardcoded on — matches current client config
+    private bool _hideVisitorsColumn => _currentStatus == ERActivityStatus.Draft || !_clientHasWebAdVisitorStatistics;
+    // TemplateGroup: visible in Ongoing and Closed, hidden in Draft, AND only if client uses template groups
+    // TODO: Replace _clientUsesTemplateGroups with actual check from ClientHlp.ClientRecruitmentUseTemplateGroups(siteId, clientId)
+    //       This requires reading the Client.ObjectData XML config. See legacy: ActivityList.ascx.cs line 392.
+    private bool _clientUsesTemplateGroups = false; // Hardcoded off — matches current client config
+    private bool _hideTemplateGroupColumn => _currentStatus == ERActivityStatus.Draft || !_clientUsesTemplateGroups;
+    // Actions (copy): visible in Ongoing and Closed, hidden in Draft
+    // TODO: Also check user has RecruitmentPortalCreateActivity permission. See legacy: ActivityList.ascx.cs.
+    private bool _hideActionsColumn => _currentStatus == ERActivityStatus.Draft;
     // Whether to show candidate count in Headline
     private bool _showCandidateCount => _currentStatus != ERActivityStatus.Draft;
 

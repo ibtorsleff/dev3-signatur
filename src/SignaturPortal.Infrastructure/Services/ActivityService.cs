@@ -111,6 +111,10 @@ public class ActivityService : IActivityService
                 EractivityStatusId = a.EractivityStatusId,
                 CreateDate = a.CreateDate,
                 CandidateCount = a.Ercandidates.Count(c => !c.IsDeleted),
+                // Web ad visitor count via correlated subquery (LEFT JOIN on WebAdId)
+                WebAdVisitors = a.WebAdId.HasValue
+                    ? context.WebAdVisitors.Where(w => w.WebAdId == a.WebAdId.Value).Select(w => w.Visitors).FirstOrDefault()
+                    : 0,
                 // Resolve user names via correlated subqueries (equivalent to LEFT JOIN)
                 RecruitingResponsibleName = a.Responsible.HasValue
                     ? context.Users.Where(u => u.UserId == a.Responsible.Value).Select(u => u.FullName ?? u.UserName ?? "").FirstOrDefault() ?? ""

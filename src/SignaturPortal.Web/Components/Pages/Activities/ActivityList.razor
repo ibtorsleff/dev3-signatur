@@ -27,19 +27,9 @@
                            OnClick="ToggleFilters" />
         </MudTooltip>
     </ToolBarContent>
-    <ColGroup>
-        <col style="width: 70px;" />     @* Id *@
-        <col />                           @* Headline - flexible fill *@
-        <col style="width: 120px;" />    @* Deadline *@
-        <col style="width: 150px;" />    @* Client Section *@
-        <col style="width: 150px;" />    @* Responsible *@
-        <col style="width: 110px;" />    @* Created *@
-        <col style="width: 130px;" />    @* Created By / Draft Responsible *@
-        <col style="width: 140px;" />    @* Template Group *@
-    </ColGroup>
     <Columns>
-        <PropertyColumn Property="x => x.EractivityId" Title="Id" />
-        <TemplateColumn T="ActivityListDto" Title="Headline" SortBy="x => x.Headline">
+        <PropertyColumn Property="x => x.EractivityId" Title="Id" HeaderStyle="width:70px;" />
+        <PropertyColumn Property="x => x.Headline" Title="Headline">
             <CellTemplate>
                 @if (_showCandidateCount && context.Item.CandidateCount > 0)
                 {
@@ -50,8 +40,9 @@
                     @context.Item.Headline
                 }
             </CellTemplate>
-        </TemplateColumn>
-        <PropertyColumn Property="x => x.ApplicationDeadline" Title="Deadline">
+        </PropertyColumn>
+        <PropertyColumn Property="x => x.WebAdVisitors" Title="Antal klik" Hidden="@_hideVisitorsColumn" HeaderStyle="width:90px;" />
+        <PropertyColumn Property="x => x.ApplicationDeadline" Title="Deadline" HeaderStyle="width:120px;">
             <CellTemplate>
                 @if (context.Item.ContinuousPosting)
                 {
@@ -65,12 +56,22 @@
                 }
             </CellTemplate>
         </PropertyColumn>
-        <PropertyColumn Property="x => x.ClientSectionName" Title="Client Section" />
-        <PropertyColumn Property="x => x.RecruitingResponsibleName" Title="Responsible" />
-        <PropertyColumn Property="x => x.CreateDate" Title="Created" Format="dd-MM-yyyy" />
-        <PropertyColumn Property="x => x.CreatedByName" Title="Created By" Hidden="@_hideCreatedByColumn" />
-        <PropertyColumn Property="x => x.DraftResponsibleName" Title="Draft Responsible" Hidden="@_hideDraftResponsibleColumn" />
-        <PropertyColumn Property="x => x.TemplateGroupName" Title="Template Group" Hidden="@_hideTemplateGroupColumn" />
+        <PropertyColumn Property="x => x.ClientSectionName" Title="Client Section" HeaderStyle="width:150px;" />
+        <PropertyColumn Property="x => x.RecruitingResponsibleName" Title="Responsible" HeaderStyle="width:150px;" />
+        <PropertyColumn Property="x => x.CreateDate" Title="Created" Format="dd-MM-yyyy" HeaderStyle="width:110px;" />
+        <PropertyColumn Property="x => x.CreatedByName" Title="Created By" Hidden="@_hideCreatedByColumn" HeaderStyle="width:130px;" />
+        <PropertyColumn Property="x => x.DraftResponsibleName" Title="Draft Responsible" Hidden="@_hideDraftResponsibleColumn" HeaderStyle="width:130px;" />
+        <PropertyColumn Property="x => x.TemplateGroupName" Title="Template Group" Hidden="@_hideTemplateGroupColumn" HeaderStyle="width:140px;" />
+        <TemplateColumn T="ActivityListDto" Hidden="@_hideActionsColumn" Sortable="false" Filterable="false"
+                        HeaderStyle="width:36px; padding:0;" CellStyle="padding:2px 4px; text-align:center;">
+            <CellTemplate>
+                <img src="/Responsive/images/responsive/list/copy-gray_32x32.png"
+                     alt="Copy"
+                     style="width:20px; height:20px; cursor:pointer; opacity:0.7;"
+                     title="Copy activity"
+                     @onclick:stopPropagation="true" />
+            </CellTemplate>
+        </TemplateColumn>
     </Columns>
     <PagerContent>
         <MudDataGridPager T="ActivityListDto" PageSizeOptions="new int[] { 10, 25, 50, 100 }" />

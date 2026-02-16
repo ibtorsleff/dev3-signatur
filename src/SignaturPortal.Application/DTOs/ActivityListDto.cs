@@ -16,6 +16,9 @@ public record ActivityListDto
     public DateTime CreateDate { get; init; }
     public int CandidateCount { get; init; }
 
+    // Web ad visitor count (from WebAdVisitors table via LEFT JOIN on WebAdId)
+    public int WebAdVisitors { get; init; }
+
     // Resolved display names (populated via SQL JOINs, no N+1)
     public string RecruitingResponsibleName { get; init; } = "";
     public string CreatedByName { get; init; } = "";
