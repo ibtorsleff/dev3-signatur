@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-13)
 
 **Core value:** The activity list view must work perfectly. Users must be able to see and navigate their recruitment activities with correct status.
-**Current focus:** Phase 3.3 in progress -- Activity List Conditional Columns (backend data layer complete, UI next)
+**Current focus:** Phase 3.3 COMPLETE -- Activity List Conditional Columns (both backend + UI done)
 
 ## Current Position
 
-Phase: 3.3 of 8 (Activity List Conditional Columns)
-Plan: 1 of 2 in current phase -- COMPLETE
-Status: Plan 03.3-01 complete, ready for Plan 03.3-02 (UI)
-Last activity: 2026-02-16 -- Plan 03.3-01 complete (backend data layer expansion)
+Phase: 3.3 of 8 (Activity List Conditional Columns) -- PHASE COMPLETE
+Plan: 2 of 2 in current phase -- COMPLETE
+Status: Phase 03.3 complete (both plans done), ready for next phase
+Last activity: 2026-02-16 -- Plan 03.3-02 complete (mode-aware column visibility UI)
 
-Progress: [#######...] 67%
+Progress: [########..] 73%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 14
+- Total plans completed: 15
 - Average duration: 5 minutes
-- Total execution time: 1.17 hours
+- Total execution time: 1.30 hours
 
 **By Phase:**
 
@@ -31,11 +31,11 @@ Progress: [#######...] 67%
 | 03-core-read-views | 6 | 30 min | 5 min |
 | 03.1-route-aware-nav-activity-modes | 2 | 5 min | 2.5 min |
 | 03.2-activity-list-layout-matching | 1 | 6 min | 6 min |
-| 03.3-activity-list-conditional-columns | 1 | 3 min | 3 min |
+| 03.3-activity-list-conditional-columns | 2 | 11 min | 5.5 min |
 
 **Recent Trend:**
-- Last 5 plans: 03.1-01 (2 min), 03.1-02 (3 min), 03.2-01 (6 min), 03.3-01 (3 min)
-- Trend: Steady -- backend data layer expansion completed in 3 min
+- Last 5 plans: 03.1-02 (3 min), 03.2-01 (6 min), 03.3-01 (3 min), 03.3-02 (8 min)
+- Trend: Steady -- UI plan with checkpoint review took 8 min
 
 *Updated after each plan completion*
 
@@ -55,6 +55,7 @@ Progress: [#######...] 67%
 | 03.1-02 | 3 min | 2 | 4 |
 | 03.2-01 | 6 min | 3 | 10 |
 | 03.3-01 | 3 min | 2 | 6 |
+| 03.3-02 | 8 min | 2 | 7 |
 
 ## Accumulated Context
 
@@ -115,6 +116,10 @@ Recent decisions affecting current work:
 - [03.3-01]: ClientSection and ErTemplateGroup as minimal Id+Name entities (lookup tables)
 - [03.3-01]: No global query filters on lookup tables (shared reference data)
 - [03.3-01]: JournalNo and StatusName removed from ActivityListDto (legacy list does not display these)
+- [03.3-02]: HeaderStyle per column instead of ColGroup (ColGroup leaves whitespace when Hidden columns toggled off)
+- [03.3-02]: Headline as PropertyColumn not TemplateColumn (consistent header styling)
+- [03.3-02]: WebAdVisitor entity for click count column (client config check hardcoded as TODO)
+- [03.3-02]: Copy action icon served from legacy via YARP (same pattern as nav icons)
 
 ### Pending Todos
 
@@ -134,7 +139,7 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-16
-Stopped at: Completed 03.3-01-PLAN.md (backend data layer expansion for conditional columns)
+Stopped at: Completed 03.3-02-PLAN.md (mode-aware column visibility UI -- Phase 03.3 complete)
 Resume file: None
 
-**Plan 03.3-01 Complete**: Backend data layer expanded with ClientSection/ErTemplateGroup entities, ActivityListDto with 5 resolved name fields + ContinuousPosting, and single-query SQL projection. Ready for Plan 03.3-02 (UI mode-aware column visibility).
+**Phase 03.3 Complete**: Activity list now shows correct columns per mode matching legacy WebForms. Backend (plan 01) + UI (plan 02) both done. Additional columns (Antal klik, copy icon) and HeaderStyle fix added during checkpoint review. Ready for next phase.
