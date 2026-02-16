@@ -34,10 +34,8 @@
     color: var(--portal-grid-text-color);
 }
 
-/* === Header label text (inside sort button) === */
-.portal-data-grid .mud-table-head .mud-table-cell .column-header .mud-button-root,
-.portal-data-grid .mud-table-head .mud-table-cell .column-header span,
-.portal-data-grid .mud-table-head .mud-table-cell button {
+/* === Header label text (sortable and non-sortable columns) === */
+.portal-data-grid .mud-table-head .mud-table-cell * {
     font-weight: bold;
 }
 
@@ -105,6 +103,15 @@
 .portal-data-grid .mud-progress-linear .mud-progress-linear-bar,
 .portal-data-grid .mud-progress-linear-bar {
     background-color: var(--portal-primary-darkest) !important;
+}
+
+/* === Loading progress bar track (background behind the moving bar) === */
+.portal-data-grid .mud-table-loading-progress,
+.portal-data-grid .mud-table-loading-progress .mud-progress-linear,
+.portal-data-grid .mud-table-loading-progress .mud-progress-linear-bars,
+.portal-data-grid .mud-progress-linear,
+.portal-data-grid .mud-progress-linear .mud-progress-linear-bars {
+    background-color: var(--portal-grid-header-bg) !important;
 }
 
 /* === Remove MudBlazor elevation shadow -- legacy has no shadow === */
