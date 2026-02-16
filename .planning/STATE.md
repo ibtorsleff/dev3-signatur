@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-13)
 
 **Core value:** The activity list view must work perfectly. Users must be able to see and navigate their recruitment activities with correct status.
-**Current focus:** Phase 3.4 COMPLETE -- Activity List Row Height & Pagination Styling
+**Current focus:** Phase 3.5 IN PROGRESS -- Localization Infrastructure
 
 ## Current Position
 
-Phase: 3.4 of 8 (Activity List Row Height & Pagination Styling) -- PHASE COMPLETE
-Plan: 1 of 1 in current phase -- COMPLETE
-Status: Phase 03.4 complete, ready for next phase
-Last activity: 2026-02-16 -- Plan 03.4-01 complete (row height & pagination styling)
+Phase: 3.5 of 8 (Localization/Globalization) -- IN PROGRESS
+Plan: 1 of 4 in current phase -- COMPLETE
+Status: Plan 03.5-01 complete, continuing with 03.5-02
+Last activity: 2026-02-17 -- Plan 03.5-01 complete (localization infrastructure)
 
-Progress: [########..] 76%
+Progress: [########..] 78%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 16
+- Total plans completed: 17
 - Average duration: 5 minutes
-- Total execution time: 1.53 hours
+- Total execution time: 1.66 hours
 
 **By Phase:**
 
@@ -33,10 +33,11 @@ Progress: [########..] 76%
 | 03.2-activity-list-layout-matching | 1 | 6 min | 6 min |
 | 03.3-activity-list-conditional-columns | 2 | 11 min | 5.5 min |
 | 03.4-activity-list-row-height-pagination-styling | 1 | 2 min | 2 min |
+| 03.5-localization (in progress) | 1 | 8 min | 8 min |
 
 **Recent Trend:**
-- Last 5 plans: 03.2-01 (6 min), 03.3-01 (3 min), 03.3-02 (8 min), 03.4-01 (2 min)
-- Trend: CSS-only plan completed very fast (2 min)
+- Last 5 plans: 03.3-01 (3 min), 03.3-02 (8 min), 03.4-01 (2 min), 03.5-01 (8 min)
+- Trend: Localization infrastructure with tests took 8 min
 
 *Updated after each plan completion*
 
@@ -58,6 +59,7 @@ Progress: [########..] 76%
 | 03.3-01 | 3 min | 2 | 6 |
 | 03.3-02 | 8 min | 2 | 7 |
 | 03.4-01 | 2 min | 2 | 3 |
+| 03.5-01 | 8 min | 3 | 8 |
 
 ## Accumulated Context
 
@@ -126,6 +128,10 @@ Recent decisions affecting current work:
 - [03.4-01]: Height on both tr and td for cross-browser compatibility
 - [03.4-01]: overflow:hidden on cells to prevent content overflow at reduced height
 - [03.4-01]: Pagination toolbar border-top uses theme cell border color (replaces MudBlazor default)
+- [03.5-01]: Cache key pattern loc_{languageId}_{key} shared between LocalizationService and warmup service
+- [03.5-01]: IMemoryCache for localization (not IDistributedCache) -- translations are read-only reference data
+- [03.5-01]: Localization entity composite PK (Key, LanguageId, SiteId) -- Id is identity but not PK
+- [03.5-01]: Language fallback chain: requested -> English (1) -> [key] bracket notation
 
 ### Pending Todos
 
@@ -136,6 +142,7 @@ None yet.
 - Phase 3.2 inserted after Phase 3: Activity List Layout Matching (URGENT) — research legacy activity list layout and replicate in Blazor MudDataGrid, hide filter options behind toggle
 - Phase 3.3 inserted after Phase 3.2: Activity List Conditional Columns (URGENT) — research and fix column visibility per mode/role/permission to match legacy for all 3 modes
 - Phase 3.4 inserted after Phase 3.3: Activity List Row Height & Pagination Styling (URGENT) — reduce row height to 19px, style pagination footer to match grid header
+- Phase 3.5 inserted after Phase 3: make the full legacy localization/globalization system available in the blazor app. example is the GetText, which is available via the basepage.cs in the legacy app. the database cannot be altered (URGENT)
 
 ### Blockers/Concerns
 
@@ -145,8 +152,8 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-16
-Stopped at: Completed 03.4-01-PLAN.md (row height & pagination styling -- Phase 03.4 complete)
+Last session: 2026-02-17
+Stopped at: Completed 03.5-01-PLAN.md (localization infrastructure)
 Resume file: None
 
-**Phase 03.4 Complete**: Activity list rows reduced to 19px via CSS custom properties. Pagination footer now matches grid header background color. CSS-only phase, no code changes needed. Ready for next phase.
+**Plan 03.5-01 Complete**: ILocalizationService with IMemoryCache-backed GetText, startup cache warmup via IHostedService, language fallback chain (requested -> English -> [key]), and 10 TUnit tests. Ready for 03.5-02.
