@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-13)
 
 **Core value:** The activity list view must work perfectly. Users must be able to see and navigate their recruitment activities with correct status.
-**Current focus:** Phase 03.6 COMPLETE -- Permission Helper Migration (IsClientUser, PortalPermission, IPermissionHelper)
+**Current focus:** Phase 03.7 COMPLETE -- Authentication & User Context Migration Strategy
 
 ## Current Position
 
-Phase: 3.6 of 8 (User/Client Permission Helper Migration)
-Plan: 2 of 2 in current phase
-Status: Phase 03.6 COMPLETE (all plans executed)
-Last activity: 2026-02-17 -- Plan 03.6-02 complete
+Phase: 3.7 of 8 (Authentication & User Context Migration Strategy)
+Plan: 1 of 1 in current phase
+Status: Phase 03.7 COMPLETE (all plans executed)
+Last activity: 2026-02-17 -- Plan 03.7-01 complete
 
-Progress: [########..] 78%
+Progress: [########..] 80%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 23
+- Total plans completed: 24
 - Average duration: 5 minutes
-- Total execution time: 1.78 hours
+- Total execution time: 1.81 hours
 
 **By Phase:**
 
@@ -163,6 +163,7 @@ None yet.
 - Phase 3.4 inserted after Phase 3.3: Activity List Row Height & Pagination Styling (URGENT) — reduce row height to 19px, style pagination footer to match grid header
 - Phase 3.5 inserted after Phase 3: make the full legacy localization/globalization system available in the blazor app. example is the GetText, which is available via the basepage.cs in the legacy app. the database cannot be altered (URGENT)
 - Phase 03.6 inserted after Phase 3: user/client permission helper migration - isClientLoggedOn and role/permission checks (URGENT)
+- Phase 03.7 inserted after Phase 3: Authentication & User Context — Migration Strategy (URGENT)
 
 ### Blockers/Concerns
 
