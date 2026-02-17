@@ -4,7 +4,7 @@ namespace SignaturPortal.Web.Services;
 
 public class UserSessionContext : IUserSessionContext
 {
-    public int? UserId { get; private set; }
+    public Guid? UserId { get; private set; }
     public int? SiteId { get; private set; }
     public int? ClientId { get; private set; }
     public string UserName { get; private set; } = string.Empty;
@@ -25,7 +25,7 @@ public class UserSessionContext : IUserSessionContext
         if (swSession is null)
             return;
 
-        UserId = swSession["UserId"] is int uid ? uid : null;
+        UserId = swSession["UserId"] is Guid uid ? uid : null;
         SiteId = swSession["SiteId"] is int sid && sid > 0 ? sid : null;
         ClientId = swSession["ClientId"] is int cid && cid > 0 ? cid : null;
         UserName = swSession["UserName"] as string ?? string.Empty;
@@ -39,7 +39,7 @@ public class UserSessionContext : IUserSessionContext
     /// System.Web session is no longer available).
     /// Called by SessionPersistence component via PersistentComponentState.
     /// </summary>
-    public void Restore(int? userId, int? siteId, int? clientId, string userName, int userLanguageId)
+    public void Restore(Guid? userId, int? siteId, int? clientId, string userName, int userLanguageId)
     {
         if (IsInitialized)
             return;

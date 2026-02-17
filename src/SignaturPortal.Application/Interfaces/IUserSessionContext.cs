@@ -2,7 +2,7 @@ namespace SignaturPortal.Application.Interfaces;
 
 public interface IUserSessionContext
 {
-    int? UserId { get; }
+    Guid? UserId { get; }
     int? SiteId { get; }
     int? ClientId { get; }
     string UserName { get; }

@@ -52,7 +52,7 @@ builder.Services.AddSession(options =>
 builder.Services.AddSystemWebAdapters()
     .AddJsonSessionSerializer(options =>
     {
-        options.RegisterKey<int>("UserId");
+        options.RegisterKey<Guid>("UserId");
         options.RegisterKey<int>("SiteId");
         options.RegisterKey<int>("ClientId");
         options.RegisterKey<string>("UserName");
