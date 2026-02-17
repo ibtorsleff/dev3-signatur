@@ -5,21 +5,21 @@
 See: .planning/PROJECT.md (updated 2026-02-13)
 
 **Core value:** The activity list view must work perfectly. Users must be able to see and navigate their recruitment activities with correct status.
-**Current focus:** Phase 3.5 COMPLETE -- Localization Infrastructure
+**Current focus:** Phase 3.5 COMPLETE -- Localization Infrastructure (including gap closure 03.5-05)
 
 ## Current Position
 
 Phase: 3.5 of 8 (Localization/Globalization) -- COMPLETE
-Plan: 4 of 4 in current phase -- COMPLETE
-Status: Phase 03.5 complete (all 4 plans done)
-Last activity: 2026-02-17 -- Plan 03.5-04 complete (admin cache status page)
+Plan: 5 of 5 in current phase -- COMPLETE
+Status: Phase 03.5 complete (all 5 plans done, including gap closure)
+Last activity: 2026-02-17 -- Plan 03.5-05 complete (nav label bracket notation fix)
 
 Progress: [########..] 78%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 20
+- Total plans completed: 21
 - Average duration: 5 minutes
 - Total execution time: 1.75 hours
 
@@ -33,11 +33,11 @@ Progress: [########..] 78%
 | 03.2-activity-list-layout-matching | 1 | 6 min | 6 min |
 | 03.3-activity-list-conditional-columns | 2 | 11 min | 5.5 min |
 | 03.4-activity-list-row-height-pagination-styling | 1 | 2 min | 2 min |
-| 03.5-localization | 4 | 14 min | 3.5 min |
+| 03.5-localization | 5 | 15 min | 3 min |
 
 **Recent Trend:**
-- Last 5 plans: 03.5-01 (8 min), 03.5-02 (2 min), 03.5-03 (2 min), 03.5-04 (2 min)
-- Trend: Cache admin page completed in 2 min
+- Last 5 plans: 03.5-01 (8 min), 03.5-02 (2 min), 03.5-03 (2 min), 03.5-04 (2 min), 03.5-05 (1 min)
+- Trend: Gap closure fix completed in 1 min
 
 *Updated after each plan completion*
 
@@ -63,6 +63,7 @@ Progress: [########..] 78%
 | 03.5-02 | 2 min | 1 | 2 |
 | 03.5-03 | 2 min | 2 | 4 |
 | 03.5-04 | 2 min | 2 | 4 |
+| 03.5-05 | 1 min | 1 | 1 |
 
 ## Accumulated Context
 
@@ -139,7 +140,8 @@ Recent decisions affecting current work:
 - [Phase 03.5-02]: L alias for ILocalizationService via [Inject] property for concise Razor template syntax
 - [Phase 03.5-03]: LabelKey as optional nullable property on NavMenuItem for localization key mapping
 - [Phase 03.5-03]: Singleton-returns-keys/scoped-resolves-text pattern for DI lifetime mismatch between NavigationConfigService and ILocalizationService
-- [Phase 03.5-03]: Bracket-notation fallback check (StartsWith '[') to detect unresolved keys
+- [Phase 03.5-03]: Bracket-notation fallback check (StartsWith '[') to detect unresolved keys -- SUPERSEDED by 03.5-05
+- [Phase 03.5-05]: Removed bracket-notation suppression -- GetText return value is always the correct display value when a key is configured
 - [Phase 03.5-04]: Singleton + hosted service pattern (AddSingleton + AddHostedService factory) for injectable IHostedService
 - [Phase 03.5-04]: Admin page pattern at /admin/* with [Authorize] and MudBlazor layout
 
@@ -163,7 +165,7 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-17
-Stopped at: Completed 03.5-04-PLAN.md (admin cache status page) -- Phase 03.5 complete
+Stopped at: Completed 03.5-05-PLAN.md (nav label bracket notation fix) -- Phase 03.5 fully complete
 Resume file: None
 
-**Phase 03.5 Complete**: Full localization infrastructure -- ILocalizationService with IMemoryCache-backed GetText, startup cache warmup, ActivityList and NavMenu localization, admin cache management page at /admin/cache-status.
+**Phase 03.5 Complete**: Full localization infrastructure -- ILocalizationService with IMemoryCache-backed GetText, startup cache warmup, ActivityList and NavMenu localization, admin cache management page at /admin/cache-status, bracket notation display for unresolved keys.
