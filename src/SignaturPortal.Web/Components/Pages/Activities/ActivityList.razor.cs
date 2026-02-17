@@ -13,7 +13,7 @@ public partial class ActivityList
     [Inject] private NavigationManager Navigation { get; set; } = default!;
     [Inject] private ISnackbar Snackbar { get; set; } = default!;
     [Inject] private IConfiguration Configuration { get; set; } = default!;
-    [Inject] private ILocalizationService L { get; set; } = default!;
+    [Inject] private ILocalizationService Localization { get; set; } = default!;
     [Inject] private IUserSessionContext Session { get; set; } = default!;
     [Inject] private IPermissionHelper PermHelper { get; set; } = default!;
 
@@ -56,7 +56,7 @@ public partial class ActivityList
     {
         _isClientUser = Session.IsClientUser;
         _canCreateActivity = await PermHelper.UserCanCreateActivityAsync();
-        _pagerInfoFormat = $"{{first_item}}-{{last_item}} {L.GetText("Of")} {{all_items}}";
+        _pagerInfoFormat = $"{{first_item}}-{{last_item}} {Localization.GetText("Of")} {{all_items}}";
     }
 
     protected override void OnParametersSet()
@@ -70,9 +70,9 @@ public partial class ActivityList
 
         _headlineText = newStatus switch
         {
-            ERActivityStatus.Draft => L.GetText("ERecruitmentDraftActivities"),
-            ERActivityStatus.Closed => L.GetText("ERecruitmentClosedActivities"),
-            _ => L.GetText("ERecruitmentOngoingActivities")
+            ERActivityStatus.Draft => Localization.GetText("ERecruitmentDraftActivities"),
+            ERActivityStatus.Closed => Localization.GetText("ERecruitmentClosedActivities"),
+            _ => Localization.GetText("ERecruitmentOngoingActivities")
         };
 
         if (newStatus != _currentStatus)
@@ -131,7 +131,7 @@ public partial class ActivityList
             System.Diagnostics.Debug.WriteLine($"[ERROR] StackTrace: {ex.StackTrace}");
             if (ex.InnerException != null)
                 System.Diagnostics.Debug.WriteLine($"[ERROR] Inner: {ex.InnerException.GetType().Name}: {ex.InnerException.Message}");
-            Snackbar.Add(L.GetText("ErrorLoadingActivities"), Severity.Error);
+            Snackbar.Add(Localization.GetText("ErrorLoadingActivities"), Severity.Error);
             return new GridData<ActivityListDto>
             {
                 Items = Array.Empty<ActivityListDto>(),
