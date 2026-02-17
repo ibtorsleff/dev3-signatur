@@ -78,6 +78,17 @@ Plans:
 - [x] 03-05-PLAN.md -- Gap closure: Fix nullable session context types for tenant query filter bypass
 - [x] 03-06-PLAN.md -- Gap closure: Add error handling to all Blazor page lifecycle methods
 
+### Phase 03.6: user/client permission helper migration - isClientLoggedOn and role/permission checks (INSERTED)
+
+**Goal:** The Blazor app has IsClientUser classification, a complete PortalPermission enum matching all legacy permission IDs, and a composite IPermissionHelper service -- enabling permission-aware UI visibility and access control matching the legacy WebForms behavior
+**Depends on:** Phase 3
+**Requirements:** SEC-05, SEC-06, SEC-07
+**Plans:** 2 plans
+
+Plans:
+- [ ] 03.6-01-PLAN.md -- IsClientUser property on IUserSessionContext, full PortalPermission enum (90+ values), migrate all ERecruitmentPermission references
+- [ ] 03.6-02-PLAN.md -- IPermissionHelper composite service, apply IsClientUser to ActivityList column visibility
+
 ### Phase 03.5: make the full legacy localization/globalization system available in the blazor app. example is the GetText, which is available via the basepage.cs in the legacy app. the database cannot be altered (INSERTED)
 
 **Goal:** The full legacy localization/globalization system is available in the Blazor app -- ILocalizationService.GetText returns database-backed translations with cache warming, language fallback, and per-user language resolution, replacing all hardcoded Danish strings
