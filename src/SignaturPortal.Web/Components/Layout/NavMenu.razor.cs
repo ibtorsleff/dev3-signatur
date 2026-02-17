@@ -44,10 +44,7 @@ public partial class NavMenu : IDisposable
     {
         if (!string.IsNullOrEmpty(item.LabelKey))
         {
-            var text = L.GetText(item.LabelKey);
-            // If GetText returns the key wrapped in brackets (not found), fall back to Label
-            if (!text.StartsWith('['))
-                return text;
+            return L.GetText(item.LabelKey);
         }
         return item.Label;
     }
@@ -56,9 +53,7 @@ public partial class NavMenu : IDisposable
     {
         if (!string.IsNullOrEmpty(_config.PortalNameKey))
         {
-            var text = L.GetText(_config.PortalNameKey);
-            if (!text.StartsWith('['))
-                return text;
+            return L.GetText(_config.PortalNameKey);
         }
         return _config.PortalName;
     }
