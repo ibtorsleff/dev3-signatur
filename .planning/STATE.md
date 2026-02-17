@@ -5,7 +5,7 @@
 See: .planning/PROJECT.md (updated 2026-02-13)
 
 **Core value:** The activity list view must work perfectly. Users must be able to see and navigate their recruitment activities with correct status.
-**Current focus:** Phase 03.6 IN PROGRESS -- User/Client Permission Helper Migration
+**Current focus:** Phase 03.6 COMPLETE -- Permission Helper Migration (IsClientUser, PortalPermission, IPermissionHelper)
 
 ## Current Position
 

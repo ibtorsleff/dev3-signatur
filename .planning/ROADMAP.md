@@ -86,8 +86,8 @@ Plans:
 **Plans:** 2 plans
 
 Plans:
-- [ ] 03.6-01-PLAN.md -- IsClientUser property on IUserSessionContext, full PortalPermission enum (90+ values), migrate all ERecruitmentPermission references
-- [ ] 03.6-02-PLAN.md -- IPermissionHelper composite service, apply IsClientUser to ActivityList column visibility
+- [x] 03.6-01-PLAN.md -- IsClientUser property on IUserSessionContext, full PortalPermission enum (90+ values), migrate all ERecruitmentPermission references
+- [x] 03.6-02-PLAN.md -- IPermissionHelper composite service, apply IsClientUser to ActivityList column visibility
 
 ### Phase 03.5: make the full legacy localization/globalization system available in the blazor app. example is the GetText, which is available via the basepage.cs in the legacy app. the database cannot be altered (INSERTED)
 
@@ -230,10 +230,11 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 3.1 -> 3.2 -> 3.3 -> 3.4 -> 3.5 
 | 3.3 Activity List Conditional Columns | 2/2 | Complete | 2026-02-16 |
 | 3.4 Activity List Row Height & Pagination Styling | 1/1 | Complete | 2026-02-16 |
 | 3.5 Legacy Localization/Globalization in Blazor | 4/4 | Complete | 2026-02-17 |
+| 3.6 Permission Helper Migration (IsClientUser + PortalPermission + IPermissionHelper) | 2/2 | Complete | 2026-02-17 |
 | 4. Core Write Operations | 0/4 | Planned | - |
 | 5. Localization & UX Polish | 0/3 | Planned | - |
 | 6. Testing, Deployment & Monitoring | 0/3 | Not started | - |
 
 ---
 *Roadmap created: 2026-02-13*
-*Last updated: 2026-02-17 (Phase 3.5 complete)*
+*Last updated: 2026-02-17 (Phase 03.6 complete)*
