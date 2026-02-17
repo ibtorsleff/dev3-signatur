@@ -44,6 +44,9 @@ public static class DependencyInjection
         // Composite permission helper (mirrors legacy PermissionHelper static methods)
         services.AddScoped<IPermissionHelper, PermissionHelperService>();
 
+        // Current user context (DB-backed user lookup by auth identity name)
+        services.AddScoped<ICurrentUserService, CurrentUserService>();
+
         // Authorization handler for permission-based policies
         services.AddScoped<IAuthorizationHandler, PermissionHandler>();
 
