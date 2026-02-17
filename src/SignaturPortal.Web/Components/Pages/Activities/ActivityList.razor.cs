@@ -24,6 +24,7 @@ public partial class ActivityList
     private string _headlineText = "";
     private int _totalCount;
     private bool _showFilters;
+    private string _pagerInfoFormat = "{first_item}-{last_item} of {all_items}";
 
     // Permission state (loaded once in OnInitializedAsync)
     private bool _isClientUser;
@@ -55,6 +56,7 @@ public partial class ActivityList
     {
         _isClientUser = Session.IsClientUser;
         _canCreateActivity = await PermHelper.UserCanCreateActivityAsync();
+        _pagerInfoFormat = $"{{first_item}}-{{last_item}} {L.GetText("Of")} {{all_items}}";
     }
 
     protected override void OnParametersSet()
@@ -129,7 +131,7 @@ public partial class ActivityList
             System.Diagnostics.Debug.WriteLine($"[ERROR] StackTrace: {ex.StackTrace}");
             if (ex.InnerException != null)
                 System.Diagnostics.Debug.WriteLine($"[ERROR] Inner: {ex.InnerException.GetType().Name}: {ex.InnerException.Message}");
-            Snackbar.Add(L.GetText("ErrorsExist"), Severity.Error);
+            Snackbar.Add(L.GetText("ErrorLoadingActivities"), Severity.Error);
             return new GridData<ActivityListDto>
             {
                 Items = Array.Empty<ActivityListDto>(),

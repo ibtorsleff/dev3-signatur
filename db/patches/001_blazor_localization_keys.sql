@@ -11,16 +11,42 @@
 DECLARE @now DATETIME = GETDATE()
 
 -- ------------------------------------------------------------
--- ErrorsExist
+-- ShowFilter
 -- Used in ActivityList when the server data load fails.
 -- ------------------------------------------------------------
-IF NOT EXISTS (SELECT 1 FROM dbo.Localization WHERE [Key] = N'ErrorsExist' AND LanguageId = 1 AND SiteId = -1)
+IF NOT EXISTS (SELECT 1 FROM dbo.Localization WHERE [Key] = N'ShowFilter' AND LanguageId = 1 AND SiteId = -1)
     INSERT INTO dbo.Localization (Area, [Key], [Value], SiteId, [Enabled], LanguageId, LocalizationTypeId, CreateDate, ModifiedDate, Approved)
-    VALUES (N'BlazorPortal', N'ErrorsExist', N'An error occurred', -1, 1, 1, 1, @now, @now, 1)
+    VALUES (N'General', N'ShowFilter', N'Show filter', -1, 1, 1, 1, @now, @now, 1)
 
-IF NOT EXISTS (SELECT 1 FROM dbo.Localization WHERE [Key] = N'ErrorsExist' AND LanguageId = 3 AND SiteId = -1)
+IF NOT EXISTS (SELECT 1 FROM dbo.Localization WHERE [Key] = N'ShowFilter' AND LanguageId = 3 AND SiteId = -1)
     INSERT INTO dbo.Localization (Area, [Key], [Value], SiteId, [Enabled], LanguageId, LocalizationTypeId, CreateDate, ModifiedDate, Approved)
-    VALUES (N'BlazorPortal', N'ErrorsExist', N'Der opstod en fejl', -1, 1, 3, 1, @now, @now, 1)
+    VALUES (N'General', N'ShowFilter', N'Vis filter', -1, 1, 3, 1, @now, @now, 1)
+
+-- ------------------------------------------------------------
+-- HideFilter
+-- Used in ActivityList when the server data load fails.
+-- ------------------------------------------------------------
+IF NOT EXISTS (SELECT 1 FROM dbo.Localization WHERE [Key] = N'HideFilter' AND LanguageId = 1 AND SiteId = -1)
+    INSERT INTO dbo.Localization (Area, [Key], [Value], SiteId, [Enabled], LanguageId, LocalizationTypeId, CreateDate, ModifiedDate, Approved)
+    VALUES (N'General', N'HideFilter', N'Hide filter', -1, 1, 1, 1, @now, @now, 1)
+
+IF NOT EXISTS (SELECT 1 FROM dbo.Localization WHERE [Key] = N'HideFilter' AND LanguageId = 3 AND SiteId = -1)
+    INSERT INTO dbo.Localization (Area, [Key], [Value], SiteId, [Enabled], LanguageId, LocalizationTypeId, CreateDate, ModifiedDate, Approved)
+    VALUES (N'General', N'HideFilter', N'Skjul filter', -1, 1, 3, 1, @now, @now, 1)
+
+
+-- ------------------------------------------------------------
+-- ErrorLoadingActivities 
+-- Used in ActivityList when the server data load fails.
+-- ------------------------------------------------------------
+IF NOT EXISTS (SELECT 1 FROM dbo.Localization WHERE [Key] = N'ErrorLoadingActivities' AND LanguageId = 1 AND SiteId = -1)
+    INSERT INTO dbo.Localization (Area, [Key], [Value], SiteId, [Enabled], LanguageId, LocalizationTypeId, CreateDate, ModifiedDate, Approved)
+    VALUES (N'General', N'ErrorLoadingActivities ', N'Error loading activities', -1, 1, 1, 1, @now, @now, 1)
+
+IF NOT EXISTS (SELECT 1 FROM dbo.Localization WHERE [Key] = N'ErrorLoadingActivities ' AND LanguageId = 3 AND SiteId = -1)
+    INSERT INTO dbo.Localization (Area, [Key], [Value], SiteId, [Enabled], LanguageId, LocalizationTypeId, CreateDate, ModifiedDate, Approved)
+    VALUES (N'General', N'ErrorLoadingActivities ', N'Fejl under indlæsning af aktiviteter', -1, 1, 3, 1, @now, @now, 1)
+
 
 -- ------------------------------------------------------------
 -- CacheManagement
@@ -33,3 +59,15 @@ IF NOT EXISTS (SELECT 1 FROM dbo.Localization WHERE [Key] = N'CacheManagement' A
 IF NOT EXISTS (SELECT 1 FROM dbo.Localization WHERE [Key] = N'CacheManagement' AND LanguageId = 3 AND SiteId = -1)
     INSERT INTO dbo.Localization (Area, [Key], [Value], SiteId, [Enabled], LanguageId, LocalizationTypeId, CreateDate, ModifiedDate, Approved)
     VALUES (N'BlazorPortal', N'CacheManagement', N'Cache-administration', -1, 1, 3, 1, @now, @now, 1)
+
+-- ------------------------------------------------------------
+-- Of
+-- Used in MudDataGridPager InfoFormat: "{first_item}-{last_item} of {all_items}"
+-- ------------------------------------------------------------
+IF NOT EXISTS (SELECT 1 FROM dbo.Localization WHERE [Key] = N'Of' AND LanguageId = 1 AND SiteId = -1)
+    INSERT INTO dbo.Localization (Area, [Key], [Value], SiteId, [Enabled], LanguageId, LocalizationTypeId, CreateDate, ModifiedDate, Approved)
+    VALUES (N'BlazorPortal', N'Of', N'of', -1, 1, 1, 1, @now, @now, 1)
+
+IF NOT EXISTS (SELECT 1 FROM dbo.Localization WHERE [Key] = N'Of' AND LanguageId = 3 AND SiteId = -1)
+    INSERT INTO dbo.Localization (Area, [Key], [Value], SiteId, [Enabled], LanguageId, LocalizationTypeId, CreateDate, ModifiedDate, Approved)
+    VALUES (N'BlazorPortal', N'Of', N'af', -1, 1, 3, 1, @now, @now, 1)
