@@ -86,10 +86,10 @@ Plans:
 **Plans:** 4 plans
 
 Plans:
-- [ ] 03.5-01-PLAN.md -- Localization infrastructure: entity, ILocalizationService, LocalizationService with IMemoryCache, cache warmup hosted service, TUnit tests
-- [ ] 03.5-02-PLAN.md -- Replace hardcoded Danish strings in ActivityList with GetText calls
-- [ ] 03.5-03-PLAN.md -- Refactor NavigationConfigService to return localization keys, resolve in NavMenu
-- [ ] 03.5-04-PLAN.md -- Cache management admin page with reload functionality
+- [x] 03.5-01-PLAN.md -- Localization infrastructure: entity, ILocalizationService, LocalizationService with IMemoryCache, cache warmup hosted service, TUnit tests
+- [x] 03.5-02-PLAN.md -- Replace hardcoded Danish strings in ActivityList with GetText calls
+- [x] 03.5-03-PLAN.md -- Refactor NavigationConfigService to return localization keys, resolve in NavMenu
+- [x] 03.5-04-PLAN.md -- Cache management admin page with reload functionality
 
 ### Phase 03.2: Activity List Layout Matching (INSERTED)
 
@@ -218,11 +218,11 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 3.1 -> 3.2 -> 3.3 -> 3.4 -> 3.5 
 | 3.2 Activity List Layout Matching | 1/1 | Complete | 2026-02-16 |
 | 3.3 Activity List Conditional Columns | 2/2 | Complete | 2026-02-16 |
 | 3.4 Activity List Row Height & Pagination Styling | 1/1 | Complete | 2026-02-16 |
-| 3.5 Legacy Localization/Globalization in Blazor | 0/4 | Planned | - |
+| 3.5 Legacy Localization/Globalization in Blazor | 4/4 | Complete | 2026-02-17 |
 | 4. Core Write Operations | 0/4 | Planned | - |
 | 5. Localization & UX Polish | 0/3 | Planned | - |
 | 6. Testing, Deployment & Monitoring | 0/3 | Not started | - |
 
 ---
 *Roadmap created: 2026-02-13*
-*Last updated: 2026-02-16 (Phase 3.4 complete)*
+*Last updated: 2026-02-17 (Phase 3.5 complete)*
