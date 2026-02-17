@@ -29,9 +29,9 @@ builder.Services.AddInfrastructure(builder.Configuration);
 // Authorization policies based on legacy permission IDs
 builder.Services.AddAuthorizationBuilder()
     .AddPolicy("RecruitmentAccess", policy =>
-        policy.Requirements.Add(new PermissionRequirement((int)ERecruitmentPermission.RecruitmentAccess)))
+        policy.Requirements.Add(new PermissionRequirement((int)PortalPermission.RecruitmentPortalRecruitmentAccess)))
     .AddPolicy("RecruitmentAdmin", policy =>
-        policy.Requirements.Add(new PermissionRequirement((int)ERecruitmentPermission.AdminAccess)));
+        policy.Requirements.Add(new PermissionRequirement((int)PortalPermission.RecruitmentPortalAdminAccess)));
 
 // YARP Reverse Proxy
 builder.Services.AddReverseProxy()

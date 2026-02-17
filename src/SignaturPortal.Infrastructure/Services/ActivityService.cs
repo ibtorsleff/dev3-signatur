@@ -53,7 +53,7 @@ public class ActivityService : IActivityService
         // Check if user has admin access (can see all activities)
         var hasAdminAccess = await _permissionService.HasPermissionAsync(
             _sessionContext.UserName,
-            (int)ERecruitmentPermission.AdminAccess,
+            (int)PortalPermission.RecruitmentPortalAdminAccess,
             ct);
 
         System.Diagnostics.Debug.WriteLine($"[DEBUG] UserGuid={currentUserGuid}, Admin={hasAdminAccess}");

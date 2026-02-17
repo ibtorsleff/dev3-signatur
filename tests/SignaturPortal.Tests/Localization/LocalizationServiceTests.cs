@@ -223,5 +223,6 @@ public class LocalizationServiceTests : IDisposable
         public string UserName => "TestUser";
         public int UserLanguageId { get; }
         public bool IsInitialized => true;
+        public bool IsClientUser => ClientId.HasValue && ClientId.Value > 0;
     }
 }
