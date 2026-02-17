@@ -18,15 +18,18 @@ public class ActivityService : IActivityService
     private readonly IDbContextFactory<SignaturDbContext> _contextFactory;
     private readonly IUserSessionContext _sessionContext;
     private readonly IPermissionService _permissionService;
+    private readonly ICurrentUserService _currentUserService;
 
     public ActivityService(
         IDbContextFactory<SignaturDbContext> contextFactory,
         IUserSessionContext sessionContext,
-        IPermissionService permissionService)
+        IPermissionService permissionService,
+        ICurrentUserService currentUserService)
     {
         _contextFactory = contextFactory;
         _sessionContext = sessionContext;
         _permissionService = permissionService;
+        _currentUserService = currentUserService;
     }
 
     /// <summary>
@@ -47,8 +50,9 @@ public class ActivityService : IActivityService
 
         System.Diagnostics.Debug.WriteLine($"[DEBUG] Session: Init={_sessionContext.IsInitialized}, User='{_sessionContext.UserName}', SiteId={_sessionContext.SiteId}, ClientId={_sessionContext.ClientId}");
 
-        // Get current user's UserGuid for permission filtering
-        var currentUserGuid = await GetUserGuidAsync(context, _sessionContext.UserName, ct);
+        // Load the current user by UserName (auth identity name) — Guid comes from the [User] DB record
+        var currentUser = await _currentUserService.GetCurrentUserAsync(ct);
+        var currentUserGuid = currentUser?.UserId;
 
         // Check if user has admin access (can see all activities)
         var hasAdminAccess = await _permissionService.HasPermissionAsync(
@@ -480,20 +484,4 @@ public class ActivityService : IActivityService
         return (file.FileData, file.FileName);
     }
 
-    /// <summary>
-    /// Gets the UserId (GUID) for a given username.
-    /// Returns null if user not found.
-    /// </summary>
-    private async Task<Guid?> GetUserGuidAsync(
-        SignaturDbContext context,
-        string userName,
-        CancellationToken ct)
-    {
-        var user = await context.AspnetUsers
-            .Where(u => u.UserName == userName)
-            .Select(u => u.UserId)
-            .FirstOrDefaultAsync(ct);
-
-        return user == default ? null : user;
-    }
 }
