@@ -20,6 +20,9 @@ builder.Services.AddRazorComponents()
         options.MaximumReceiveMessageSize = 10 * 1024 * 1024;
     });
 
+// Cascading auth state — enables AuthorizeRouteView to enforce [Authorize] during SPA navigation
+builder.Services.AddCascadingAuthenticationState();
+
 // MudBlazor
 builder.Services.AddMudServices();
 
