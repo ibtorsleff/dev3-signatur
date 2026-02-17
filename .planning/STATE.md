@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-13)
 
 **Core value:** The activity list view must work perfectly. Users must be able to see and navigate their recruitment activities with correct status.
-**Current focus:** Phase 03.7 COMPLETE -- Authentication & User Context Migration Strategy
+**Current focus:** Phase 03.7.1 IN PROGRESS -- ICurrentUserService DB-Backed User Context
 
 ## Current Position
 
-Phase: 3.7 of 8 (Authentication & User Context Migration Strategy)
-Plan: 1 of 1 in current phase
-Status: Phase 03.7 COMPLETE (all plans executed)
-Last activity: 2026-02-17 -- Plan 03.7-01 complete
+Phase: 3.7.1 of 8 (ICurrentUserService DB-Backed User Context)
+Plan: 1 of 2 in current phase
+Status: Plan 03.7.1-01 COMPLETE
+Last activity: 2026-02-18 -- Plan 03.7.1-01 complete
 
 Progress: [########..] 80%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 24
+- Total plans completed: 25
 - Average duration: 5 minutes
-- Total execution time: 1.81 hours
+- Total execution time: 1.83 hours
 
 **By Phase:**
 
@@ -36,9 +36,11 @@ Progress: [########..] 80%
 | 03.5-localization | 5 | 15 min | 3 min |
 | 03.6-permission-migration | 2 | 5 min | 2.5 min |
 
+| 03.7.1-icurrentuserservice-db-backed-user-context | 1 | 1 min | 1 min |
+
 **Recent Trend:**
-- Last 5 plans: 03.5-03 (2 min), 03.5-04 (2 min), 03.5-05 (1 min), 03.6-01 (3 min), 03.6-02 (2 min)
-- Trend: Permission migration complete in 5 min total
+- Last 5 plans: 03.5-05 (1 min), 03.6-01 (3 min), 03.6-02 (2 min), 03.7-01 (n/a), 03.7.1-01 (1 min)
+- Trend: ICurrentUserService interface + implementation in 1 min
 
 *Updated after each plan completion*
 
@@ -67,6 +69,7 @@ Progress: [########..] 80%
 | 03.5-05 | 1 min | 1 | 1 |
 | 03.6-01 | 3 min | 2 | 8 |
 | 03.6-02 | 2 min | 2 | 5 |
+| 03.7.1-01 | 1 min | 2 | 3 |
 
 ## Accumulated Context
 
@@ -151,6 +154,8 @@ Recent decisions affecting current work:
 - [Phase 03.6-01]: PortalPermission enum includes all 90+ values upfront matching legacy DB PermissionId exactly
 - [Phase 03.6-01]: ERecruitmentPermission fully deleted (clean break, not deprecated)
 - [Phase 03.6-02]: IPermissionHelper registered in DependencyInjection.cs (Infrastructure layer) rather than Program.cs to follow established DI registration pattern
+- [Phase 03.7.1-01]: CurrentUserDto record used instead of returning User entity directly (Application does not reference Infrastructure)
+- [Phase 03.7.1-01]: _loaded bool flag pattern (not null-check) to handle user-not-found without infinite retry
 
 ### Pending Todos
 
@@ -164,6 +169,7 @@ None yet.
 - Phase 3.5 inserted after Phase 3: make the full legacy localization/globalization system available in the blazor app. example is the GetText, which is available via the basepage.cs in the legacy app. the database cannot be altered (URGENT)
 - Phase 03.6 inserted after Phase 3: user/client permission helper migration - isClientLoggedOn and role/permission checks (URGENT)
 - Phase 03.7 inserted after Phase 3: Authentication & User Context — Migration Strategy (URGENT)
+- Phase 03.7.1 inserted after Phase 03.7: ICurrentUserService — DB-Backed User Context (URGENT)
 
 ### Blockers/Concerns
 
@@ -173,8 +179,8 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-17
-Stopped at: Completed 03.6-02-PLAN.md (IPermissionHelper + ActivityList permission visibility)
+Last session: 2026-02-18
+Stopped at: Completed 03.7.1-01-PLAN.md (ICurrentUserService interface + CurrentUserService implementation)
 Resume file: None
 
-**Phase 03.6 COMPLETE**: IPermissionHelper composite service with 9 methods, ActivityList ClientSection/copy action permission-gated.
+**Phase 03.7.1 Plan 01 COMPLETE**: ICurrentUserService + CurrentUserDto + CurrentUserService with lazy-loading DB lookup.
