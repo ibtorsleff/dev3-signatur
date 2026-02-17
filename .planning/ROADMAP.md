@@ -78,6 +78,16 @@ Plans:
 - [x] 03-05-PLAN.md -- Gap closure: Fix nullable session context types for tenant query filter bypass
 - [x] 03-06-PLAN.md -- Gap closure: Add error handling to all Blazor page lifecycle methods
 
+### Phase 03.7: Authentication & User Context — Migration Strategy (INSERTED)
+
+**Goal:** Fix authentication and authorization gaps: correct UserId session key type mismatch, wire up AuthorizeRouteView with CascadingAuthenticationState, and redirect unauthenticated users to legacy login page
+**Depends on:** Phase 3
+**Requirements:** SEC-05, SEC-06, SEC-07
+**Plans:** 1 plan
+
+Plans:
+- [ ] 03.7-01-PLAN.md -- Fix UserId type mismatch, AuthorizeRouteView, CascadingAuthenticationState, RedirectToLogin
+
 ### Phase 03.6: user/client permission helper migration - isClientLoggedOn and role/permission checks (INSERTED)
 
 **Goal:** The Blazor app has IsClientUser classification, a complete PortalPermission enum matching all legacy permission IDs, and a composite IPermissionHelper service -- enabling permission-aware UI visibility and access control matching the legacy WebForms behavior
