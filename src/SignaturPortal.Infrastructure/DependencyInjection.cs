@@ -41,6 +41,9 @@ public static class DependencyInjection
         // Permission service (read-only, scoped — caches per-request)
         services.AddScoped<IPermissionService, PermissionService>();
 
+        // Composite permission helper (mirrors legacy PermissionHelper static methods)
+        services.AddScoped<IPermissionHelper, PermissionHelperService>();
+
         // Authorization handler for permission-based policies
         services.AddScoped<IAuthorizationHandler, PermissionHandler>();
 
