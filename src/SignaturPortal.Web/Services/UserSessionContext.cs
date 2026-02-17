@@ -10,6 +10,7 @@ public class UserSessionContext : IUserSessionContext
     public string UserName { get; private set; } = string.Empty;
     public int UserLanguageId { get; private set; }
     public bool IsInitialized { get; private set; }
+    public bool IsClientUser => ClientId.HasValue && ClientId.Value > 0;
 
     /// <summary>
     /// Initialize from legacy System.Web session (only works during SSR HTTP requests).
