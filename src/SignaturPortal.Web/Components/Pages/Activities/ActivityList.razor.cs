@@ -14,6 +14,8 @@ public partial class ActivityList
     [Inject] private ISnackbar Snackbar { get; set; } = default!;
     [Inject] private IConfiguration Configuration { get; set; } = default!;
     [Inject] private ILocalizationService L { get; set; } = default!;
+    [Inject] private IUserSessionContext Session { get; set; } = default!;
+    [Inject] private IPermissionHelper PermHelper { get; set; } = default!;
 
     [Parameter] public string? Mode { get; set; }
 
@@ -22,6 +24,10 @@ public partial class ActivityList
     private string _headlineText = "";
     private int _totalCount;
     private bool _showFilters;
+
+    // Permission state (loaded once in OnInitializedAsync)
+    private bool _isClientUser;
+    private bool _canCreateActivity;
 
     // Column visibility: computed from current mode
     // CreatedBy: visible in Ongoing and Closed, hidden in Draft
@@ -38,11 +44,18 @@ public partial class ActivityList
     //       This requires reading the Client.ObjectData XML config. See legacy: ActivityList.ascx.cs line 392.
     private bool _clientUsesTemplateGroups = false; // Hardcoded off — matches current client config
     private bool _hideTemplateGroupColumn => _currentStatus == ERActivityStatus.Draft || !_clientUsesTemplateGroups;
-    // Actions (copy): visible in Ongoing and Closed, hidden in Draft
-    // TODO: Also check user has RecruitmentPortalCreateActivity permission. See legacy: ActivityList.ascx.cs.
-    private bool _hideActionsColumn => _currentStatus == ERActivityStatus.Draft;
+    // ClientSection ("Afdeling"): hidden when user is a client user (matches legacy dskClientTh visibility)
+    private bool _hideClientSectionColumn => _isClientUser;
+    // Actions (copy): visible in Ongoing and Closed, hidden in Draft, AND user must have CreateActivity permission
+    private bool _hideActionsColumn => _currentStatus == ERActivityStatus.Draft || !_canCreateActivity;
     // Whether to show candidate count in Headline
     private bool _showCandidateCount => _currentStatus != ERActivityStatus.Draft;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _isClientUser = Session.IsClientUser;
+        _canCreateActivity = await PermHelper.UserCanCreateActivityAsync();
+    }
 
     protected override void OnParametersSet()
     {

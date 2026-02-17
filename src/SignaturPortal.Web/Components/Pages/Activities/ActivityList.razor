@@ -56,7 +56,7 @@
                 }
             </CellTemplate>
         </PropertyColumn>
-        <PropertyColumn Property="x => x.ClientSectionName" Title="@L.GetText("ColumnClientSection")" HeaderStyle="width:240px;" />
+        <PropertyColumn Property="x => x.ClientSectionName" Title="@L.GetText("ColumnClientSection")" Hidden="@_hideClientSectionColumn" HeaderStyle="width:240px;" />
         <PropertyColumn Property="x => x.RecruitingResponsibleName" Title="@L.GetText("ColumnResponsible")" Sortable="false" HeaderStyle="width:150px;" />
         <PropertyColumn Property="x => x.CreateDate" Title="@L.GetText("ColumnCreated")" Format="dd-MM-yyyy" InitialDirection="SortDirection.Descending" HeaderStyle="width:110px;" />
         <PropertyColumn Property="x => x.CreatedByName" Title="@L.GetText("ColumnCreatedBy")" Sortable="false" Hidden="@_hideCreatedByColumn" HeaderStyle="width:130px;" />
