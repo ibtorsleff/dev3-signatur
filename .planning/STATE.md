@@ -5,21 +5,21 @@
 See: .planning/PROJECT.md (updated 2026-02-13)
 
 **Core value:** The activity list view must work perfectly. Users must be able to see and navigate their recruitment activities with correct status.
-**Current focus:** Phase 3.5 COMPLETE -- Localization Infrastructure (including gap closure 03.5-05)
+**Current focus:** Phase 03.6 IN PROGRESS -- User/Client Permission Helper Migration
 
 ## Current Position
 
-Phase: 3.5 of 8 (Localization/Globalization) -- COMPLETE
-Plan: 5 of 5 in current phase -- COMPLETE
-Status: Phase 03.5 complete (all 5 plans done, including gap closure)
-Last activity: 2026-02-17 -- Plan 03.5-05 complete (nav label bracket notation fix)
+Phase: 3.6 of 8 (User/Client Permission Helper Migration)
+Plan: 1 of N in current phase
+Status: Plan 03.6-01 complete (IsClientUser + PortalPermission enum)
+Last activity: 2026-02-17 -- Plan 03.6-01 complete
 
 Progress: [########..] 78%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 21
+- Total plans completed: 22
 - Average duration: 5 minutes
 - Total execution time: 1.75 hours
 
@@ -34,10 +34,11 @@ Progress: [########..] 78%
 | 03.3-activity-list-conditional-columns | 2 | 11 min | 5.5 min |
 | 03.4-activity-list-row-height-pagination-styling | 1 | 2 min | 2 min |
 | 03.5-localization | 5 | 15 min | 3 min |
+| 03.6-permission-migration | 1 | 3 min | 3 min |
 
 **Recent Trend:**
-- Last 5 plans: 03.5-01 (8 min), 03.5-02 (2 min), 03.5-03 (2 min), 03.5-04 (2 min), 03.5-05 (1 min)
-- Trend: Gap closure fix completed in 1 min
+- Last 5 plans: 03.5-02 (2 min), 03.5-03 (2 min), 03.5-04 (2 min), 03.5-05 (1 min), 03.6-01 (3 min)
+- Trend: Permission migration foundation in 3 min
 
 *Updated after each plan completion*
 
@@ -64,6 +65,7 @@ Progress: [########..] 78%
 | 03.5-03 | 2 min | 2 | 4 |
 | 03.5-04 | 2 min | 2 | 4 |
 | 03.5-05 | 1 min | 1 | 1 |
+| 03.6-01 | 3 min | 2 | 8 |
 
 ## Accumulated Context
 
@@ -144,6 +146,9 @@ Recent decisions affecting current work:
 - [Phase 03.5-05]: Removed bracket-notation suppression -- GetText return value is always the correct display value when a key is configured
 - [Phase 03.5-04]: Singleton + hosted service pattern (AddSingleton + AddHostedService factory) for injectable IHostedService
 - [Phase 03.5-04]: Admin page pattern at /admin/* with [Authorize] and MudBlazor layout
+- [Phase 03.6-01]: IsClientUser computed as ClientId.HasValue && ClientId.Value > 0 -- matches legacy PermissionHelper.UserIsClient
+- [Phase 03.6-01]: PortalPermission enum includes all 90+ values upfront matching legacy DB PermissionId exactly
+- [Phase 03.6-01]: ERecruitmentPermission fully deleted (clean break, not deprecated)
 
 ### Pending Todos
 
@@ -155,6 +160,7 @@ None yet.
 - Phase 3.3 inserted after Phase 3.2: Activity List Conditional Columns (URGENT) — research and fix column visibility per mode/role/permission to match legacy for all 3 modes
 - Phase 3.4 inserted after Phase 3.3: Activity List Row Height & Pagination Styling (URGENT) — reduce row height to 19px, style pagination footer to match grid header
 - Phase 3.5 inserted after Phase 3: make the full legacy localization/globalization system available in the blazor app. example is the GetText, which is available via the basepage.cs in the legacy app. the database cannot be altered (URGENT)
+- Phase 03.6 inserted after Phase 3: user/client permission helper migration - isClientLoggedOn and role/permission checks (URGENT)
 
 ### Blockers/Concerns
 
@@ -165,7 +171,7 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-17
-Stopped at: Completed 03.5-05-PLAN.md (nav label bracket notation fix) -- Phase 03.5 fully complete
+Stopped at: Completed 03.6-01-PLAN.md (IsClientUser + PortalPermission enum)
 Resume file: None
 
-**Phase 03.5 Complete**: Full localization infrastructure -- ILocalizationService with IMemoryCache-backed GetText, startup cache warmup, ActivityList and NavMenu localization, admin cache management page at /admin/cache-status, bracket notation display for unresolved keys.
+**Phase 03.6 In Progress**: Plan 01 complete -- IsClientUser property and full PortalPermission enum with 90+ values replacing ERecruitmentPermission.
