@@ -11,7 +11,7 @@ public partial class CacheStatus
     private LocalizationCacheWarmupService WarmupService { get; set; } = default!;
 
     [Inject]
-    private ILocalizationService L { get; set; } = default!;
+    private ILocalizationService Localization { get; set; } = default!;
 
     private bool _isReloading;
     private string? _successMessage;

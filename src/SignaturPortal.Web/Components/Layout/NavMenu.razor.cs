@@ -17,7 +17,7 @@ public partial class NavMenu : IDisposable
     private IUserSessionContext Session { get; set; } = default!;
 
     [Inject]
-    private ILocalizationService L { get; set; } = default!;
+    private ILocalizationService Localization{ get; set; } = default!;
 
     private NavMenuConfig _config = new();
 
@@ -44,7 +44,7 @@ public partial class NavMenu : IDisposable
     {
         if (!string.IsNullOrEmpty(item.LabelKey))
         {
-            return L.GetText(item.LabelKey);
+            return Localization.GetText(item.LabelKey);
         }
         return item.Label;
     }
@@ -53,7 +53,7 @@ public partial class NavMenu : IDisposable
     {
         if (!string.IsNullOrEmpty(_config.PortalNameKey))
         {
-            return L.GetText(_config.PortalNameKey);
+            return Localization.GetText(_config.PortalNameKey);
         }
         return _config.PortalName;
     }
