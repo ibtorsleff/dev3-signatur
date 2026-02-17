@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-13)
 
 **Core value:** The activity list view must work perfectly. Users must be able to see and navigate their recruitment activities with correct status.
-**Current focus:** Phase 03.7.1 IN PROGRESS -- ICurrentUserService DB-Backed User Context
+**Current focus:** Phase 03.7.1 COMPLETE -- ICurrentUserService DB-Backed User Context
 
 ## Current Position
 
 Phase: 3.7.1 of 8 (ICurrentUserService DB-Backed User Context)
-Plan: 1 of 2 in current phase
-Status: Plan 03.7.1-01 COMPLETE
-Last activity: 2026-02-18 -- Plan 03.7.1-01 complete
+Plan: 2 of 2 in current phase
+Status: Phase 03.7.1 COMPLETE
+Last activity: 2026-02-18 -- Plan 03.7.1-02 complete
 
-Progress: [########..] 80%
+Progress: [#########.] 85%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 25
+- Total plans completed: 26
 - Average duration: 5 minutes
-- Total execution time: 1.83 hours
+- Total execution time: 1.86 hours
 
 **By Phase:**
 
@@ -36,11 +36,11 @@ Progress: [########..] 80%
 | 03.5-localization | 5 | 15 min | 3 min |
 | 03.6-permission-migration | 2 | 5 min | 2.5 min |
 
-| 03.7.1-icurrentuserservice-db-backed-user-context | 1 | 1 min | 1 min |
+| 03.7.1-icurrentuserservice-db-backed-user-context | 2 | 3 min | 1.5 min |
 
 **Recent Trend:**
-- Last 5 plans: 03.5-05 (1 min), 03.6-01 (3 min), 03.6-02 (2 min), 03.7-01 (n/a), 03.7.1-01 (1 min)
-- Trend: ICurrentUserService interface + implementation in 1 min
+- Last 5 plans: 03.6-01 (3 min), 03.6-02 (2 min), 03.7-01 (n/a), 03.7.1-01 (1 min), 03.7.1-02 (2 min)
+- Trend: DI registration + ActivityService refactor in 2 min
 
 *Updated after each plan completion*
 
@@ -70,6 +70,7 @@ Progress: [########..] 80%
 | 03.6-01 | 3 min | 2 | 8 |
 | 03.6-02 | 2 min | 2 | 5 |
 | 03.7.1-01 | 1 min | 2 | 3 |
+| 03.7.1-02 | 2 min | 2 | 2 |
 
 ## Accumulated Context
 
@@ -156,6 +157,8 @@ Recent decisions affecting current work:
 - [Phase 03.6-02]: IPermissionHelper registered in DependencyInjection.cs (Infrastructure layer) rather than Program.cs to follow established DI registration pattern
 - [Phase 03.7.1-01]: CurrentUserDto record used instead of returning User entity directly (Application does not reference Infrastructure)
 - [Phase 03.7.1-01]: _loaded bool flag pattern (not null-check) to handle user-not-found without infinite retry
+- [Phase 03.7.1-02]: ICurrentUserService registered after IPermissionHelper in DI (user-context services grouped together)
+- [Phase 03.7.1-02]: GetUserGuidAsync deleted entirely rather than deprecated (clean break, no aspnet_Users reference remains in ActivityService)
 
 ### Pending Todos
 
@@ -180,7 +183,7 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-18
-Stopped at: Completed 03.7.1-01-PLAN.md (ICurrentUserService interface + CurrentUserService implementation)
+Stopped at: Completed 03.7.1-02-PLAN.md (DI registration + ActivityService refactor)
 Resume file: None
 
-**Phase 03.7.1 Plan 01 COMPLETE**: ICurrentUserService + CurrentUserDto + CurrentUserService with lazy-loading DB lookup.
+**Phase 03.7.1 COMPLETE**: ICurrentUserService fully wired -- interface, implementation, DI registration, and ActivityService refactored to use correct User table Guid.
