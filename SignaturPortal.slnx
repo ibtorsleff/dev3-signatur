@@ -10,7 +10,6 @@
     <Project Path="tests/SignaturPortal.Tests/SignaturPortal.Tests.csproj" />
   </Folder>
   <Folder Name="/db/">
-    <File Path="db/README.md" />
-    <File Path="db/patches/001_blazor_localization_keys.sql" />
+    <Project Path="db/db.proj" />
   </Folder>
 </Solution>
