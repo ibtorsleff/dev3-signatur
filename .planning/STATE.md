@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-13)
 ## Current Position
 
 Phase: 3.6 of 8 (User/Client Permission Helper Migration)
-Plan: 1 of N in current phase
-Status: Plan 03.6-01 complete (IsClientUser + PortalPermission enum)
-Last activity: 2026-02-17 -- Plan 03.6-01 complete
+Plan: 2 of 2 in current phase
+Status: Phase 03.6 COMPLETE (all plans executed)
+Last activity: 2026-02-17 -- Plan 03.6-02 complete
 
 Progress: [########..] 78%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 22
+- Total plans completed: 23
 - Average duration: 5 minutes
-- Total execution time: 1.75 hours
+- Total execution time: 1.78 hours
 
 **By Phase:**
 
@@ -34,11 +34,11 @@ Progress: [########..] 78%
 | 03.3-activity-list-conditional-columns | 2 | 11 min | 5.5 min |
 | 03.4-activity-list-row-height-pagination-styling | 1 | 2 min | 2 min |
 | 03.5-localization | 5 | 15 min | 3 min |
-| 03.6-permission-migration | 1 | 3 min | 3 min |
+| 03.6-permission-migration | 2 | 5 min | 2.5 min |
 
 **Recent Trend:**
-- Last 5 plans: 03.5-02 (2 min), 03.5-03 (2 min), 03.5-04 (2 min), 03.5-05 (1 min), 03.6-01 (3 min)
-- Trend: Permission migration foundation in 3 min
+- Last 5 plans: 03.5-03 (2 min), 03.5-04 (2 min), 03.5-05 (1 min), 03.6-01 (3 min), 03.6-02 (2 min)
+- Trend: Permission migration complete in 5 min total
 
 *Updated after each plan completion*
 
@@ -66,6 +66,7 @@ Progress: [########..] 78%
 | 03.5-04 | 2 min | 2 | 4 |
 | 03.5-05 | 1 min | 1 | 1 |
 | 03.6-01 | 3 min | 2 | 8 |
+| 03.6-02 | 2 min | 2 | 5 |
 
 ## Accumulated Context
 
@@ -149,6 +150,7 @@ Recent decisions affecting current work:
 - [Phase 03.6-01]: IsClientUser computed as ClientId.HasValue && ClientId.Value > 0 -- matches legacy PermissionHelper.UserIsClient
 - [Phase 03.6-01]: PortalPermission enum includes all 90+ values upfront matching legacy DB PermissionId exactly
 - [Phase 03.6-01]: ERecruitmentPermission fully deleted (clean break, not deprecated)
+- [Phase 03.6-02]: IPermissionHelper registered in DependencyInjection.cs (Infrastructure layer) rather than Program.cs to follow established DI registration pattern
 
 ### Pending Todos
 
@@ -171,7 +173,7 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-17
-Stopped at: Completed 03.6-01-PLAN.md (IsClientUser + PortalPermission enum)
+Stopped at: Completed 03.6-02-PLAN.md (IPermissionHelper + ActivityList permission visibility)
 Resume file: None
 
-**Phase 03.6 In Progress**: Plan 01 complete -- IsClientUser property and full PortalPermission enum with 90+ values replacing ERecruitmentPermission.
+**Phase 03.6 COMPLETE**: IPermissionHelper composite service with 9 methods, ActivityList ClientSection/copy action permission-gated.
