@@ -12,14 +12,12 @@ namespace SignaturPortal.Infrastructure.Services;
 public class PermissionService : IPermissionService
 {
     private readonly IDbContextFactory<SignaturDbContext> _contextFactory;
-    private readonly IUserSessionContext _session;
     private IReadOnlySet<int>? _cachedPermissions;
     private string? _cachedUserName;
 
-    public PermissionService(IDbContextFactory<SignaturDbContext> contextFactory, IUserSessionContext session)
+    public PermissionService(IDbContextFactory<SignaturDbContext> contextFactory)
     {
         _contextFactory = contextFactory;
-        _session = session;
     }
 
     public async Task<bool> HasPermissionAsync(string userName, int permissionId, CancellationToken ct = default)
@@ -36,12 +34,9 @@ public class PermissionService : IPermissionService
 
         await using var db = await _contextFactory.CreateDbContextAsync(ct);
 
-        // Stamp tenant so query filters scope roles to current tenant
-        if (_session.IsInitialized)
-        {
-            db.CurrentSiteId = _session.SiteId;
-            db.CurrentClientId = _session.ClientId;
-        }
+        // No tenant stamping — CurrentSiteId stays null so the AspnetRole query filter
+        // passes unconditionally. Permission lookup must see all of a user's roles
+        // regardless of which client/site the current session is scoped to.
 
         var loweredName = userName.ToLowerInvariant();
 
