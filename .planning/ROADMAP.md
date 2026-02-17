@@ -86,7 +86,7 @@ Plans:
 **Plans:** 1 plan
 
 Plans:
-- [ ] 03.7-01-PLAN.md -- Fix UserId type mismatch, AuthorizeRouteView, CascadingAuthenticationState, RedirectToLogin
+- [x] 03.7-01-PLAN.md -- Fix UserId type mismatch, AuthorizeRouteView, CascadingAuthenticationState, RedirectToLogin
 
 ### Phase 03.6: user/client permission helper migration - isClientLoggedOn and role/permission checks (INSERTED)
 
@@ -241,10 +241,11 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 3.1 -> 3.2 -> 3.3 -> 3.4 -> 3.5 
 | 3.4 Activity List Row Height & Pagination Styling | 1/1 | Complete | 2026-02-16 |
 | 3.5 Legacy Localization/Globalization in Blazor | 4/4 | Complete | 2026-02-17 |
 | 3.6 Permission Helper Migration (IsClientUser + PortalPermission + IPermissionHelper) | 2/2 | Complete | 2026-02-17 |
+| 3.7 Authentication & User Context Migration | 1/1 | Complete | 2026-02-17 |
 | 4. Core Write Operations | 0/4 | Planned | - |
 | 5. Localization & UX Polish | 0/3 | Planned | - |
 | 6. Testing, Deployment & Monitoring | 0/3 | Not started | - |
 
 ---
 *Roadmap created: 2026-02-13*
-*Last updated: 2026-02-17 (Phase 03.6 complete)*
+*Last updated: 2026-02-17 (Phase 03.7 complete)*
