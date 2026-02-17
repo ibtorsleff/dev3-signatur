@@ -10,6 +10,6 @@
     <Project Path="tests/SignaturPortal.Tests/SignaturPortal.Tests.csproj" />
   </Folder>
   <Folder Name="/db/">
-    <Project Path="db/db.proj" />
+    <Project Path="db/db.csproj" />
   </Folder>
 </Solution>

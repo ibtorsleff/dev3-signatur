@@ -1,6 +1,0 @@
-<Project>
-  <ItemGroup>
-    <None Include="README.md" />
-    <None Include="patches\*.sql" />
-  </ItemGroup>
-</Project>
