@@ -68,9 +68,9 @@ public partial class ActivityList
 
         _headlineText = newStatus switch
         {
-            ERActivityStatus.Draft => L.GetText("DraftActivities"),
-            ERActivityStatus.Closed => L.GetText("ClosedActivities"),
-            _ => L.GetText("OngoingActivities")
+            ERActivityStatus.Draft => L.GetText("ERecruitmentDraftActivities"),
+            ERActivityStatus.Closed => L.GetText("ERecruitmentClosedActivities"),
+            _ => L.GetText("ERecruitmentOngoingActivities")
         };
 
         if (newStatus != _currentStatus)
@@ -129,7 +129,7 @@ public partial class ActivityList
             System.Diagnostics.Debug.WriteLine($"[ERROR] StackTrace: {ex.StackTrace}");
             if (ex.InnerException != null)
                 System.Diagnostics.Debug.WriteLine($"[ERROR] Inner: {ex.InnerException.GetType().Name}: {ex.InnerException.Message}");
-            Snackbar.Add(L.GetText("ErrorLoadingActivities"), Severity.Error);
+            Snackbar.Add(L.GetText("ErrorsExist"), Severity.Error);
             return new GridData<ActivityListDto>
             {
                 Items = Array.Empty<ActivityListDto>(),

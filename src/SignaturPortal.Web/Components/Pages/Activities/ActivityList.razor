@@ -21,15 +21,15 @@
         <MudChip T="string" Size="Size.Small" Variant="Variant.Filled" Color="Color.Default"
                  Style="background:#fff; font-weight:bold; font-size:12px; margin-left:8px;">@_totalCount.ToString()</MudChip>
         <MudSpacer />
-        <MudTooltip Text="@(_showFilters ? L.GetText("HideFilters") : L.GetText("ShowFilters"))">
+        <MudTooltip Text="@(_showFilters ? L.GetText("Hide") : L.GetText("Show"))">
             <MudIconButton Icon="@Icons.Material.Filled.FilterList"
                            Color="@(_showFilters ? Color.Primary : Color.Default)"
                            OnClick="ToggleFilters" />
         </MudTooltip>
     </ToolBarContent>
     <Columns>
-        <PropertyColumn Property="x => x.EractivityId" Title="@L.GetText("ColumnId")" HeaderStyle="width:80px;" CellStyle="text-align:right;" />
-        <PropertyColumn Property="x => x.Headline" Title="@L.GetText("ColumnHeadline")">
+        <PropertyColumn Property="x => x.EractivityId" Title="@L.GetText("Id")" HeaderStyle="width:80px;" CellStyle="text-align:right;" />
+        <PropertyColumn Property="x => x.Headline" Title="@L.GetText("Headline")">
             <CellTemplate>
                 @if (_showCandidateCount && context.Item.CandidateCount > 0)
                 {
@@ -41,8 +41,8 @@
                 }
             </CellTemplate>
         </PropertyColumn>
-        <PropertyColumn Property="x => x.WebAdVisitors" Title="@L.GetText("ColumnClicks")" Sortable="false" Hidden="@_hideVisitorsColumn" HeaderStyle="width:108px;" CellStyle="text-align:right;" />
-        <PropertyColumn Property="x => x.ApplicationDeadline" Title="@L.GetText("ColumnDeadline")" HeaderStyle="width:120px;">
+        <PropertyColumn Property="x => x.WebAdVisitors" Title="@L.GetText("MSFNumberOfClicks")" Sortable="false" Hidden="@_hideVisitorsColumn" HeaderStyle="width:108px;" CellStyle="text-align:right;" />
+        <PropertyColumn Property="x => x.ApplicationDeadline" Title="@L.GetText("ApplicationDeadline")" HeaderStyle="width:120px;">
             <CellTemplate>
                 @if (context.Item.ContinuousPosting)
                 {
@@ -56,12 +56,12 @@
                 }
             </CellTemplate>
         </PropertyColumn>
-        <PropertyColumn Property="x => x.ClientSectionName" Title="@L.GetText("ColumnClientSection")" Hidden="@_hideClientSectionColumn" HeaderStyle="width:240px;" />
-        <PropertyColumn Property="x => x.RecruitingResponsibleName" Title="@L.GetText("ColumnResponsible")" Sortable="false" HeaderStyle="width:150px;" />
-        <PropertyColumn Property="x => x.CreateDate" Title="@L.GetText("ColumnCreated")" Format="dd-MM-yyyy" InitialDirection="SortDirection.Descending" HeaderStyle="width:110px;" />
-        <PropertyColumn Property="x => x.CreatedByName" Title="@L.GetText("ColumnCreatedBy")" Sortable="false" Hidden="@_hideCreatedByColumn" HeaderStyle="width:130px;" />
-        <PropertyColumn Property="x => x.DraftResponsibleName" Title="@L.GetText("ColumnDraftResponsible")" Sortable="false" Hidden="@_hideDraftResponsibleColumn" HeaderStyle="width:170px;" />
-        <PropertyColumn Property="x => x.TemplateGroupName" Title="@L.GetText("ColumnTemplateGroup")" Hidden="@_hideTemplateGroupColumn" HeaderStyle="width:140px;" />
+        <PropertyColumn Property="x => x.ClientSectionName" Title="@L.GetText("ClientSection")" Hidden="@_hideClientSectionColumn" HeaderStyle="width:240px;" />
+        <PropertyColumn Property="x => x.RecruitingResponsibleName" Title="@L.GetText("RecruitingResponsable")" Sortable="false" HeaderStyle="width:150px;" />
+        <PropertyColumn Property="x => x.CreateDate" Title="@L.GetText("CreateDate")" Format="dd-MM-yyyy" InitialDirection="SortDirection.Descending" HeaderStyle="width:110px;" />
+        <PropertyColumn Property="x => x.CreatedByName" Title="@L.GetText("CreatedBy")" Sortable="false" Hidden="@_hideCreatedByColumn" HeaderStyle="width:130px;" />
+        <PropertyColumn Property="x => x.DraftResponsibleName" Title="@L.GetText("ERDraftResponsibleHeader")" Sortable="false" Hidden="@_hideDraftResponsibleColumn" HeaderStyle="width:170px;" />
+        <PropertyColumn Property="x => x.TemplateGroupName" Title="@L.GetText("TemplateGroup")" Hidden="@_hideTemplateGroupColumn" HeaderStyle="width:140px;" />
         <TemplateColumn T="ActivityListDto" Hidden="@_hideActionsColumn" Sortable="false" Filterable="false"
                         HeaderStyle="width:36px; padding:0;" CellStyle="padding:2px 4px; text-align:center;">
             <CellTemplate>
@@ -77,6 +77,6 @@
         <MudDataGridPager T="ActivityListDto" PageSizeOptions="new int[] { 10, 25, 50, 100 }" />
     </PagerContent>
     <NoRecordsContent>
-        <MudText>@L.GetText("NoActivitiesFound")</MudText>
+        <MudText>@L.GetText("NoActivities")</MudText>
     </NoRecordsContent>
 </MudDataGrid>

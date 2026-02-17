@@ -23,7 +23,7 @@ public class NavigationConfigService : INavigationConfigService
         return new NavMenuConfig
         {
             PortalName = "Rekruttering",
-            PortalNameKey = "NavigationRecruitingPortal",
+            PortalNameKey = "ERecruitmentPortal",
             PortalUrl = "/activities",
             ThemeCssClass = "theme-recruitingportal",
             Row1Items = GetRow1Items(area),
@@ -45,12 +45,12 @@ public class NavigationConfigService : INavigationConfigService
     {
         return
         [
-            new() { LabelKey = "NavigationActivityList", Label = "Sagsliste", Url = "/activities", IconClass = "icon-activity-list", IsSelected = area == NavigationArea.Activities },
-            new() { LabelKey = "NavigationSearch", Label = "S\u00f8g", Url = "/Responsive/Recruiting/Search.aspx", IconClass = "icon-search" },
-            new() { LabelKey = "NavigationJobBank", Label = "Jobbank", Url = "/Responsive/Recruiting/JobBank.aspx", IconClass = "icon-jobbank" },
-            new() { LabelKey = "NavigationHelp", Label = "Hj\u00e6lp", Url = "/Responsive/Recruiting/Help.aspx", IconClass = "icon-help" },
-            new() { LabelKey = "NavigationAdmin", Label = "Admin", Url = "/Responsive/Recruiting/Admin.aspx", IconClass = "icon-admin" },
-            new() { LabelKey = "NavigationStatistics", Label = "Statistik", Url = "/Responsive/Recruiting/StatisticsQuestionnaire.aspx", IconClass = "icon-statistics" },
+            new() { LabelKey = "ActivityList", Label = "Sagsliste", Url = "/activities", IconClass = "icon-activity-list", IsSelected = area == NavigationArea.Activities },
+            new() { LabelKey = "Search", Label = "S\u00f8g", Url = "/Responsive/Recruiting/Search.aspx", IconClass = "icon-search" },
+            new() { LabelKey = "JobBank", Label = "Jobbank", Url = "/Responsive/Recruiting/JobBank.aspx", IconClass = "icon-jobbank" },
+            new() { LabelKey = "Help", Label = "Hj\u00e6lp", Url = "/Responsive/Recruiting/Help.aspx", IconClass = "icon-help" },
+            new() { LabelKey = "Admin", Label = "Admin", Url = "/Responsive/Recruiting/Admin.aspx", IconClass = "icon-admin" },
+            new() { LabelKey = "Statistics", Label = "Statistik", Url = "/Responsive/Recruiting/StatisticsQuestionnaire.aspx", IconClass = "icon-statistics" },
         ];
     }
 
@@ -58,8 +58,8 @@ public class NavigationConfigService : INavigationConfigService
     {
         return
         [
-            new() { LabelKey = "NavigationEmployeePortal", Label = "Medarbejderportal", Url = "/Responsive/OnBoarding/Default.aspx", IconClass = "icon-employee-portal" },
-            new() { LabelKey = "NavigationAdPortal", Label = "Annonceportal", Url = "/Responsive/AdPortal/ActivityList.aspx", IconClass = "icon-ad-portal" },
+            new() { LabelKey = "OBEmployeePortal", Label = "Medarbejderportal", Url = "/Responsive/OnBoarding/Default.aspx", IconClass = "icon-employee-portal" },
+            new() { LabelKey = "AdPortal", Label = "Annonceportal", Url = "/Responsive/AdPortal/ActivityList.aspx", IconClass = "icon-ad-portal" },
         ];
     }
 
@@ -79,9 +79,9 @@ public class NavigationConfigService : INavigationConfigService
 
         return
         [
-            new() { LabelKey = "NavigationDraftActivities", Label = "Kladdesager", Url = "/activities/draft", IsSelected = isDraft },
-            new() { LabelKey = "NavigationOngoingActivities", Label = "Igangv\u00e6rende sager", Url = "/activities", IsSelected = isOngoing },
-            new() { LabelKey = "NavigationClosedActivities", Label = "Afsluttede sager", Url = "/activities/closed", IsSelected = isClosed },
+            new() { LabelKey = "ERecruitmentDraftActivities", Label = "Kladdesager", Url = "/activities/draft", IsSelected = isDraft },
+            new() { LabelKey = "ERecruitmentOngoingActivities", Label = "Igangv\u00e6rende sager", Url = "/activities", IsSelected = isOngoing },
+            new() { LabelKey = "ERecruitmentClosedActivities", Label = "Afsluttede sager", Url = "/activities/closed", IsSelected = isClosed },
         ];
     }
 
