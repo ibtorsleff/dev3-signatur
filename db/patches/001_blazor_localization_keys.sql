@@ -71,3 +71,15 @@ IF NOT EXISTS (SELECT 1 FROM dbo.Localization WHERE [Key] = N'Of' AND LanguageId
 IF NOT EXISTS (SELECT 1 FROM dbo.Localization WHERE [Key] = N'Of' AND LanguageId = 3 AND SiteId = -1)
     INSERT INTO dbo.Localization (Area, [Key], [Value], SiteId, [Enabled], LanguageId, LocalizationTypeId, CreateDate, ModifiedDate, Approved)
     VALUES (N'BlazorPortal', N'Of', N'af', -1, 1, 3, 1, @now, @now, 1)
+
+-- ------------------------------------------------------------
+-- RowsPerPage
+-- Used in MudDataGridPager RowsPerPageString.
+-- ------------------------------------------------------------
+IF NOT EXISTS (SELECT 1 FROM dbo.Localization WHERE [Key] = N'RowsPerPage' AND LanguageId = 1 AND SiteId = -1)
+    INSERT INTO dbo.Localization (Area, [Key], [Value], SiteId, [Enabled], LanguageId, LocalizationTypeId, CreateDate, ModifiedDate, Approved)
+    VALUES (N'BlazorPortal', N'RowsPerPage', N'Rows per page:', -1, 1, 1, 1, @now, @now, 1)
+
+IF NOT EXISTS (SELECT 1 FROM dbo.Localization WHERE [Key] = N'RowsPerPage' AND LanguageId = 3 AND SiteId = -1)
+    INSERT INTO dbo.Localization (Area, [Key], [Value], SiteId, [Enabled], LanguageId, LocalizationTypeId, CreateDate, ModifiedDate, Approved)
+    VALUES (N'BlazorPortal', N'RowsPerPage', N'Rækker pr. side:', -1, 1, 3, 1, @now, @now, 1)
