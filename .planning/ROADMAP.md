@@ -88,6 +88,17 @@ Plans:
 Plans:
 - [x] 03.7-01-PLAN.md -- Fix UserId type mismatch, AuthorizeRouteView, CascadingAuthenticationState, RedirectToLogin
 
+### Phase 03.7.1: ICurrentUserService — DB-Backed User Context (INSERTED)
+
+**Goal:** Create ICurrentUserService that provides DB-backed current user data, fix the ActivityService.GetUserGuidAsync bug that queries the wrong table (aspnet_Users instead of [User]), and eliminate the redundant session-to-DB round-trip for the user Guid.
+**Depends on:** Phase 03.7
+**Requirements:** SEC-05, SEC-06, SEC-07
+**Plans:** 2 plans
+
+Plans:
+- [ ] 03.7.1-01-PLAN.md -- ICurrentUserService interface (Application layer) + CurrentUserService implementation (Infrastructure, lazy-load + circuit-scoped cache)
+- [ ] 03.7.1-02-PLAN.md -- Register ICurrentUserService as Scoped, refactor ActivityService to remove GetUserGuidAsync and use _currentUserService.UserId
+
 ### Phase 03.6: user/client permission helper migration - isClientLoggedOn and role/permission checks (INSERTED)
 
 **Goal:** The Blazor app has IsClientUser classification, a complete PortalPermission enum matching all legacy permission IDs, and a composite IPermissionHelper service -- enabling permission-aware UI visibility and access control matching the legacy WebForms behavior
@@ -242,10 +253,11 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 3.1 -> 3.2 -> 3.3 -> 3.4 -> 3.5 
 | 3.5 Legacy Localization/Globalization in Blazor | 4/4 | Complete | 2026-02-17 |
 | 3.6 Permission Helper Migration (IsClientUser + PortalPermission + IPermissionHelper) | 2/2 | Complete | 2026-02-17 |
 | 3.7 Authentication & User Context Migration | 1/1 | Complete | 2026-02-17 |
+| 3.7.1 ICurrentUserService DB-Backed User Context | 0/2 | Planned | - |
 | 4. Core Write Operations | 0/4 | Planned | - |
 | 5. Localization & UX Polish | 0/3 | Planned | - |
 | 6. Testing, Deployment & Monitoring | 0/3 | Not started | - |
 
 ---
 *Roadmap created: 2026-02-13*
-*Last updated: 2026-02-17 (Phase 03.7 complete)*
+*Last updated: 2026-02-17 (Phase 03.7.1 planned)*
