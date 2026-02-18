@@ -12,8 +12,10 @@
         @if (!_isClientUser)
         {
             <MudAutocomplete T="ClientDropdownDto"
+                             @ref="_clientAutocomplete"
                              Value="_selectedClient"
                              ValueChanged="OnClientChanged"
+                             OpenChanged="OnClientDropdownOpenChanged"
                              SearchFunc="SearchClients"
                              ToStringFunc="@(c => c?.ClientName ?? string.Empty)"
                              Label="@Localization.GetText("Client")"

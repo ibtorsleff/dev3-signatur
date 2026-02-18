@@ -21,6 +21,7 @@ public partial class ActivityList
     [Parameter] public string? Mode { get; set; }
 
     private MudDataGrid<ActivityListDto> _dataGrid = default!;
+    private MudAutocomplete<ClientDropdownDto> _clientAutocomplete = default!;
     private ERActivityStatus _currentStatus = ERActivityStatus.OnGoing;
     private string _headlineText = "";
     private int _totalCount;
@@ -33,7 +34,8 @@ public partial class ActivityList
 
     // Client dropdown state (non-client users only)
     private List<ClientDropdownDto> _clients = new();
-    private ClientDropdownDto? _selectedClient;
+    private ClientDropdownDto? _selectedClient;  // drives the autocomplete display
+    private int? _activeClientId;                // drives the grid filter (stable during search)
 
     // Column visibility: computed from current mode
     // CreatedBy: visible in Ongoing and Closed, hidden in Draft
@@ -69,6 +71,7 @@ public partial class ActivityList
             if (siteId > 0)
                 _clients = await ClientService.GetClientsForSiteAsync(siteId);
             _selectedClient = _clients.Count > 0 ? _clients[0] : null;
+            _activeClientId = _selectedClient?.ClientId;
         }
     }
 
@@ -130,10 +133,10 @@ public partial class ActivityList
             }
 
             // Non-client users must have a client selected; return empty if none available
-            if (!_isClientUser && _selectedClient == null)
+            if (!_isClientUser && _activeClientId == null)
                 return new GridData<ActivityListDto> { Items = Array.Empty<ActivityListDto>(), TotalItems = 0 };
 
-            var clientFilter = _isClientUser ? null : (int?)_selectedClient?.ClientId;
+            var clientFilter = _isClientUser ? null : _activeClientId;
             var response = await ActivityService.GetActivitiesAsync(request, _currentStatus, clientFilter);
             _totalCount = response.TotalCount;
 
@@ -196,11 +199,27 @@ public partial class ActivityList
 
     /// <summary>
     /// Client dropdown selection changed - reload the data grid with new client filter.
+    /// Null is ignored because Clearable="false" means null only fires while the user is
+    /// typing (Strict="false" fires ValueChanged(null) when text doesn't match any item).
+    /// Updating state on null would reset the autocomplete's internal search text.
     /// </summary>
     private async Task OnClientChanged(ClientDropdownDto? client)
     {
+        if (client == null) return;
         _selectedClient = client;
+        _activeClientId = client.ClientId;
         await _dataGrid.ReloadServerData();
+    }
+
+    /// <summary>
+    /// Selects all text when the dropdown opens so the user can type immediately
+    /// without manually deleting the existing text. The grid filter (_activeClientId)
+    /// is unaffected — the grid keeps showing the last confirmed client while searching.
+    /// </summary>
+    private async Task OnClientDropdownOpenChanged(bool isOpen)
+    {
+        if (isOpen)
+            await _clientAutocomplete.SelectAsync();
     }
 
     private Task<IEnumerable<ClientDropdownDto>> SearchClients(string searchText, CancellationToken ct)
@@ -218,13 +237,13 @@ public partial class ActivityList
     /// </summary>
     private void OnCreateActivityClick()
     {
-        if (!_isClientUser && _selectedClient == null)
+        if (!_isClientUser && _activeClientId == null)
         {
             Snackbar.Add(Localization.GetText("PleaseSelectClient"), Severity.Warning);
             return;
         }
 
-        var clientId = _isClientUser ? (Session.ClientId ?? 0) : (_selectedClient?.ClientId ?? 0);
+        var clientId = _isClientUser ? (Session.ClientId ?? 0) : (_activeClientId ?? 0);
 
         string url;
         if (_currentStatus == ERActivityStatus.Draft)
