@@ -38,4 +38,32 @@ public class ClientService : IClientService
                 siteId)
             .ToListAsync(ct);
     }
+
+    public async Task<bool> GetWebAdVisitorStatisticsEnabledAsync(int clientId, CancellationToken ct = default)
+    {
+        await using var context = await _contextFactory.CreateDbContextAsync(ct);
+        var result = await context.Database
+            .SqlQueryRaw<bool>(
+                @"SELECT CAST(SC.WebAdVisitorStatisticsEnabled AS BIT)
+                  FROM Sig_Client SC
+                  WHERE SC.ClientId = {0}
+                    AND SC.WebAdEnabled = 1",
+                clientId)
+            .ToListAsync(ct);
+        return result.FirstOrDefault();
+    }
+
+    public async Task<bool> GetRecruitmentUseTemplateGroupsAsync(int clientId, CancellationToken ct = default)
+    {
+        await using var context = await _contextFactory.CreateDbContextAsync(ct);
+        var result = await context.Database
+            .SqlQueryRaw<bool>(
+                @"SELECT CAST(SC.ERecruitmentUseTemplateGroups AS BIT)
+                  FROM Sig_Client SC
+                  WHERE SC.ClientId = {0}
+                    AND SC.ERecruitmentEnabled = 1",
+                clientId)
+            .ToListAsync(ct);
+        return result.FirstOrDefault();
+    }
 }

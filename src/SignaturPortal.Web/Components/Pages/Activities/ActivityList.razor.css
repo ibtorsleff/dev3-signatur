@@ -6,10 +6,6 @@
     background-color: #054541 !important;
 }
 
-::deep .activity-filter-select .mud-select-input {
-    font-size: 0.875rem !important;
-}
-
 ::deep .activity-client-autocomplete input {
     font-size: 0.875rem !important;
 }

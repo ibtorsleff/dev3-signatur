@@ -8,7 +8,7 @@
 
 @if (!_isClientUser || _canCreateActivity)
 {
-    <div style="display: inline-flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: @(_showMoreFilters ? "4px" : "8px");">
+    <div style="display: inline-flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: @(_showMoreFilters ? "8px" : "20px");">
         @if (!_isClientUser)
         {
             <MudAutocomplete T="ClientDropdownDto"
@@ -55,55 +55,58 @@
 @if (!_isClientUser)
 {
     <MudCollapse Expanded="_showMoreFilters">
-        <div style="display: inline-flex; gap: 12px; flex-wrap: wrap; padding: 4px 0 12px 0; align-items: flex-end;">
-            <MudSelect T="Guid?"
-                       Value="_createdByFilter"
-                       ValueChanged="OnCreatedByFilterChanged"
-                       Label="@Localization.GetText("CreatedBy")"
-                       Dense="true" Margin="Margin.Dense" Variant="Variant.Outlined"
-                       ShrinkLabel="true"
-                       Class="activity-filter-select" Style="min-width: 175px; max-width: 280px;"
-                       Clearable="true"
-                       AnchorOrigin="Origin.BottomLeft"
-                       PopoverClass="activity-filter-popover">
-                <MudSelectItem T="Guid?" Value="@((Guid?)null)">[ALL]</MudSelectItem>
-                @foreach (var user in _filterCreatedByUsers)
-                {
-                    <MudSelectItem T="Guid?" Value="@((Guid?)user.UserId)">@user.DisplayName</MudSelectItem>
-                }
-            </MudSelect>
-            <MudSelect T="Guid?"
-                       Value="_recruitmentResponsibleFilter"
-                       ValueChanged="OnRecruitmentResponsibleFilterChanged"
-                       Label="@Localization.GetText("RecruitingResponsable")"
-                       Dense="true" Margin="Margin.Dense" Variant="Variant.Outlined"
-                       ShrinkLabel="true"
-                       Class="activity-filter-select" Style="min-width: 175px; max-width: 280px;"
-                       Clearable="true"
-                       AnchorOrigin="Origin.BottomLeft"
-                       PopoverClass="activity-filter-popover">
-                <MudSelectItem T="Guid?" Value="@((Guid?)null)">[ALL]</MudSelectItem>
-                @foreach (var user in _filterRecruitmentResponsibleUsers)
-                {
-                    <MudSelectItem T="Guid?" Value="@((Guid?)user.UserId)">@user.DisplayName</MudSelectItem>
-                }
-            </MudSelect>
-            <MudSelect T="int?"
-                       Value="_clientSectionFilter"
-                       ValueChanged="OnClientSectionFilterChanged"
-                       Label="@Localization.GetText("ClientSection")"
-                       Dense="true" Margin="Margin.Dense" Variant="Variant.Outlined"
-                       ShrinkLabel="true"
-                       Class="activity-filter-select" Style="min-width: 175px; max-width: 280px;"
-                       Clearable="true"
-                       AnchorOrigin="Origin.BottomLeft"
-                       PopoverClass="activity-filter-popover">
-                <MudSelectItem T="int?" Value="@((int?)null)">[ALL]</MudSelectItem>
-                @foreach (var clientSection in _filterClientSections)
-                {
-                    <MudSelectItem T="int?" Value="@((int?)clientSection.ClientSectionId)">@clientSection.Name</MudSelectItem>
-                }
-            </MudSelect>
+        <div style="display: inline-flex; gap: 12px; flex-wrap: wrap; margin-bottom:8px; padding: 4px 0 12px 0; align-items: flex-end;">
+            <MudAutocomplete T="UserDropdownDto" 
+                             @ref="_createdByAutocomplete"
+                             Value="_createdByFilterUser"
+                             ValueChanged="OnCreatedByFilterChanged"
+                             OpenChanged="OnCreatedByDropdownOpenChanged"
+                             SearchFunc="SearchCreatedByUsers"
+                             ToStringFunc="@(u => u?.DisplayName ?? string.Empty)"
+                             Label="@Localization.GetText("CreatedBy")"
+                             Placeholder="@Localization.GetText("All")"
+                             Dense="true" Margin="Margin.Dense" Variant="Variant.Outlined"
+                             ShrinkLabel="true"
+                             Class="activity-client-autocomplete" Style="min-width: 175px; max-width: 280px;"
+                             PopoverClass="activity-filter-popover"
+                             MinCharacters="0"
+                             MaxItems="null"
+                             Strict="false"
+                             Clearable="true" />
+            <MudAutocomplete T="UserDropdownDto"
+                             @ref="_recruitmentResponsibleAutocomplete"
+                             Value="_recruitmentResponsibleFilterUser"
+                             ValueChanged="OnRecruitmentResponsibleFilterChanged"
+                             OpenChanged="OnRecruitmentResponsibleDropdownOpenChanged"
+                             SearchFunc="SearchRecruitmentResponsibleUsers"
+                             ToStringFunc="@(u => u?.DisplayName ?? string.Empty)"
+                             Label="@Localization.GetText("RecruitingResponsable")"
+                             Placeholder="@Localization.GetText("All")"
+                             Dense="true" Margin="Margin.Dense" Variant="Variant.Outlined"
+                             ShrinkLabel="true"
+                             Class="activity-client-autocomplete" Style="min-width: 175px; max-width: 280px;"
+                             PopoverClass="activity-filter-popover"
+                             MinCharacters="0"
+                             MaxItems="null"
+                             Strict="false"
+                             Clearable="true" />
+            <MudAutocomplete T="ClientSectionDropdownDto"
+                             @ref="_clientSectionAutocomplete"
+                             Value="_clientSectionFilterSection"
+                             ValueChanged="OnClientSectionFilterChanged"
+                             OpenChanged="OnClientSectionDropdownOpenChanged"
+                             SearchFunc="SearchClientSections"
+                             ToStringFunc="@(s => s?.Name ?? string.Empty)"
+                             Label="@Localization.GetText("ClientSection")"
+                             Placeholder="@Localization.GetText("All")"
+                             Dense="true" Margin="Margin.Dense" Variant="Variant.Outlined"
+                             ShrinkLabel="true"
+                             Class="activity-client-autocomplete" Style="min-width: 175px; max-width: 280px;"
+                             PopoverClass="activity-filter-popover"
+                             MinCharacters="0"
+                             MaxItems="null"
+                             Strict="false"
+                             Clearable="true" />
         </div>
     </MudCollapse>
 }

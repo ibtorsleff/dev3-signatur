@@ -22,6 +22,9 @@ public partial class ActivityList
 
     private MudDataGrid<ActivityListDto> _dataGrid = default!;
     private MudAutocomplete<ClientDropdownDto> _clientAutocomplete = default!;
+    private MudAutocomplete<UserDropdownDto> _createdByAutocomplete = default!;
+    private MudAutocomplete<UserDropdownDto> _recruitmentResponsibleAutocomplete = default!;
+    private MudAutocomplete<ClientSectionDropdownDto> _clientSectionAutocomplete = default!;
     private ERActivityStatus _currentStatus = ERActivityStatus.OnGoing;
     private string _headlineText = "";
     private int _totalCount;
@@ -41,9 +44,12 @@ public partial class ActivityList
     private bool _showMoreFilters;
     private bool _filterOptionsNeedRefresh;
 
-    // More filter selections
+    // More filter selections (DTO = drives autocomplete display; ID = drives grid filter)
+    private UserDropdownDto? _createdByFilterUser;
     private Guid? _createdByFilter;
+    private UserDropdownDto? _recruitmentResponsibleFilterUser;
     private Guid? _recruitmentResponsibleFilter;
+    private ClientSectionDropdownDto? _clientSectionFilterSection;
     private int? _clientSectionFilter;
 
     // More filter dropdown options (populated from existing activities)
@@ -57,14 +63,10 @@ public partial class ActivityList
     // DraftResponsible: visible in Draft only
     private bool _hideDraftResponsibleColumn => _currentStatus != ERActivityStatus.Draft;
     // Visitors: visible in Ongoing and Closed, hidden in Draft, AND only if client has WebAdVisitorStatistics enabled
-    // TODO: Replace _clientHasWebAdVisitorStatistics with actual check from ClientHlp.ClientWebAdVisitorStatisticsEnabled(siteId, clientId)
-    //       This requires reading the Client.ObjectData XML config. See legacy: ActivityList.ascx.cs line 808.
-    private bool _clientHasWebAdVisitorStatistics = true; // Hardcoded on — matches current client config
+    private bool _clientHasWebAdVisitorStatistics;
     private bool _hideVisitorsColumn => _currentStatus == ERActivityStatus.Draft || !_clientHasWebAdVisitorStatistics;
     // TemplateGroup: visible in Ongoing and Closed, hidden in Draft, AND only if client uses template groups
-    // TODO: Replace _clientUsesTemplateGroups with actual check from ClientHlp.ClientRecruitmentUseTemplateGroups(siteId, clientId)
-    //       This requires reading the Client.ObjectData XML config. See legacy: ActivityList.ascx.cs line 392.
-    private bool _clientUsesTemplateGroups = false; // Hardcoded off — matches current client config
+    private bool _clientUsesTemplateGroups;
     private bool _hideTemplateGroupColumn => _currentStatus == ERActivityStatus.Draft || !_clientUsesTemplateGroups;
     // ClientSection ("Afdeling"): hidden when user is a client user (matches legacy dskClientTh visibility)
     private bool _hideClientSectionColumn => _isClientUser;
@@ -95,6 +97,12 @@ public partial class ActivityList
                 _clients = await ClientService.GetClientsForSiteAsync(siteId);
             _selectedClient = _clients.Count > 0 ? _clients[0] : null;
             _activeClientId = _selectedClient?.ClientId;
+        }
+
+        if (_activeClientId.HasValue)
+        {
+            _clientHasWebAdVisitorStatistics = await ClientService.GetWebAdVisitorStatisticsEnabledAsync(_activeClientId.Value);
+            _clientUsesTemplateGroups = await ClientService.GetRecruitmentUseTemplateGroupsAsync(_activeClientId.Value);
         }
     }
 
@@ -159,8 +167,11 @@ public partial class ActivityList
     /// </summary>
     private void ResetMoreFilters()
     {
+        _createdByFilterUser = null;
         _createdByFilter = null;
+        _recruitmentResponsibleFilterUser = null;
         _recruitmentResponsibleFilter = null;
+        _clientSectionFilterSection = null;
         _clientSectionFilter = null;
     }
 
@@ -173,22 +184,67 @@ public partial class ActivityList
         _showMoreFilters = !_showMoreFilters;
     }
 
-    private async Task OnCreatedByFilterChanged(Guid? value)
+    private async Task OnCreatedByFilterChanged(UserDropdownDto? user)
     {
-        _createdByFilter = value;
+        _createdByFilterUser = user;
+        _createdByFilter = user?.UserId;
         await _dataGrid.ReloadServerData();
     }
 
-    private async Task OnRecruitmentResponsibleFilterChanged(Guid? value)
+    private async Task OnRecruitmentResponsibleFilterChanged(UserDropdownDto? user)
     {
-        _recruitmentResponsibleFilter = value;
+        _recruitmentResponsibleFilterUser = user;
+        _recruitmentResponsibleFilter = user?.UserId;
         await _dataGrid.ReloadServerData();
     }
 
-    private async Task OnClientSectionFilterChanged(int? value)
+    private async Task OnClientSectionFilterChanged(ClientSectionDropdownDto? section)
     {
-        _clientSectionFilter = value;
+        _clientSectionFilterSection = section;
+        _clientSectionFilter = section?.ClientSectionId;
         await _dataGrid.ReloadServerData();
+    }
+
+    private async Task OnCreatedByDropdownOpenChanged(bool isOpen)
+    {
+        if (isOpen)
+            await _createdByAutocomplete.SelectAsync();
+    }
+
+    private async Task OnRecruitmentResponsibleDropdownOpenChanged(bool isOpen)
+    {
+        if (isOpen)
+            await _recruitmentResponsibleAutocomplete.SelectAsync();
+    }
+
+    private async Task OnClientSectionDropdownOpenChanged(bool isOpen)
+    {
+        if (isOpen)
+            await _clientSectionAutocomplete.SelectAsync();
+    }
+
+    private Task<IEnumerable<UserDropdownDto>> SearchCreatedByUsers(string searchText, CancellationToken ct)
+    {
+        if (string.IsNullOrWhiteSpace(searchText))
+            return Task.FromResult<IEnumerable<UserDropdownDto>>(_filterCreatedByUsers);
+        return Task.FromResult<IEnumerable<UserDropdownDto>>(
+            _filterCreatedByUsers.Where(u => u.DisplayName.Contains(searchText, StringComparison.OrdinalIgnoreCase)));
+    }
+
+    private Task<IEnumerable<UserDropdownDto>> SearchRecruitmentResponsibleUsers(string searchText, CancellationToken ct)
+    {
+        if (string.IsNullOrWhiteSpace(searchText))
+            return Task.FromResult<IEnumerable<UserDropdownDto>>(_filterRecruitmentResponsibleUsers);
+        return Task.FromResult<IEnumerable<UserDropdownDto>>(
+            _filterRecruitmentResponsibleUsers.Where(u => u.DisplayName.Contains(searchText, StringComparison.OrdinalIgnoreCase)));
+    }
+
+    private Task<IEnumerable<ClientSectionDropdownDto>> SearchClientSections(string searchText, CancellationToken ct)
+    {
+        if (string.IsNullOrWhiteSpace(searchText))
+            return Task.FromResult<IEnumerable<ClientSectionDropdownDto>>(_filterClientSections);
+        return Task.FromResult<IEnumerable<ClientSectionDropdownDto>>(
+            _filterClientSections.Where(s => s.Name.Contains(searchText, StringComparison.OrdinalIgnoreCase)));
     }
 
     /// <summary>
@@ -313,6 +369,8 @@ public partial class ActivityList
         if (client == null) return;
         _selectedClient = client;
         _activeClientId = client.ClientId;
+        _clientHasWebAdVisitorStatistics = await ClientService.GetWebAdVisitorStatisticsEnabledAsync(client.ClientId);
+        _clientUsesTemplateGroups = await ClientService.GetRecruitmentUseTemplateGroupsAsync(client.ClientId);
         ResetMoreFilters();
         await LoadFilterOptionsAsync();
         await _dataGrid.ReloadServerData();

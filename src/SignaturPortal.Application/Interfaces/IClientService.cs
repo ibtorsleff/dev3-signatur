@@ -13,4 +13,16 @@ public interface IClientService
     /// Used to populate the client selector dropdown for non-client (staff/admin) users.
     /// </summary>
     Task<List<ClientDropdownDto>> GetClientsForSiteAsync(int siteId, CancellationToken ct = default);
+
+    /// <summary>
+    /// Returns true if the client has WebAd enabled and WebAdVisitorStatistics enabled.
+    /// Maps to Sig_Client.WebAdEnabled and Sig_Client.WebAdVisitorStatisticsEnabled columns.
+    /// </summary>
+    Task<bool> GetWebAdVisitorStatisticsEnabledAsync(int clientId, CancellationToken ct = default);
+
+    /// <summary>
+    /// Returns true if the client has ERecruitment enabled and uses template groups.
+    /// Maps to Sig_Client.ERecruitmentEnabled and Sig_Client.ERecruitmentUseTemplateGroups columns.
+    /// </summary>
+    Task<bool> GetRecruitmentUseTemplateGroupsAsync(int clientId, CancellationToken ct = default);
 }
