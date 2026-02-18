@@ -24,5 +24,9 @@
     --portal-grid-headline-border-radius: 4px;
     --portal-primary: #421a56;
     --portal-primary-dark: #2c0740;
+    --portal-primary-light: #11021b; 
+    --portal-secondary: #e6f6f6;
+    --portal-secondary-dark: #d2d9da;
+    --portal-secondary-light: #f2fbfa;
     --portal-action-hover-bg: #421a56;
 }
