@@ -264,11 +264,11 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 3.1 -> 3.2 -> 3.3 -> 3.4 -> 3.5 
 | 3.6 Permission Helper Migration (IsClientUser + PortalPermission + IPermissionHelper) | 2/2 | Complete | 2026-02-17 |
 | 3.7 Authentication & User Context Migration | 1/1 | Complete | 2026-02-17 |
 | 3.7.1 ICurrentUserService DB-Backed User Context | 2/2 | Complete | 2026-02-18 |
-| 3.8 Client Selector Dropdown & Create Activity Button | 0/2 | Planned | - |
+| 3.8 Client Selector Dropdown & Create Activity Button | 2/2 | Complete | 2026-02-18 |
 | 4. Core Write Operations | 0/4 | Planned | - |
 | 5. Localization & UX Polish | 0/3 | Planned | - |
 | 6. Testing, Deployment & Monitoring | 0/3 | Not started | - |
 
 ---
 *Roadmap created: 2026-02-13*
-*Last updated: 2026-02-18 (Phase 03.8 planned)*
+*Last updated: 2026-02-18 (Phase 03.8 complete)*
