@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-13)
 
 **Core value:** The activity list view must work perfectly. Users must be able to see and navigate their recruitment activities with correct status.
-**Current focus:** Phase 03.7.1 COMPLETE -- ICurrentUserService DB-Backed User Context
+**Current focus:** Phase 03.8 IN PROGRESS -- Client Selector Dropdown and Create Activity Button
 
 ## Current Position
 
-Phase: 3.7.1 of 8 (ICurrentUserService DB-Backed User Context)
-Plan: 2 of 2 in current phase
-Status: Phase 03.7.1 COMPLETE
-Last activity: 2026-02-18 -- Plan 03.7.1-02 complete
+Phase: 3.8 of 8 (Client Selector Dropdown and Create Activity Button)
+Plan: 1 of 2 in current phase
+Status: Plan 03.8-01 COMPLETE
+Last activity: 2026-02-18 -- Plan 03.8-01 complete
 
-Progress: [#########.] 85%
+Progress: [#########.] 88%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 26
+- Total plans completed: 27
 - Average duration: 5 minutes
-- Total execution time: 1.86 hours
+- Total execution time: 1.91 hours
 
 **By Phase:**
 
@@ -37,10 +37,11 @@ Progress: [#########.] 85%
 | 03.6-permission-migration | 2 | 5 min | 2.5 min |
 
 | 03.7.1-icurrentuserservice-db-backed-user-context | 2 | 3 min | 1.5 min |
+| 03.8-client-selector-dropdown | 1 | 3 min | 3 min |
 
 **Recent Trend:**
-- Last 5 plans: 03.6-01 (3 min), 03.6-02 (2 min), 03.7-01 (n/a), 03.7.1-01 (1 min), 03.7.1-02 (2 min)
-- Trend: DI registration + ActivityService refactor in 2 min
+- Last 5 plans: 03.6-02 (2 min), 03.7-01 (n/a), 03.7.1-01 (1 min), 03.7.1-02 (2 min), 03.8-01 (3 min)
+- Trend: Backend service layer + filter parameter in 3 min
 
 *Updated after each plan completion*
 
@@ -71,6 +72,7 @@ Progress: [#########.] 85%
 | 03.6-02 | 2 min | 2 | 5 |
 | 03.7.1-01 | 1 min | 2 | 3 |
 | 03.7.1-02 | 2 min | 2 | 2 |
+| 03.8-01 | 3 min | 2 | 6 |
 
 ## Accumulated Context
 
@@ -159,6 +161,9 @@ Recent decisions affecting current work:
 - [Phase 03.7.1-01]: _loaded bool flag pattern (not null-check) to handle user-not-found without infinite retry
 - [Phase 03.7.1-02]: ICurrentUserService registered after IPermissionHelper in DI (user-context services grouped together)
 - [Phase 03.7.1-02]: GetUserGuidAsync deleted entirely rather than deprecated (clean break, no aspnet_Users reference remains in ActivityService)
+- [Phase 03.8-01]: SqlQueryRaw with ObjectData.value() XPath for client name extraction -- no C# XML parsing, matches legacy SQL pattern
+- [Phase 03.8-01]: clientIdFilter as optional parameter with default null -- backward compatible, no breaking changes to existing callers
+- [Phase 03.8-01]: ClientService bypasses EF global filters via raw SQL -- does not set CurrentSiteId/CurrentClientId on context
 
 ### Pending Todos
 
@@ -173,6 +178,7 @@ None yet.
 - Phase 03.6 inserted after Phase 3: user/client permission helper migration - isClientLoggedOn and role/permission checks (URGENT)
 - Phase 03.7 inserted after Phase 3: Authentication & User Context — Migration Strategy (URGENT)
 - Phase 03.7.1 inserted after Phase 03.7: ICurrentUserService — DB-Backed User Context (URGENT)
+- Phase 03.8 inserted after Phase 3: Client selector dropdown and Create Activity button for non-client users on ActivityList (URGENT)
 
 ### Blockers/Concerns
 
@@ -183,7 +189,7 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-18
-Stopped at: Completed 03.7.1-02-PLAN.md (DI registration + ActivityService refactor)
+Stopped at: Completed 03.8-01-PLAN.md (IClientService + clientIdFilter backend)
 Resume file: None
 
-**Phase 03.7.1 COMPLETE**: ICurrentUserService fully wired -- interface, implementation, DI registration, and ActivityService refactored to use correct User table Guid.
+**Plan 03.8-01 COMPLETE**: IClientService with SQL XPath client name extraction, ClientDropdownDto, and clientIdFilter override on GetActivitiesAsync.
