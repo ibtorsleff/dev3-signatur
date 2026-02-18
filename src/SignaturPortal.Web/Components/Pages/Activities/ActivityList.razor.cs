@@ -68,6 +68,7 @@ public partial class ActivityList
             var siteId = Session.SiteId ?? 0;
             if (siteId > 0)
                 _clients = await ClientService.GetClientsForSiteAsync(siteId);
+            _selectedClientId = _clients.Count > 0 ? _clients[0].ClientId : 0;
         }
     }
 
@@ -128,7 +129,11 @@ public partial class ActivityList
                 }
             }
 
-            var clientFilter = _isClientUser ? null : (_selectedClientId > 0 ? (int?)_selectedClientId : null);
+            // Non-client users must have a client selected; return empty if none available
+            if (!_isClientUser && _selectedClientId <= 0)
+                return new GridData<ActivityListDto> { Items = Array.Empty<ActivityListDto>(), TotalItems = 0 };
+
+            var clientFilter = _isClientUser ? null : (int?)_selectedClientId;
             var response = await ActivityService.GetActivitiesAsync(request, _currentStatus, clientFilter);
             _totalCount = response.TotalCount;
 
