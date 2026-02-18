@@ -52,6 +52,7 @@ public static class DependencyInjection
 
         // Application services
         services.AddScoped<IActivityService, ActivityService>();
+        services.AddScoped<IClientService, ClientService>();
 
         // Localization: in-memory cache + scoped service + startup warmup
         services.AddMemoryCache();
