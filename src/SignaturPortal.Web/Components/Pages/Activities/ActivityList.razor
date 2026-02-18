@@ -8,13 +8,11 @@
 
 @if (!_isClientUser || _canCreateActivity)
 {
-    <div style="display: inline-flex; align-items: flex-start; gap: 8px; margin-bottom: 8px;">
+    <div style="display: inline-flex; align-items: center; gap: 8px; margin-bottom: 8px;">
         @if (!_isClientUser)
         {
             <MudSelect T="int" Value="_selectedClientId" ValueChanged="OnClientChanged"
-                       Label="@Localization.GetText("Client")"
-                       Required="true"
-                       Dense="true" Margin="Margin.Dense" Variant="Variant.Outlined"
+                       Dense="true" Margin="Margin.None" Variant="Variant.Outlined"
                        Style="width: 300px;">
                 @foreach (var client in _clients)
                 {
@@ -26,8 +24,7 @@
         {
             <MudButton Variant="Variant.Filled" Color="Color.Primary"
                        StartIcon="@Icons.Material.Filled.AddCircle"
-                       OnClick="OnCreateActivityClick"
-                       Style="margin-top: 14px;">
+                       OnClick="OnCreateActivityClick">
                 @_createButtonText
             </MudButton>
         }
