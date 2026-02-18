@@ -8,7 +8,7 @@
 
 @if (!_isClientUser || _canCreateActivity)
 {
-    <div style="display: inline-flex; align-items: flex-end; gap: 8px; margin-bottom: 8px;">
+    <div style="display: inline-flex; align-items: center; gap: 8px; margin-bottom: 8px;">
         @if (!_isClientUser)
         {
             <MudSelect T="int" Value="_selectedClientId" ValueChanged="OnClientChanged"
