@@ -39,9 +39,10 @@
         }
         @if (!_isClientUser)
         {
-            <MudButton Variant="Variant.Outlined"
-                       Color="@(_hasActiveMoreFilters ? Color.Primary : Color.Default)"
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Primary"
                        OnClick="ToggleMoreFilters"
+                       Class="btn-more-filters"
                        Style="margin-top: 4px; text-transform: none; min-width: 90px;">
                 @_moreButtonText
             </MudButton>
