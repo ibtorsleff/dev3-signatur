@@ -8,7 +8,7 @@
 
 @if (!_isClientUser || _canCreateActivity)
 {
-    <div style="display: inline-flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+    <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: @(_showMoreFilters ? "4px" : "8px");">
         @if (!_isClientUser)
         {
             <MudAutocomplete T="ClientDropdownDto"
@@ -37,7 +37,63 @@
                 @_createButtonText
             </MudButton>
         }
+        @if (!_isClientUser)
+        {
+            <MudButton Variant="Variant.Outlined"
+                       Color="@(_hasActiveMoreFilters ? Color.Primary : Color.Default)"
+                       OnClick="ToggleMoreFilters"
+                       Style="margin-top: 4px; text-transform: none; min-width: 90px;">
+                @_moreButtonText
+            </MudButton>
+        }
     </div>
+}
+
+@if (!_isClientUser)
+{
+    <MudCollapse Expanded="_showMoreFilters">
+        <div style="display: flex; gap: 12px; flex-wrap: wrap; padding: 4px 0 12px 0; align-items: flex-end;">
+            <MudSelect T="Guid?"
+                       Value="_createdByFilter"
+                       ValueChanged="OnCreatedByFilterChanged"
+                       Label="@Localization.GetText("CreatedBy")"
+                       Dense="true" Margin="Margin.Dense" Variant="Variant.Outlined"
+                       Style="min-width: 175px; max-width: 280px;"
+                       Clearable="true"
+                       AnchorOrigin="Origin.BottomLeft">
+                @foreach (var user in _filterCreatedByUsers)
+                {
+                    <MudSelectItem T="Guid?" Value="@((Guid?)user.UserId)">@user.DisplayName</MudSelectItem>
+                }
+            </MudSelect>
+            <MudSelect T="Guid?"
+                       Value="_recruitmentResponsibleFilter"
+                       ValueChanged="OnRecruitmentResponsibleFilterChanged"
+                       Label="@Localization.GetText("RecruitingResponsable")"
+                       Dense="true" Margin="Margin.Dense" Variant="Variant.Outlined"
+                       Style="min-width: 175px; max-width: 280px;"
+                       Clearable="true"
+                       AnchorOrigin="Origin.BottomLeft">
+                @foreach (var user in _filterRecruitmentResponsibleUsers)
+                {
+                    <MudSelectItem T="Guid?" Value="@((Guid?)user.UserId)">@user.DisplayName</MudSelectItem>
+                }
+            </MudSelect>
+            <MudSelect T="int?"
+                       Value="_clientSectionFilter"
+                       ValueChanged="OnClientSectionFilterChanged"
+                       Label="@Localization.GetText("ClientSection")"
+                       Dense="true" Margin="Margin.Dense" Variant="Variant.Outlined"
+                       Style="min-width: 175px; max-width: 280px;"
+                       Clearable="true"
+                       AnchorOrigin="Origin.BottomLeft">
+                @foreach (var clientSection in _filterClientSections)
+                {
+                    <MudSelectItem T="int?" Value="@((int?)clientSection.ClientSectionId)">@clientSection.Name</MudSelectItem>
+                }
+            </MudSelect>
+        </div>
+    </MudCollapse>
 }
 
 <MudDataGrid T="ActivityListDto"

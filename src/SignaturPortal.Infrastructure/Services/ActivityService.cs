@@ -41,6 +41,7 @@ public class ActivityService : IActivityService
         GridRequest request,
         ERActivityStatus? statusFilter = null,
         int? clientIdFilter = null,
+        ActivityListFilterDto? moreFilters = null,
         CancellationToken ct = default)
     {
         await using var context = await _contextFactory.CreateDbContextAsync(ct);
@@ -90,6 +91,19 @@ public class ActivityService : IActivityService
 
         // Apply filters from request
         query = query.ApplyFilters(request.Filters);
+
+        // Apply "More" toolbar panel filters (non-client users only)
+        if (moreFilters != null)
+        {
+            if (moreFilters.CreatedByUserId.HasValue)
+                query = query.Where(a => a.CreatedBy == moreFilters.CreatedByUserId.Value);
+
+            if (moreFilters.RecruitmentResponsibleUserId.HasValue)
+                query = query.Where(a => a.Responsible == moreFilters.RecruitmentResponsibleUserId.Value);
+
+            if (moreFilters.ClientSectionId.HasValue)
+                query = query.Where(a => a.ClientSectionId == moreFilters.ClientSectionId.Value);
+        }
 
         // Get total count AFTER filters but BEFORE pagination
         var totalCount = await query.CountAsync(ct);
@@ -445,6 +459,88 @@ public class ActivityService : IActivityService
             LanguageId = c.LanguageId,
             Files = candidate.Files,
             ActivityHeadline = candidate.ActivityHeadline
+        };
+    }
+
+    /// <summary>
+    /// Gets dropdown options for the "More" filter panel in the activity list.
+    /// Returns distinct CreatedBy users, Recruitment Responsible users, and Client Sections
+    /// derived from activities matching the given status and client context.
+    /// </summary>
+    public async Task<ActivityFilterOptionsDto> GetActivityFilterOptionsAsync(
+        ERActivityStatus status,
+        int? clientIdFilter = null,
+        CancellationToken ct = default)
+    {
+        await using var context = await _contextFactory.CreateDbContextAsync(ct);
+
+        context.CurrentSiteId = _sessionContext.SiteId;
+
+        if (clientIdFilter.HasValue && clientIdFilter.Value > 0)
+            context.CurrentClientId = clientIdFilter.Value;
+        else
+            context.CurrentClientId = _sessionContext.ClientId;
+
+        var statusId = (int)status;
+        var baseQuery = context.Eractivities
+            .Where(a => !a.IsCleaned && a.EractivityStatusId == statusId);
+
+        // Distinct CreatedBy user GUIDs from activities in this context
+        var createdByGuids = await baseQuery
+            .Where(a => a.CreatedBy.HasValue)
+            .Select(a => a.CreatedBy!.Value)
+            .Distinct()
+            .ToListAsync(ct);
+
+        var createdByUsers = await context.Users
+            .Where(u => createdByGuids.Contains(u.UserId))
+            .OrderBy(u => u.FullName ?? u.UserName)
+            .Select(u => new UserDropdownDto
+            {
+                UserId = u.UserId,
+                DisplayName = u.FullName ?? u.UserName ?? ""
+            })
+            .ToListAsync(ct);
+
+        // Distinct Responsible (Recruitment Responsible) user GUIDs from activities in this context
+        var responsibleGuids = await baseQuery
+            .Where(a => a.Responsible.HasValue)
+            .Select(a => a.Responsible!.Value)
+            .Distinct()
+            .ToListAsync(ct);
+
+        var responsibleUsers = await context.Users
+            .Where(u => responsibleGuids.Contains(u.UserId))
+            .OrderBy(u => u.FullName ?? u.UserName)
+            .Select(u => new UserDropdownDto
+            {
+                UserId = u.UserId,
+                DisplayName = u.FullName ?? u.UserName ?? ""
+            })
+            .ToListAsync(ct);
+
+        // Distinct ClientSections used by activities in this context
+        var clientSectionIds = await baseQuery
+            .Where(a => a.ClientSectionId.HasValue)
+            .Select(a => a.ClientSectionId!.Value)
+            .Distinct()
+            .ToListAsync(ct);
+
+        var clientSections = await context.ClientSections
+            .Where(cs => clientSectionIds.Contains(cs.ClientSectionId))
+            .OrderBy(cs => cs.Name)
+            .Select(cs => new ClientSectionDropdownDto
+            {
+                ClientSectionId = cs.ClientSectionId,
+                Name = cs.Name
+            })
+            .ToListAsync(ct);
+
+        return new ActivityFilterOptionsDto
+        {
+            CreatedByUsers = createdByUsers,
+            RecruitmentResponsibleUsers = responsibleUsers,
+            ClientSections = clientSections
         };
     }
 

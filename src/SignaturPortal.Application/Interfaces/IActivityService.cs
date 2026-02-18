@@ -18,6 +18,18 @@ public interface IActivityService
         GridRequest request,
         ERActivityStatus? statusFilter = null,
         int? clientIdFilter = null,
+        ActivityListFilterDto? moreFilters = null,
+        CancellationToken ct = default);
+
+    /// <summary>
+    /// Gets dropdown options for the "More" filter panel in the activity list.
+    /// Returns distinct CreatedBy users, Recruitment Responsible users, and Client Sections
+    /// derived from existing activities for the given status and client context.
+    /// Only called for non-client users.
+    /// </summary>
+    Task<ActivityFilterOptionsDto> GetActivityFilterOptionsAsync(
+        ERActivityStatus status,
+        int? clientIdFilter = null,
         CancellationToken ct = default);
 
     /// <summary>

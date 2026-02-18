@@ -37,6 +37,20 @@ public partial class ActivityList
     private ClientDropdownDto? _selectedClient;  // drives the autocomplete display
     private int? _activeClientId;                // drives the grid filter (stable during search)
 
+    // "More" filter panel state (non-client users only)
+    private bool _showMoreFilters;
+    private bool _filterOptionsNeedRefresh;
+
+    // More filter selections
+    private Guid? _createdByFilter;
+    private Guid? _recruitmentResponsibleFilter;
+    private int? _clientSectionFilter;
+
+    // More filter dropdown options (populated from existing activities)
+    private List<UserDropdownDto> _filterCreatedByUsers = new();
+    private List<UserDropdownDto> _filterRecruitmentResponsibleUsers = new();
+    private List<ClientSectionDropdownDto> _filterClientSections = new();
+
     // Column visibility: computed from current mode
     // CreatedBy: visible in Ongoing and Closed, hidden in Draft
     private bool _hideCreatedByColumn => _currentStatus == ERActivityStatus.Draft;
@@ -59,6 +73,15 @@ public partial class ActivityList
     // Whether to show candidate count in Headline
     private bool _showCandidateCount => _currentStatus != ERActivityStatus.Draft;
 
+    private bool _hasActiveMoreFilters =>
+        _createdByFilter.HasValue ||
+        _recruitmentResponsibleFilter.HasValue ||
+        _clientSectionFilter.HasValue;
+
+    private string _moreButtonText => _showMoreFilters
+        ? $"« {Localization.GetText("Less")}"
+        : $"{Localization.GetText("More")} »";
+
     protected override async Task OnInitializedAsync()
     {
         _isClientUser = Session.IsClientUser;
@@ -78,7 +101,21 @@ public partial class ActivityList
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
+        {
             await _dataGrid.ReloadServerData();
+
+            if (!_isClientUser)
+            {
+                await LoadFilterOptionsAsync();
+                StateHasChanged();
+            }
+        }
+        else if (_filterOptionsNeedRefresh && !_isClientUser)
+        {
+            _filterOptionsNeedRefresh = false;
+            await LoadFilterOptionsAsync();
+            StateHasChanged();
+        }
     }
 
     protected override void OnParametersSet()
@@ -100,8 +137,58 @@ public partial class ActivityList
         if (newStatus != _currentStatus)
         {
             _currentStatus = newStatus;
+            ResetMoreFilters();
+            _filterOptionsNeedRefresh = true;
             _dataGrid?.ReloadServerData();
         }
+    }
+
+    /// <summary>
+    /// Loads filter dropdown options from the service for the current client and status.
+    /// </summary>
+    private async Task LoadFilterOptionsAsync()
+    {
+        var options = await ActivityService.GetActivityFilterOptionsAsync(_currentStatus, _activeClientId);
+        _filterCreatedByUsers = options.CreatedByUsers;
+        _filterRecruitmentResponsibleUsers = options.RecruitmentResponsibleUsers;
+        _filterClientSections = options.ClientSections;
+    }
+
+    /// <summary>
+    /// Clears all More panel filter selections without reloading the grid.
+    /// </summary>
+    private void ResetMoreFilters()
+    {
+        _createdByFilter = null;
+        _recruitmentResponsibleFilter = null;
+        _clientSectionFilter = null;
+    }
+
+    /// <summary>
+    /// Toggles the More filter panel open/closed.
+    /// The panel auto-expands when any more filter is active (matches legacy SetupMoreToolsOpenClosed).
+    /// </summary>
+    private void ToggleMoreFilters()
+    {
+        _showMoreFilters = !_showMoreFilters;
+    }
+
+    private async Task OnCreatedByFilterChanged(Guid? value)
+    {
+        _createdByFilter = value;
+        await _dataGrid.ReloadServerData();
+    }
+
+    private async Task OnRecruitmentResponsibleFilterChanged(Guid? value)
+    {
+        _recruitmentResponsibleFilter = value;
+        await _dataGrid.ReloadServerData();
+    }
+
+    private async Task OnClientSectionFilterChanged(int? value)
+    {
+        _clientSectionFilter = value;
+        await _dataGrid.ReloadServerData();
     }
 
     /// <summary>
@@ -143,7 +230,20 @@ public partial class ActivityList
                 return new GridData<ActivityListDto> { Items = Array.Empty<ActivityListDto>(), TotalItems = 0 };
 
             var clientFilter = _isClientUser ? null : _activeClientId;
-            var response = await ActivityService.GetActivitiesAsync(request, _currentStatus, clientFilter);
+
+            // Build More panel filters (only for non-client users when at least one is set)
+            ActivityListFilterDto? moreFilters = null;
+            if (!_isClientUser && _hasActiveMoreFilters)
+            {
+                moreFilters = new ActivityListFilterDto
+                {
+                    CreatedByUserId = _createdByFilter,
+                    RecruitmentResponsibleUserId = _recruitmentResponsibleFilter,
+                    ClientSectionId = _clientSectionFilter
+                };
+            }
+
+            var response = await ActivityService.GetActivitiesAsync(request, _currentStatus, clientFilter, moreFilters);
             _totalCount = response.TotalCount;
 
             return new GridData<ActivityListDto>
@@ -204,16 +304,17 @@ public partial class ActivityList
     }
 
     /// <summary>
-    /// Client dropdown selection changed - reload the data grid with new client filter.
+    /// Client dropdown selection changed - reload filter options and data grid with new client filter.
     /// Null is ignored because Clearable="false" means null only fires while the user is
     /// typing (Strict="false" fires ValueChanged(null) when text doesn't match any item).
-    /// Updating state on null would reset the autocomplete's internal search text.
     /// </summary>
     private async Task OnClientChanged(ClientDropdownDto? client)
     {
         if (client == null) return;
         _selectedClient = client;
         _activeClientId = client.ClientId;
+        ResetMoreFilters();
+        await LoadFilterOptionsAsync();
         await _dataGrid.ReloadServerData();
     }
 
