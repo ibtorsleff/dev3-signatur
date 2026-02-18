@@ -69,6 +69,13 @@ public partial class ActivityList
     private List<TemplateGroupDropdownDto> _filterTemplateGroups = new();
     private List<ClientSectionGroupDropdownDto> _filterClientSectionGroups = new();
 
+    // Flag set at the END of OnInitializedAsync to signal the grid should load.
+    // OnAfterRenderAsync(firstRender: true) fires BEFORE OnInitializedAsync completes
+    // for async lifecycle methods, so _activeClientId would be null at that point.
+    // Setting this flag at the end of init and reloading on the next AfterRender
+    // ensures the grid loads only after all client/session data is ready.
+    private bool _gridNeedsLoad;
+
     // Column visibility: computed from current mode
     // CreatedBy: visible in Ongoing and Closed, hidden in Draft
     private bool _hideCreatedByColumn => _currentStatus == ERActivityStatus.Draft;
@@ -118,12 +125,18 @@ public partial class ActivityList
             _clientHasWebAdVisitorStatistics = await ClientService.GetWebAdVisitorStatisticsEnabledAsync(_activeClientId.Value);
             _clientUsesTemplateGroups = await ClientService.GetRecruitmentUseTemplateGroupsAsync(_activeClientId.Value);
         }
+
+        // Signal that all state is ready; OnAfterRenderAsync will trigger the initial grid load.
+        _gridNeedsLoad = true;
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender)
+        if (_gridNeedsLoad)
         {
+            // _gridNeedsLoad is set at the end of OnInitializedAsync, so _activeClientId
+            // is guaranteed to be populated before this fires.
+            _gridNeedsLoad = false;
             await _dataGrid.ReloadServerData();
 
             if (!_isClientUser)
@@ -447,6 +460,15 @@ public partial class ActivityList
     private void OnRowClick(DataGridRowClickEventArgs<ActivityListDto> args)
     {
         NavigateToDetail(args.Item.EractivityId);
+    }
+
+    /// <summary>
+    /// Navigates to the legacy ActivityCreateEdit.aspx in copy mode via YARP.
+    /// forceLoad: true triggers a full page load so YARP can proxy to the legacy app.
+    /// </summary>
+    private void CopyActivity(int activityId)
+    {
+        Navigation.NavigateTo($"/Responsive/Recruiting/ActivityCreateEdit.aspx?ErIdCopy={activityId}", forceLoad: true);
     }
 
     /// <summary>
