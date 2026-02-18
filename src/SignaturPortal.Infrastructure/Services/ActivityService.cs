@@ -40,15 +40,22 @@ public class ActivityService : IActivityService
     public async Task<GridResponse<ActivityListDto>> GetActivitiesAsync(
         GridRequest request,
         ERActivityStatus? statusFilter = null,
+        int? clientIdFilter = null,
         CancellationToken ct = default)
     {
         await using var context = await _contextFactory.CreateDbContextAsync(ct);
 
         // Stamp tenant context for global query filters
         context.CurrentSiteId = _sessionContext.SiteId;
-        context.CurrentClientId = _sessionContext.ClientId;
 
-        System.Diagnostics.Debug.WriteLine($"[DEBUG] Session: Init={_sessionContext.IsInitialized}, User='{_sessionContext.UserName}', SiteId={_sessionContext.SiteId}, ClientId={_sessionContext.ClientId}");
+        // Use explicit client filter if provided (non-client user selected a client),
+        // otherwise fall back to session ClientId (null for non-client = show all)
+        if (clientIdFilter.HasValue && clientIdFilter.Value > 0)
+            context.CurrentClientId = clientIdFilter.Value;
+        else
+            context.CurrentClientId = _sessionContext.ClientId;
+
+        System.Diagnostics.Debug.WriteLine($"[DEBUG] Session: Init={_sessionContext.IsInitialized}, User='{_sessionContext.UserName}', SiteId={_sessionContext.SiteId}, ClientId={_sessionContext.ClientId}, ClientIdFilter={clientIdFilter}");
 
         // Load the current user by UserName (auth identity name) — Guid comes from the [User] DB record
         var currentUser = await _currentUserService.GetCurrentUserAsync(ct);
