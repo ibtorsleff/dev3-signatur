@@ -126,6 +126,26 @@
                              MaxItems="null"
                              Strict="false"
                              Clearable="true" />
+            @if (_clientUsesTemplateGroups && _currentStatus != ERActivityStatus.Draft)
+            {
+                <MudAutocomplete T="TemplateGroupDropdownDto"
+                                 @ref="_templateGroupAutocomplete"
+                                 Value="_templateGroupFilterItem"
+                                 ValueChanged="OnTemplateGroupFilterChanged"
+                                 OpenChanged="OnTemplateGroupDropdownOpenChanged"
+                                 SearchFunc="SearchTemplateGroups"
+                                 ToStringFunc="@(g => g?.Name ?? string.Empty)"
+                                 Label="@Localization.GetText("TemplateGroup")"
+                                 Placeholder="@Localization.GetText("All")"
+                                 Dense="true" Margin="Margin.Dense" Variant="Variant.Outlined"
+                                 ShrinkLabel="true"
+                                 Class="activity-client-autocomplete" Style="min-width: 175px; max-width: 280px;"
+                                 PopoverClass="activity-filter-popover"
+                                 MinCharacters="0"
+                                 MaxItems="null"
+                                 Strict="false"
+                                 Clearable="true" />
+            }
         </div>
     </MudCollapse>
 }

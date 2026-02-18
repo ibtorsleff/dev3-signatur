@@ -25,6 +25,7 @@ public partial class ActivityList
     private MudAutocomplete<UserDropdownDto> _createdByAutocomplete = default!;
     private MudAutocomplete<UserDropdownDto> _recruitmentResponsibleAutocomplete = default!;
     private MudAutocomplete<ClientSectionDropdownDto> _clientSectionAutocomplete = default!;
+    private MudAutocomplete<TemplateGroupDropdownDto> _templateGroupAutocomplete = default!;
     private ERActivityStatus _currentStatus = ERActivityStatus.OnGoing;
     private string _headlineText = "";
     private int _totalCount;
@@ -51,6 +52,8 @@ public partial class ActivityList
     private Guid? _recruitmentResponsibleFilter;
     private ClientSectionDropdownDto? _clientSectionFilterSection;
     private int? _clientSectionFilter;
+    private TemplateGroupDropdownDto? _templateGroupFilterItem;
+    private int? _templateGroupFilter;
 
     // Closed-mode date range filter
     private DateTime? _closedDateFrom;
@@ -60,6 +63,7 @@ public partial class ActivityList
     private List<UserDropdownDto> _filterCreatedByUsers = new();
     private List<UserDropdownDto> _filterRecruitmentResponsibleUsers = new();
     private List<ClientSectionDropdownDto> _filterClientSections = new();
+    private List<TemplateGroupDropdownDto> _filterTemplateGroups = new();
 
     // Column visibility: computed from current mode
     // CreatedBy: visible in Ongoing and Closed, hidden in Draft
@@ -82,7 +86,8 @@ public partial class ActivityList
     private bool _hasActiveMoreFilters =>
         _createdByFilter.HasValue ||
         _recruitmentResponsibleFilter.HasValue ||
-        _clientSectionFilter.HasValue;
+        _clientSectionFilter.HasValue ||
+        _templateGroupFilter.HasValue;
 
     private string _moreButtonText => _showMoreFilters
         ? $"« {Localization.GetText("Less")}"
@@ -169,6 +174,7 @@ public partial class ActivityList
         _filterCreatedByUsers = options.CreatedByUsers;
         _filterRecruitmentResponsibleUsers = options.RecruitmentResponsibleUsers;
         _filterClientSections = options.ClientSections;
+        _filterTemplateGroups = options.TemplateGroups;
     }
 
     /// <summary>
@@ -182,6 +188,8 @@ public partial class ActivityList
         _recruitmentResponsibleFilter = null;
         _clientSectionFilterSection = null;
         _clientSectionFilter = null;
+        _templateGroupFilterItem = null;
+        _templateGroupFilter = null;
         _closedDateFrom = null;
         _closedDateTo = null;
     }
@@ -232,6 +240,27 @@ public partial class ActivityList
     {
         if (isOpen)
             await _clientSectionAutocomplete.SelectAsync();
+    }
+
+    private async Task OnTemplateGroupFilterChanged(TemplateGroupDropdownDto? group)
+    {
+        _templateGroupFilterItem = group;
+        _templateGroupFilter = group?.TemplateGroupId;
+        await _dataGrid.ReloadServerData();
+    }
+
+    private async Task OnTemplateGroupDropdownOpenChanged(bool isOpen)
+    {
+        if (isOpen)
+            await _templateGroupAutocomplete.SelectAsync();
+    }
+
+    private Task<IEnumerable<TemplateGroupDropdownDto>> SearchTemplateGroups(string searchText, CancellationToken ct)
+    {
+        if (string.IsNullOrWhiteSpace(searchText))
+            return Task.FromResult<IEnumerable<TemplateGroupDropdownDto>>(_filterTemplateGroups);
+        return Task.FromResult<IEnumerable<TemplateGroupDropdownDto>>(
+            _filterTemplateGroups.Where(g => g.Name.Contains(searchText, StringComparison.OrdinalIgnoreCase)));
     }
 
     private async Task OnClosedDateFromChanged(DateTime? date)
@@ -323,6 +352,7 @@ public partial class ActivityList
                         CreatedByUserId = _createdByFilter,
                         RecruitmentResponsibleUserId = _recruitmentResponsibleFilter,
                         ClientSectionId = _clientSectionFilter,
+                        TemplateGroupId = _templateGroupFilter,
                         DateFrom = isClosedMode ? _closedDateFrom : null,
                         DateTo = isClosedMode ? _closedDateTo : null
                     };
@@ -402,6 +432,11 @@ public partial class ActivityList
         _clientHasWebAdVisitorStatistics = await ClientService.GetWebAdVisitorStatisticsEnabledAsync(client.ClientId);
         _clientUsesTemplateGroups = await ClientService.GetRecruitmentUseTemplateGroupsAsync(client.ClientId);
         ResetMoreFilters();
+        if (_currentStatus == ERActivityStatus.Closed)
+        {
+            _closedDateFrom = DateTime.Today.AddYears(-1);
+            _closedDateTo = DateTime.Today;
+        }
         await LoadFilterOptionsAsync();
         await _dataGrid.ReloadServerData();
     }

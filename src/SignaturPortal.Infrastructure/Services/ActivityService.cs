@@ -104,6 +104,9 @@ public class ActivityService : IActivityService
             if (moreFilters.ClientSectionId.HasValue)
                 query = query.Where(a => a.ClientSectionId == moreFilters.ClientSectionId.Value);
 
+            if (moreFilters.TemplateGroupId.HasValue)
+                query = query.Where(a => a.ErtemplateGroupId == moreFilters.TemplateGroupId.Value);
+
             if (moreFilters.DateFrom.HasValue)
                 query = query.Where(a => a.CreateDate >= moreFilters.DateFrom.Value.Date);
 
@@ -542,11 +545,29 @@ public class ActivityService : IActivityService
             })
             .ToListAsync(ct);
 
+        // Distinct TemplateGroups used by activities in this context
+        var templateGroupIds = await baseQuery
+            .Where(a => a.ErtemplateGroupId.HasValue)
+            .Select(a => a.ErtemplateGroupId!.Value)
+            .Distinct()
+            .ToListAsync(ct);
+
+        var templateGroups = await context.ErTemplateGroups
+            .Where(tg => templateGroupIds.Contains(tg.ErtemplateGroupId))
+            .OrderBy(tg => tg.Name)
+            .Select(tg => new TemplateGroupDropdownDto
+            {
+                TemplateGroupId = tg.ErtemplateGroupId,
+                Name = tg.Name
+            })
+            .ToListAsync(ct);
+
         return new ActivityFilterOptionsDto
         {
             CreatedByUsers = createdByUsers,
             RecruitmentResponsibleUsers = responsibleUsers,
-            ClientSections = clientSections
+            ClientSections = clientSections,
+            TemplateGroups = templateGroups
         };
     }
 

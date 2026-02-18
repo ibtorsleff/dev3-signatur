@@ -10,6 +10,7 @@ public record ActivityListFilterDto
     public Guid? CreatedByUserId { get; init; }
     public Guid? RecruitmentResponsibleUserId { get; init; }
     public int? ClientSectionId { get; init; }
+    public int? TemplateGroupId { get; init; }
     /// <summary>Inclusive start of CreateDate range — used for Closed mode.</summary>
     public DateTime? DateFrom { get; init; }
     /// <summary>Inclusive end of CreateDate range — used for Closed mode.</summary>

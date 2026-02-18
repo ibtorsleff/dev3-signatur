@@ -10,6 +10,7 @@ public record ActivityFilterOptionsDto
     public List<UserDropdownDto> CreatedByUsers { get; init; } = new();
     public List<UserDropdownDto> RecruitmentResponsibleUsers { get; init; } = new();
     public List<ClientSectionDropdownDto> ClientSections { get; init; } = new();
+    public List<TemplateGroupDropdownDto> TemplateGroups { get; init; } = new();
 }
 
 /// <summary>
@@ -27,5 +28,14 @@ public record UserDropdownDto
 public record ClientSectionDropdownDto
 {
     public int ClientSectionId { get; init; }
+    public string Name { get; init; } = "";
+}
+
+/// <summary>
+/// A single template group entry for the "Template Group" filter dropdown.
+/// </summary>
+public record TemplateGroupDropdownDto
+{
+    public int TemplateGroupId { get; init; }
     public string Name { get; init; } = "";
 }
