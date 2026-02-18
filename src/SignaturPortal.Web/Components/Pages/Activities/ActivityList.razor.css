@@ -2,10 +2,6 @@
     background-color: #1a9b89 !important;
 }
 
-::deep .btn-more-filters {
-    background-color: #1a9b89 !important;
-}
-
 ::deep .btn-more-filters:hover {
     background-color: #054541 !important;
 }
