@@ -12,7 +12,9 @@
         @if (!_isClientUser)
         {
             <MudSelect T="int" Value="_selectedClientId" ValueChanged="OnClientChanged"
-                       Dense="true" Margin="Margin.None" Variant="Variant.Outlined"
+                       Label="@Localization.GetText("Client")"
+                       Required="true"
+                       Dense="true" Margin="Margin.Dense" Variant="Variant.Outlined"
                        Style="width: 300px;">
                 @foreach (var client in _clients)
                 {
@@ -24,7 +26,8 @@
         {
             <MudButton Variant="Variant.Filled" Color="Color.Primary"
                        StartIcon="@Icons.Material.Filled.AddCircle"
-                       OnClick="OnCreateActivityClick">
+                       OnClick="OnCreateActivityClick"
+                       Style="margin-top: 4px;">
                 @_createButtonText
             </MudButton>
         }
