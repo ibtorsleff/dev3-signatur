@@ -146,6 +146,26 @@
                                  Strict="false"
                                  Clearable="true" />
             }
+            @if (!_clientUsesTemplateGroups && _filterClientSectionGroups.Count > 0)
+            {
+                <MudAutocomplete T="ClientSectionGroupDropdownDto"
+                                 @ref="_clientSectionGroupAutocomplete"
+                                 Value="_clientSectionGroupFilterItem"
+                                 ValueChanged="OnClientSectionGroupFilterChanged"
+                                 OpenChanged="OnClientSectionGroupDropdownOpenChanged"
+                                 SearchFunc="SearchClientSectionGroups"
+                                 ToStringFunc="@(g => g?.Name ?? string.Empty)"
+                                 Label="@Localization.GetText("ClientSectionGroup")"
+                                 Placeholder="@Localization.GetText("All")"
+                                 Dense="true" Margin="Margin.Dense" Variant="Variant.Outlined"
+                                 ShrinkLabel="true"
+                                 Class="activity-client-autocomplete" Style="min-width: 175px; max-width: 280px;"
+                                 PopoverClass="activity-filter-popover"
+                                 MinCharacters="0"
+                                 MaxItems="null"
+                                 Strict="false"
+                                 Clearable="true" />
+            }
         </div>
     </MudCollapse>
 }

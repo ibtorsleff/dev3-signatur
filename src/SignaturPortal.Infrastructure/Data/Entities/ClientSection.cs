@@ -11,4 +11,8 @@ public partial class ClientSection
     public int ClientSectionId { get; set; }
 
     public string Name { get; set; } = "";
+
+    public int? ClientSectionGroupId { get; set; }
+
+    public virtual ClientSectionGroup? ClientSectionGroup { get; set; }
 }

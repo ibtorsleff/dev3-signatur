@@ -107,6 +107,9 @@ public class ActivityService : IActivityService
             if (moreFilters.TemplateGroupId.HasValue)
                 query = query.Where(a => a.ErtemplateGroupId == moreFilters.TemplateGroupId.Value);
 
+            if (moreFilters.ClientSectionGroupId.HasValue)
+                query = query.Where(a => a.ClientSection != null && a.ClientSection.ClientSectionGroupId == moreFilters.ClientSectionGroupId.Value);
+
             if (moreFilters.DateFrom.HasValue)
                 query = query.Where(a => a.CreateDate >= moreFilters.DateFrom.Value.Date);
 
@@ -562,12 +565,30 @@ public class ActivityService : IActivityService
             })
             .ToListAsync(ct);
 
+        // Distinct ClientSectionGroups from activities in this context (via ClientSection navigation)
+        var sectionGroupIds = await baseQuery
+            .Where(a => a.ClientSection != null && a.ClientSection.ClientSectionGroupId.HasValue)
+            .Select(a => a.ClientSection!.ClientSectionGroupId!.Value)
+            .Distinct()
+            .ToListAsync(ct);
+
+        var sectionGroups = await context.ClientSectionGroups
+            .Where(csg => sectionGroupIds.Contains(csg.ClientSectionGroupId))
+            .OrderBy(csg => csg.Name)
+            .Select(csg => new ClientSectionGroupDropdownDto
+            {
+                ClientSectionGroupId = csg.ClientSectionGroupId,
+                Name = csg.Name
+            })
+            .ToListAsync(ct);
+
         return new ActivityFilterOptionsDto
         {
             CreatedByUsers = createdByUsers,
             RecruitmentResponsibleUsers = responsibleUsers,
             ClientSections = clientSections,
-            TemplateGroups = templateGroups
+            TemplateGroups = templateGroups,
+            ClientSectionGroups = sectionGroups
         };
     }
 

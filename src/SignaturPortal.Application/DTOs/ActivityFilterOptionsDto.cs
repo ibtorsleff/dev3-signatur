@@ -11,6 +11,7 @@ public record ActivityFilterOptionsDto
     public List<UserDropdownDto> RecruitmentResponsibleUsers { get; init; } = new();
     public List<ClientSectionDropdownDto> ClientSections { get; init; } = new();
     public List<TemplateGroupDropdownDto> TemplateGroups { get; init; } = new();
+    public List<ClientSectionGroupDropdownDto> ClientSectionGroups { get; init; } = new();
 }
 
 /// <summary>
@@ -37,5 +38,15 @@ public record ClientSectionDropdownDto
 public record TemplateGroupDropdownDto
 {
     public int TemplateGroupId { get; init; }
+    public string Name { get; init; } = "";
+}
+
+/// <summary>
+/// A single client section group entry for the "Client Section Group" filter dropdown.
+/// Only shown when the client uses section groups (i.e. not using template groups).
+/// </summary>
+public record ClientSectionGroupDropdownDto
+{
+    public int ClientSectionGroupId { get; init; }
     public string Name { get; init; } = "";
 }

@@ -42,6 +42,8 @@ public partial class SignaturDbContext : DbContext
 
     public virtual DbSet<ClientSection> ClientSections { get; set; }
 
+    public virtual DbSet<ClientSectionGroup> ClientSectionGroups { get; set; }
+
     public virtual DbSet<ErTemplateGroup> ErTemplateGroups { get; set; }
 
     public virtual DbSet<WebAdVisitor> WebAdVisitors { get; set; }
@@ -435,6 +437,15 @@ public partial class SignaturDbContext : DbContext
             entity.Property(e => e.ForgotPasswordTimestamp).HasColumnType("datetime");
         });
 
+        modelBuilder.Entity<ClientSectionGroup>(entity =>
+        {
+            entity.ToTable("ClientSectionGroup");
+
+            entity.HasKey(e => e.ClientSectionGroupId);
+
+            entity.Property(e => e.Name).HasMaxLength(255);
+        });
+
         modelBuilder.Entity<ClientSection>(entity =>
         {
             entity.ToTable("ClientSection");
@@ -442,6 +453,10 @@ public partial class SignaturDbContext : DbContext
             entity.HasKey(e => e.ClientSectionId);
 
             entity.Property(e => e.Name).HasMaxLength(255);
+
+            entity.HasOne(d => d.ClientSectionGroup).WithMany()
+                .HasForeignKey(d => d.ClientSectionGroupId)
+                .IsRequired(false);
         });
 
         modelBuilder.Entity<ErTemplateGroup>(entity =>
