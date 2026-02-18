@@ -6,6 +6,7 @@
     background-color: #054541 !important;
 }
 
-::deep .activity-client-autocomplete input {
+::deep .activity-client-autocomplete input,
+::deep .activity-date-picker input {
     font-size: 0.875rem !important;
 }

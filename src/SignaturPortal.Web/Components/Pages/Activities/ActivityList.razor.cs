@@ -52,6 +52,10 @@ public partial class ActivityList
     private ClientSectionDropdownDto? _clientSectionFilterSection;
     private int? _clientSectionFilter;
 
+    // Closed-mode date range filter
+    private DateTime? _closedDateFrom;
+    private DateTime? _closedDateTo;
+
     // More filter dropdown options (populated from existing activities)
     private List<UserDropdownDto> _filterCreatedByUsers = new();
     private List<UserDropdownDto> _filterRecruitmentResponsibleUsers = new();
@@ -146,6 +150,11 @@ public partial class ActivityList
         {
             _currentStatus = newStatus;
             ResetMoreFilters();
+            if (_currentStatus == ERActivityStatus.Closed)
+            {
+                _closedDateFrom = DateTime.Today.AddYears(-1);
+                _closedDateTo = DateTime.Today;
+            }
             _filterOptionsNeedRefresh = true;
             _dataGrid?.ReloadServerData();
         }
@@ -173,6 +182,8 @@ public partial class ActivityList
         _recruitmentResponsibleFilter = null;
         _clientSectionFilterSection = null;
         _clientSectionFilter = null;
+        _closedDateFrom = null;
+        _closedDateTo = null;
     }
 
     /// <summary>
@@ -221,6 +232,18 @@ public partial class ActivityList
     {
         if (isOpen)
             await _clientSectionAutocomplete.SelectAsync();
+    }
+
+    private async Task OnClosedDateFromChanged(DateTime? date)
+    {
+        _closedDateFrom = date;
+        await _dataGrid.ReloadServerData();
+    }
+
+    private async Task OnClosedDateToChanged(DateTime? date)
+    {
+        _closedDateTo = date;
+        await _dataGrid.ReloadServerData();
     }
 
     private Task<IEnumerable<UserDropdownDto>> SearchCreatedByUsers(string searchText, CancellationToken ct)
@@ -287,16 +310,23 @@ public partial class ActivityList
 
             var clientFilter = _isClientUser ? null : _activeClientId;
 
-            // Build More panel filters (only for non-client users when at least one is set)
+            // Build More panel filters (only for non-client users when at least one is set).
+            // Closed mode always includes the date range filter even when More panel filters are inactive.
             ActivityListFilterDto? moreFilters = null;
-            if (!_isClientUser && _hasActiveMoreFilters)
+            if (!_isClientUser)
             {
-                moreFilters = new ActivityListFilterDto
+                var isClosedMode = _currentStatus == ERActivityStatus.Closed;
+                if (_hasActiveMoreFilters || isClosedMode)
                 {
-                    CreatedByUserId = _createdByFilter,
-                    RecruitmentResponsibleUserId = _recruitmentResponsibleFilter,
-                    ClientSectionId = _clientSectionFilter
-                };
+                    moreFilters = new ActivityListFilterDto
+                    {
+                        CreatedByUserId = _createdByFilter,
+                        RecruitmentResponsibleUserId = _recruitmentResponsibleFilter,
+                        ClientSectionId = _clientSectionFilter,
+                        DateFrom = isClosedMode ? _closedDateFrom : null,
+                        DateTo = isClosedMode ? _closedDateTo : null
+                    };
+                }
             }
 
             var response = await ActivityService.GetActivitiesAsync(request, _currentStatus, clientFilter, moreFilters);

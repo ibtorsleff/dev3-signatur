@@ -103,6 +103,12 @@ public class ActivityService : IActivityService
 
             if (moreFilters.ClientSectionId.HasValue)
                 query = query.Where(a => a.ClientSectionId == moreFilters.ClientSectionId.Value);
+
+            if (moreFilters.DateFrom.HasValue)
+                query = query.Where(a => a.CreateDate >= moreFilters.DateFrom.Value.Date);
+
+            if (moreFilters.DateTo.HasValue)
+                query = query.Where(a => a.CreateDate < moreFilters.DateTo.Value.Date.AddDays(1));
         }
 
         // Get total count AFTER filters but BEFORE pagination

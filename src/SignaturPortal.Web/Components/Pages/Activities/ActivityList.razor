@@ -29,6 +29,25 @@
                              Strict="false"
                              Clearable="false" />
         }
+        @if (_currentStatus == ERActivityStatus.Closed && !_isClientUser)
+        {
+            <MudDatePicker Date="_closedDateFrom"
+                           DateChanged="OnClosedDateFromChanged"
+                           Label="@Localization.GetText("From")"
+                           DateFormat="dd-MM-yyyy"
+                           Margin="Margin.Dense" Variant="Variant.Outlined"
+                           Class="activity-date-picker"
+                           Style="width: 310px;"
+                           Clearable="true" />
+            <MudDatePicker Date="_closedDateTo"
+                           DateChanged="OnClosedDateToChanged"
+                           Label="@Localization.GetText("To")"
+                           DateFormat="dd-MM-yyyy"
+                           Margin="Margin.Dense" Variant="Variant.Outlined"
+                           Class="activity-date-picker"
+                           Style="width: 310px;"
+                           Clearable="true" />
+        }
         @if (_canCreateActivity)
         {
             <MudButton Variant="Variant.Filled" Color="Color.Dark"
