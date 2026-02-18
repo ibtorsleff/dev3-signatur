@@ -11,19 +11,19 @@
     <div style="display: inline-flex; align-items: center; gap: 8px; margin-bottom: 8px;">
         @if (!_isClientUser)
         {
-            <MudSelect T="int" Value="_selectedClientId" ValueChanged="OnClientChanged"
-                       Label="@Localization.GetText("Client")"
-                       Required="true"
-                       Dense="true" Margin="Margin.Dense" Variant="Variant.Outlined"
-                       Style="width: 300px;"
-                       SearchBox="true"
-                       SearchBoxAutoFocus="true"
-                       SearchBoxPlaceholder="@Localization.GetText("Search")">
-                @foreach (var client in _clients)
-                {
-                    <MudSelectItem T="int" Value="client.ClientId">@client.ClientName</MudSelectItem>
-                }
-            </MudSelect>
+            <MudAutocomplete T="ClientDropdownDto"
+                             Value="_selectedClient"
+                             ValueChanged="OnClientChanged"
+                             SearchFunc="SearchClients"
+                             ToStringFunc="@(c => c?.ClientName ?? string.Empty)"
+                             Label="@Localization.GetText("Client")"
+                             Required="true"
+                             Dense="true" Margin="Margin.Dense" Variant="Variant.Outlined"
+                             Style="width: 300px;"
+                             MinCharacters="0"
+                             CoerceText="true"
+                             ResetValueOnEmptyText="false"
+                             Clearable="false" />
         }
         @if (_canCreateActivity)
         {

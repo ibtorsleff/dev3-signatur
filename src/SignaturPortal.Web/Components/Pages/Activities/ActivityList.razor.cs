@@ -33,7 +33,7 @@ public partial class ActivityList
 
     // Client dropdown state (non-client users only)
     private List<ClientDropdownDto> _clients = new();
-    private int _selectedClientId = -1; // -1 = all clients (no filter)
+    private ClientDropdownDto? _selectedClient;
 
     // Column visibility: computed from current mode
     // CreatedBy: visible in Ongoing and Closed, hidden in Draft
@@ -68,7 +68,7 @@ public partial class ActivityList
             var siteId = Session.SiteId ?? 0;
             if (siteId > 0)
                 _clients = await ClientService.GetClientsForSiteAsync(siteId);
-            _selectedClientId = _clients.Count > 0 ? _clients[0].ClientId : 0;
+            _selectedClient = _clients.Count > 0 ? _clients[0] : null;
         }
     }
 
@@ -130,10 +130,10 @@ public partial class ActivityList
             }
 
             // Non-client users must have a client selected; return empty if none available
-            if (!_isClientUser && _selectedClientId <= 0)
+            if (!_isClientUser && _selectedClient == null)
                 return new GridData<ActivityListDto> { Items = Array.Empty<ActivityListDto>(), TotalItems = 0 };
 
-            var clientFilter = _isClientUser ? null : (int?)_selectedClientId;
+            var clientFilter = _isClientUser ? null : (int?)_selectedClient?.ClientId;
             var response = await ActivityService.GetActivitiesAsync(request, _currentStatus, clientFilter);
             _totalCount = response.TotalCount;
 
@@ -197,10 +197,18 @@ public partial class ActivityList
     /// <summary>
     /// Client dropdown selection changed - reload the data grid with new client filter.
     /// </summary>
-    private async Task OnClientChanged(int clientId)
+    private async Task OnClientChanged(ClientDropdownDto? client)
     {
-        _selectedClientId = clientId;
+        _selectedClient = client;
         await _dataGrid.ReloadServerData();
+    }
+
+    private Task<IEnumerable<ClientDropdownDto>> SearchClients(string searchText, CancellationToken ct)
+    {
+        if (string.IsNullOrWhiteSpace(searchText))
+            return Task.FromResult<IEnumerable<ClientDropdownDto>>(_clients);
+        return Task.FromResult<IEnumerable<ClientDropdownDto>>(
+            _clients.Where(c => c.ClientName.Contains(searchText, StringComparison.OrdinalIgnoreCase)));
     }
 
     /// <summary>
@@ -210,13 +218,13 @@ public partial class ActivityList
     /// </summary>
     private void OnCreateActivityClick()
     {
-        if (!_isClientUser && _selectedClientId <= 0)
+        if (!_isClientUser && _selectedClient == null)
         {
             Snackbar.Add(Localization.GetText("PleaseSelectClient"), Severity.Warning);
             return;
         }
 
-        var clientId = _isClientUser ? (Session.ClientId ?? 0) : _selectedClientId;
+        var clientId = _isClientUser ? (Session.ClientId ?? 0) : (_selectedClient?.ClientId ?? 0);
 
         string url;
         if (_currentStatus == ERActivityStatus.Draft)
