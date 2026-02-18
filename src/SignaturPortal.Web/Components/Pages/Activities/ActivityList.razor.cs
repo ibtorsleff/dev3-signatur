@@ -16,6 +16,7 @@ public partial class ActivityList
     [Inject] private ILocalizationService Localization { get; set; } = default!;
     [Inject] private IUserSessionContext Session { get; set; } = default!;
     [Inject] private IPermissionHelper PermHelper { get; set; } = default!;
+    [Inject] private IClientService ClientService { get; set; } = default!;
 
     [Parameter] public string? Mode { get; set; }
 
@@ -29,6 +30,10 @@ public partial class ActivityList
     // Permission state (loaded once in OnInitializedAsync)
     private bool _isClientUser;
     private bool _canCreateActivity;
+
+    // Client dropdown state (non-client users only)
+    private List<ClientDropdownDto> _clients = new();
+    private int _selectedClientId = -1; // -1 = all clients (no filter)
 
     // Column visibility: computed from current mode
     // CreatedBy: visible in Ongoing and Closed, hidden in Draft
@@ -57,6 +62,13 @@ public partial class ActivityList
         _isClientUser = Session.IsClientUser;
         _canCreateActivity = await PermHelper.UserCanCreateActivityAsync();
         _pagerInfoFormat = $"{{first_item}}-{{last_item}} {Localization.GetText("Of")} {{all_items}}";
+
+        if (!_isClientUser)
+        {
+            var siteId = Session.SiteId ?? 0;
+            if (siteId > 0)
+                _clients = await ClientService.GetClientsForSiteAsync(siteId);
+        }
     }
 
     protected override void OnParametersSet()
@@ -116,7 +128,8 @@ public partial class ActivityList
                 }
             }
 
-            var response = await ActivityService.GetActivitiesAsync(request, _currentStatus);
+            var clientFilter = _isClientUser ? null : (_selectedClientId > 0 ? (int?)_selectedClientId : null);
+            var response = await ActivityService.GetActivitiesAsync(request, _currentStatus, clientFilter);
             _totalCount = response.TotalCount;
 
             return new GridData<ActivityListDto>
@@ -175,4 +188,52 @@ public partial class ActivityList
     {
         NavigateToDetail(args.Item.EractivityId);
     }
+
+    /// <summary>
+    /// Client dropdown selection changed - reload the data grid with new client filter.
+    /// </summary>
+    private async Task OnClientChanged(int clientId)
+    {
+        _selectedClientId = clientId;
+        await _dataGrid.ReloadServerData();
+    }
+
+    /// <summary>
+    /// Create Activity button click - navigates to legacy ASPX page via YARP.
+    /// Draft mode uses ActivityCreateDraft.aspx, other modes use ActivityCreateEdit.aspx.
+    /// Non-client users must select a client first.
+    /// </summary>
+    private void OnCreateActivityClick()
+    {
+        if (!_isClientUser && _selectedClientId <= 0)
+        {
+            Snackbar.Add(Localization.GetText("PleaseSelectClient"), Severity.Warning);
+            return;
+        }
+
+        var clientId = _isClientUser ? (Session.ClientId ?? 0) : _selectedClientId;
+
+        string url;
+        if (_currentStatus == ERActivityStatus.Draft)
+        {
+            url = clientId > 0
+                ? $"/Responsive/Recruiting/ActivityCreateDraft.aspx?ClientId={clientId}"
+                : "/Responsive/Recruiting/ActivityCreateDraft.aspx";
+        }
+        else
+        {
+            url = clientId > 0
+                ? $"/Responsive/Recruiting/ActivityCreateEdit.aspx?ClientId={clientId}"
+                : "/Responsive/Recruiting/ActivityCreateEdit.aspx";
+        }
+
+        Navigation.NavigateTo(url, forceLoad: true);
+    }
+
+    /// <summary>
+    /// Button text varies based on current activity mode.
+    /// </summary>
+    private string _createButtonText => _currentStatus == ERActivityStatus.Draft
+        ? Localization.GetText("ERCreateNewDraftActivity")
+        : Localization.GetText("CreateNewActivity");
 }
