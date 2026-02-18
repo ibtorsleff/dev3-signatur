@@ -102,7 +102,7 @@
 .portal-data-grid .mud-table-loading-progress .mud-progress-linear-bar,
 .portal-data-grid .mud-progress-linear .mud-progress-linear-bar,
 .portal-data-grid .mud-progress-linear-bar {
-    background-color: var(--portal-primary-darkest) !important;
+    background-color: var(--portal-primary-dark) !important;
 }
 
 /* === Loading progress bar track (background behind the moving bar) === */
