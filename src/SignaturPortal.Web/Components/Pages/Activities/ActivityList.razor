@@ -63,6 +63,7 @@
                        Style="min-width: 175px; max-width: 280px;"
                        Clearable="true"
                        AnchorOrigin="Origin.BottomLeft">
+                <MudSelectItem T="Guid?" Value="@((Guid?)null)">[ALL]</MudSelectItem>
                 @foreach (var user in _filterCreatedByUsers)
                 {
                     <MudSelectItem T="Guid?" Value="@((Guid?)user.UserId)">@user.DisplayName</MudSelectItem>
@@ -77,6 +78,7 @@
                        Style="min-width: 175px; max-width: 280px;"
                        Clearable="true"
                        AnchorOrigin="Origin.BottomLeft">
+                <MudSelectItem T="Guid?" Value="@((Guid?)null)">[ALL]</MudSelectItem>
                 @foreach (var user in _filterRecruitmentResponsibleUsers)
                 {
                     <MudSelectItem T="Guid?" Value="@((Guid?)user.UserId)">@user.DisplayName</MudSelectItem>
@@ -91,6 +93,7 @@
                        Style="min-width: 175px; max-width: 280px;"
                        Clearable="true"
                        AnchorOrigin="Origin.BottomLeft">
+                <MudSelectItem T="int?" Value="@((int?)null)">[ALL]</MudSelectItem>
                 @foreach (var clientSection in _filterClientSections)
                 {
                     <MudSelectItem T="int?" Value="@((int?)clientSection.ClientSectionId)">@clientSection.Name</MudSelectItem>
