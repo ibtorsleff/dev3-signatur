@@ -21,7 +21,9 @@
                              Label="@Localization.GetText("Client")"
                              Required="true"
                              Dense="true" Margin="Margin.Dense" Variant="Variant.Outlined"
+                             Class="activity-client-autocomplete"
                              Style="width: 300px;"
+                             PopoverClass="activity-filter-popover"
                              MinCharacters="0"
                              MaxItems="null"
                              Strict="false"
@@ -60,9 +62,10 @@
                        Label="@Localization.GetText("CreatedBy")"
                        Dense="true" Margin="Margin.Dense" Variant="Variant.Outlined"
                        ShrinkLabel="true"
-                       Style="min-width: 175px; max-width: 280px;"
+                       Class="activity-filter-select" Style="min-width: 175px; max-width: 280px;"
                        Clearable="true"
-                       AnchorOrigin="Origin.BottomLeft">
+                       AnchorOrigin="Origin.BottomLeft"
+                       PopoverClass="activity-filter-popover">
                 <MudSelectItem T="Guid?" Value="@((Guid?)null)">[ALL]</MudSelectItem>
                 @foreach (var user in _filterCreatedByUsers)
                 {
@@ -75,9 +78,10 @@
                        Label="@Localization.GetText("RecruitingResponsable")"
                        Dense="true" Margin="Margin.Dense" Variant="Variant.Outlined"
                        ShrinkLabel="true"
-                       Style="min-width: 175px; max-width: 280px;"
+                       Class="activity-filter-select" Style="min-width: 175px; max-width: 280px;"
                        Clearable="true"
-                       AnchorOrigin="Origin.BottomLeft">
+                       AnchorOrigin="Origin.BottomLeft"
+                       PopoverClass="activity-filter-popover">
                 <MudSelectItem T="Guid?" Value="@((Guid?)null)">[ALL]</MudSelectItem>
                 @foreach (var user in _filterRecruitmentResponsibleUsers)
                 {
@@ -90,9 +94,10 @@
                        Label="@Localization.GetText("ClientSection")"
                        Dense="true" Margin="Margin.Dense" Variant="Variant.Outlined"
                        ShrinkLabel="true"
-                       Style="min-width: 175px; max-width: 280px;"
+                       Class="activity-filter-select" Style="min-width: 175px; max-width: 280px;"
                        Clearable="true"
-                       AnchorOrigin="Origin.BottomLeft">
+                       AnchorOrigin="Origin.BottomLeft"
+                       PopoverClass="activity-filter-popover">
                 <MudSelectItem T="int?" Value="@((int?)null)">[ALL]</MudSelectItem>
                 @foreach (var clientSection in _filterClientSections)
                 {
