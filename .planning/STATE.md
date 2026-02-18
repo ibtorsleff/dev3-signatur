@@ -5,21 +5,21 @@
 See: .planning/PROJECT.md (updated 2026-02-13)
 
 **Core value:** The activity list view must work perfectly. Users must be able to see and navigate their recruitment activities with correct status.
-**Current focus:** Phase 03.8 IN PROGRESS -- Client Selector Dropdown and Create Activity Button
+**Current focus:** Phase 03.8 COMPLETE -- Client Selector Dropdown and Create Activity Button
 
 ## Current Position
 
 Phase: 3.8 of 8 (Client Selector Dropdown and Create Activity Button)
-Plan: 1 of 2 in current phase
-Status: Plan 03.8-01 COMPLETE
-Last activity: 2026-02-18 -- Plan 03.8-01 complete
+Plan: 2 of 2 in current phase
+Status: Phase 03.8 COMPLETE
+Last activity: 2026-02-18 -- Plan 03.8-02 complete
 
-Progress: [#########.] 88%
+Progress: [##########] 100%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 27
+- Total plans completed: 28
 - Average duration: 5 minutes
 - Total execution time: 1.91 hours
 
@@ -37,11 +37,11 @@ Progress: [#########.] 88%
 | 03.6-permission-migration | 2 | 5 min | 2.5 min |
 
 | 03.7.1-icurrentuserservice-db-backed-user-context | 2 | 3 min | 1.5 min |
-| 03.8-client-selector-dropdown | 1 | 3 min | 3 min |
+| 03.8-client-selector-dropdown | 2 | 5 min | 2.5 min |
 
 **Recent Trend:**
-- Last 5 plans: 03.6-02 (2 min), 03.7-01 (n/a), 03.7.1-01 (1 min), 03.7.1-02 (2 min), 03.8-01 (3 min)
-- Trend: Backend service layer + filter parameter in 3 min
+- Last 5 plans: 03.7-01 (n/a), 03.7.1-01 (1 min), 03.7.1-02 (2 min), 03.8-01 (3 min), 03.8-02 (2 min)
+- Trend: UI toolbar controls with role/permission gating in 2 min
 
 *Updated after each plan completion*
 
@@ -73,6 +73,7 @@ Progress: [#########.] 88%
 | 03.7.1-01 | 1 min | 2 | 3 |
 | 03.7.1-02 | 2 min | 2 | 2 |
 | 03.8-01 | 3 min | 2 | 6 |
+| 03.8-02 | 2 min | 1 | 2 |
 
 ## Accumulated Context
 
@@ -164,6 +165,8 @@ Recent decisions affecting current work:
 - [Phase 03.8-01]: SqlQueryRaw with ObjectData.value() XPath for client name extraction -- no C# XML parsing, matches legacy SQL pattern
 - [Phase 03.8-01]: clientIdFilter as optional parameter with default null -- backward compatible, no breaking changes to existing callers
 - [Phase 03.8-01]: ClientService bypasses EF global filters via raw SQL -- does not set CurrentSiteId/CurrentClientId on context
+- [Phase 03.8-02]: MudSelect with -1 sentinel for "All Clients" -- simpler than nullable int with MudBlazor select
+- [Phase 03.8-02]: Draft mode navigates to ActivityCreateDraft.aspx, other modes to ActivityCreateEdit.aspx -- matches legacy routing pattern
 
 ### Pending Todos
 
@@ -189,7 +192,7 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-18
-Stopped at: Completed 03.8-01-PLAN.md (IClientService + clientIdFilter backend)
+Stopped at: Completed 03.8-02-PLAN.md (Client dropdown + Create Activity button UI)
 Resume file: None
 
-**Plan 03.8-01 COMPLETE**: IClientService with SQL XPath client name extraction, ClientDropdownDto, and clientIdFilter override on GetActivitiesAsync.
+**Phase 03.8 COMPLETE**: Client selector dropdown and Create Activity button added to ActivityList toolbar with role/permission gating and legacy ASPX navigation.
