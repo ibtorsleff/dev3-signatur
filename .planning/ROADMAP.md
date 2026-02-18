@@ -78,6 +78,16 @@ Plans:
 - [x] 03-05-PLAN.md -- Gap closure: Fix nullable session context types for tenant query filter bypass
 - [x] 03-06-PLAN.md -- Gap closure: Add error handling to all Blazor page lifecycle methods
 
+### Phase 03.8: Client selector dropdown and Create Activity button for non-client users on ActivityList (INSERTED)
+
+**Goal:** Non-client (staff/admin) users can filter the activity list by client via a dropdown and navigate to legacy activity creation pages via a Create Activity button -- matching the legacy toolbar behavior
+**Depends on:** Phase 3
+**Plans:** 2 plans
+
+Plans:
+- [ ] 03.8-01-PLAN.md -- IClientService, ClientDropdownDto, ClientService (SQL XPath client name extraction), and clientIdFilter on GetActivitiesAsync
+- [ ] 03.8-02-PLAN.md -- MudSelect client dropdown and MudButton Create Activity in ActivityList toolbar with event handlers
+
 ### Phase 03.7: Authentication & User Context — Migration Strategy (INSERTED)
 
 **Goal:** Fix authentication and authorization gaps: correct UserId session key type mismatch, wire up AuthorizeRouteView with CascadingAuthenticationState, and redirect unauthenticated users to legacy login page
@@ -254,10 +264,11 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 3.1 -> 3.2 -> 3.3 -> 3.4 -> 3.5 
 | 3.6 Permission Helper Migration (IsClientUser + PortalPermission + IPermissionHelper) | 2/2 | Complete | 2026-02-17 |
 | 3.7 Authentication & User Context Migration | 1/1 | Complete | 2026-02-17 |
 | 3.7.1 ICurrentUserService DB-Backed User Context | 2/2 | Complete | 2026-02-18 |
+| 3.8 Client Selector Dropdown & Create Activity Button | 0/2 | Planned | - |
 | 4. Core Write Operations | 0/4 | Planned | - |
 | 5. Localization & UX Polish | 0/3 | Planned | - |
 | 6. Testing, Deployment & Monitoring | 0/3 | Not started | - |
 
 ---
 *Roadmap created: 2026-02-13*
-*Last updated: 2026-02-18 (Phase 03.7.1 complete)*
+*Last updated: 2026-02-18 (Phase 03.8 planned)*
