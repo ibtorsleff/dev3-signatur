@@ -52,7 +52,7 @@
 @if (!_isClientUser)
 {
     <MudCollapse Expanded="_showMoreFilters">
-        <div style="display: flex; gap: 12px; flex-wrap: wrap; padding: 4px 0 12px 0; align-items: flex-end;">
+        <div style="display: inline-flex; gap: 12px; flex-wrap: wrap; padding: 4px 0 12px 0; align-items: flex-end;">
             <MudSelect T="Guid?"
                        Value="_createdByFilter"
                        ValueChanged="OnCreatedByFilterChanged"
