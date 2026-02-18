@@ -15,7 +15,10 @@
                        Label="@Localization.GetText("Client")"
                        Required="true"
                        Dense="true" Margin="Margin.Dense" Variant="Variant.Outlined"
-                       Style="width: 300px;">
+                       Style="width: 300px;"
+                       SearchBox="true"
+                       SearchBoxAutoFocus="true"
+                       SearchBoxPlaceholder="@Localization.GetText("Search")">
                 @foreach (var client in _clients)
                 {
                     <MudSelectItem T="int" Value="client.ClientId">@client.ClientName</MudSelectItem>
