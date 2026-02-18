@@ -217,7 +217,7 @@ public class LocalizationServiceTests : IDisposable
             UserLanguageId = userLanguageId;
         }
 
-        public int? UserId => 1;
+        public Guid? UserId => Guid.Empty;
         public int? SiteId => 1;
         public int? ClientId => 10;
         public string UserName => "TestUser";

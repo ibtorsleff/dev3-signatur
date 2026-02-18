@@ -53,7 +53,7 @@ public class PermissionServiceTests
             var factory = new TestDbContextFactory(options);
             var session = new TestSessionContext(siteId, clientId);
 
-            return (new PermissionService(factory, session), conn);
+            return (new PermissionService(factory), conn);
         }
     }
 
@@ -171,7 +171,7 @@ public class PermissionServiceTests
             ClientId = clientId;
             IsInitialized = true;
         }
-        public int? UserId => 0;
+        public Guid? UserId => Guid.Empty;
         public int? SiteId { get; }
         public int? ClientId { get; }
         public string UserName => TestUserName;
