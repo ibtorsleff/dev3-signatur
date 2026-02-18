@@ -75,6 +75,12 @@ public partial class ActivityList
         }
     }
 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+            await _dataGrid.ReloadServerData();
+    }
+
     protected override void OnParametersSet()
     {
         var newStatus = Mode?.ToLowerInvariant() switch
