@@ -8,14 +8,14 @@
 
 @if (!_isClientUser || _canCreateActivity)
 {
-    <div style="display: flex; align-items: flex-end; gap: 8px; margin-bottom: 8px;">
+    <div style="display: inline-flex; align-items: flex-end; gap: 8px; margin-bottom: 8px;">
         @if (!_isClientUser)
         {
             <MudSelect T="int" Value="_selectedClientId" ValueChanged="OnClientChanged"
                        Label="@Localization.GetText("Client")"
                        Required="true"
                        Dense="true" Margin="Margin.Dense" Variant="Variant.Outlined"
-                       Style="max-width: 300px;">
+                       Style="width: 300px;">
                 @foreach (var client in _clients)
                 {
                     <MudSelectItem T="int" Value="client.ClientId">@client.ClientName</MudSelectItem>
