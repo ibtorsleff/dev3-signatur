@@ -205,9 +205,7 @@ public partial class ActivityList
 
     private Task<IEnumerable<ClientDropdownDto>> SearchClients(string searchText, CancellationToken ct)
     {
-        // Return all clients when empty or when the text matches the currently selected client
-        // (meaning the user opened the dropdown without typing a new query yet)
-        if (string.IsNullOrWhiteSpace(searchText) || searchText == _selectedClient?.ClientName)
+        if (string.IsNullOrWhiteSpace(searchText))
             return Task.FromResult<IEnumerable<ClientDropdownDto>>(_clients);
         return Task.FromResult<IEnumerable<ClientDropdownDto>>(
             _clients.Where(c => c.ClientName.Contains(searchText, StringComparison.OrdinalIgnoreCase)));
