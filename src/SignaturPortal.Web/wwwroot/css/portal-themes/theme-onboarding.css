@@ -1,0 +1,41 @@
+/* Onboarding portal theme -- blue color scheme */
+
+.theme-onboarding {
+    --portal-grid-bg: #e6f0f6;
+    --portal-grid-header-bg: #e6f0f6;
+    --portal-grid-cell-bg: #fff;
+    --portal-grid-cell-border: #e6f0f6;
+    --portal-grid-hover-bg: #f2f7fb;
+    --portal-grid-selected-bg: #f6f9fb;
+    --portal-grid-hover-cursor: pointer;
+    --portal-grid-header-font-size: 14px;
+    --portal-grid-cell-font-size: 14px;
+    --portal-grid-cell-padding: 11px 13px;
+    --portal-grid-row-height: 41px;
+    --portal-grid-cell-line-height: 19px;
+    --portal-grid-header-padding: 11px 13px;
+    --portal-grid-font-family: Tahoma, "Times New Roman", Arial, sans-serif;
+    --portal-grid-text-color: #000;
+    --portal-grid-headline-bg: #e6f0f6;
+    --portal-grid-headline-color: #000;
+    --portal-grid-headline-font-size: 15px;
+    --portal-grid-headline-padding: 11px 13px;
+    --portal-grid-headline-border-radius: 4px;
+    --portal-primary: #1a6b9b;
+    --portal-primary-dark: #054166;
+    --portal-primary-light: #5b9bbf;
+    --portal-secondary: #e6f0f6;
+    --portal-secondary-dark: #ccdce8;
+    --portal-secondary-light: #f2f7fb;
+    --portal-action-hover-bg: #1a6b9b;
+    --portal-nav-row1-color: #1a6b9b;
+}
+
+/* Dark mode overrides for portal accent vars */
+.theme-onboarding.portal-dark {
+    --portal-grid-bg: #0d2a3d;
+    --portal-grid-header-bg: #0d2a3d;
+    --portal-grid-headline-bg: #0d2a3d;
+    --portal-grid-cell-border: #1a3d52;
+    --portal-nav-row1-color: var(--mud-palette-text-primary);
+}

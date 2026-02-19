@@ -1,11 +1,12 @@
 /* Shared grid styles for all portal themes.
-   All values reference CSS custom properties defined in theme-*.css files.
-   No hardcoded colors -- portal themes control the palette. */
+   Text, bg, hover and pagination use --mud-palette-* vars for automatic dark mode.
+   Border color uses --portal-grid-cell-border (portal-controlled) because each portal
+   wants specific border visibility; dark mode overrides are in each theme-*.css file. */
 
 /* === Root grid container === */
 .portal-data-grid {
     font-family: var(--portal-grid-font-family);
-    color: var(--portal-grid-text-color);
+    color: var(--mud-palette-text-primary);
     background-color: var(--portal-grid-bg);
     padding: 0;
 }
@@ -13,7 +14,7 @@
 /* === Toolbar (legacy content-headline equivalent) === */
 .portal-data-grid.mud-table .mud-toolbar.mud-table-toolbar {
     background-color: var(--portal-grid-headline-bg);
-    color: var(--portal-grid-headline-color);
+    color: var(--mud-palette-text-primary) !important;
     font-size: var(--portal-grid-headline-font-size);
     font-weight: bold;
     height: 50px;
@@ -31,7 +32,7 @@
     font-weight: bold;
     white-space: nowrap;
     border: 1px solid var(--portal-grid-cell-border);
-    color: var(--portal-grid-text-color);
+    color: var(--mud-palette-text-primary);
 }
 
 /* === Header label text (sortable and non-sortable columns) === */
@@ -46,10 +47,11 @@
 
 /* === Body cells === */
 .portal-data-grid .mud-table-body .mud-table-cell {
-    background-color: var(--portal-grid-cell-bg);
+    background-color: var(--mud-palette-surface);
     padding: var(--portal-grid-cell-padding);
     font-size: var(--portal-grid-cell-font-size);
     border: 1px solid var(--portal-grid-cell-border);
+    color: var(--mud-palette-text-primary);
     vertical-align: middle;
     line-height: var(--portal-grid-cell-line-height, normal);
     height: var(--portal-grid-row-height, auto);
@@ -61,13 +63,13 @@
 
 /* === Hover state === */
 .portal-data-grid .mud-table-body .mud-table-row:hover .mud-table-cell {
-    background-color: var(--portal-grid-hover-bg);
+    background-color: var(--mud-palette-action-default-hover);
     cursor: var(--portal-grid-hover-cursor);
 }
 
 /* === Selected state === */
 .portal-data-grid .mud-table-body .mud-table-row.selected .mud-table-cell {
-    background-color: var(--portal-grid-selected-bg);
+    background-color: var(--mud-palette-action-default-hover);
 }
 
 /* === Pagination area === */
@@ -75,11 +77,13 @@
     font-size: 14px;
     font-family: var(--portal-grid-font-family);
     background-color: var(--portal-grid-header-bg);
+    color: var(--mud-palette-text-secondary);
 }
 
 .portal-data-grid .mud-table-pagination .mud-table-pagination-toolbar {
     background-color: var(--portal-grid-header-bg);
     border-top: 1px solid var(--portal-grid-cell-border);
+    color: var(--mud-palette-text-secondary);
 }
 
 /* === Header content: keep sort icon next to label text === */
@@ -124,6 +128,5 @@
 /* === Table fills container width — no trailing whitespace === */
 .portal-data-grid .mud-table-container table {
     width: 100%;
-    background-color: var(--portal-grid-header-bg);
+    background-color: var(--mud-palette-surface);
 }
-

@@ -4,7 +4,7 @@
 .theme-recruitingportal {
     --portal-grid-bg: #e6f6f6;
     --portal-grid-header-bg: #e6f6f6;
-    --portal-grid-cell-bg: #fff;
+    --portal-grid-cell-bg: #e6f6f6;
     --portal-grid-cell-border: #e6f6f6;
     --portal-grid-hover-bg: #f2fbfa;
     --portal-grid-selected-bg: #f6fbfb;
@@ -29,4 +29,16 @@
     --portal-secondary-dark: #d2d9da;
     --portal-secondary-light: #f2fbfa;
     --portal-action-hover-bg: #1a9b89;
+    --portal-nav-row1-color: #1a9b89;
 }
+
+/* Dark mode overrides for portal accent vars.
+   MainLayout adds portal-dark to the theme div when _isDarkMode is true,
+   giving us a reliable selector that's in sync with the Blazor render cycle. */
+    .theme-recruitingportal.portal-dark {
+        --portal-grid-bg: #02120f;
+        --portal-grid-header-bg: #02120f;
+        --portal-grid-headline-bg: #02120f;
+        --portal-grid-cell-border: #02120f;
+        --portal-nav-row1-color: var(--mud-palette-text-primary);
+    }

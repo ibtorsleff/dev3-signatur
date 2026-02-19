@@ -91,6 +91,12 @@ builder.Services.AddScoped<IUserSessionContext, UserSessionContext>();
 // Navigation config — stateless route-to-nav-config resolution (singleton)
 builder.Services.AddSingleton<INavigationConfigService, NavigationConfigService>();
 
+// Theme service — pre-built per-portal MudTheme instances (singleton)
+builder.Services.AddSingleton<IThemeService, ThemeService>();
+
+// Dark mode state — per-circuit (scoped), shared between MainLayout and NavMenu
+builder.Services.AddScoped<ThemeStateService>();
+
 var app = builder.Build();
 
 // Middleware pipeline - ORDER IS CRITICAL

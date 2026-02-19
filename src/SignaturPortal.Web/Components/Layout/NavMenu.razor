@@ -44,6 +44,18 @@
             <li class="user-info">
                 <div>@(Session.IsInitialized ? (Session.FullName ?? Session.UserName) : "User") <img class="user-icon" src="/Responsive/images/responsive/top-menu/user_44x44.png" alt="User" /></div>
             </li>
+            <li class="dark-mode-toggle">
+                <button class="dark-mode-btn" @onclick="ToggleDarkMode" title="@(_themeState.IsDarkMode ? "Switch to light mode" : "Switch to dark mode")">
+                    @if (_themeState.IsDarkMode)
+                    {
+                        <span>&#9728;</span>
+                    }
+                    else
+                    {
+                        <span>&#9790;</span>
+                    }
+                </button>
+            </li>
         </ul>
     </div>
 

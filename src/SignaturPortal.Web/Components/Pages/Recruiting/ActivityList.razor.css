@@ -1,5 +1,5 @@
 ::deep .btn-create-activity:hover {
-    background-color: #1a9b89 !important;
+    background-color: var(--mud-palette-primary) !important;
 }
 
 ::deep .btn-more-filters:hover {

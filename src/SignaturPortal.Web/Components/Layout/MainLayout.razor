@@ -1,14 +1,19 @@
 @inherits LayoutComponentBase
+@inject INavigationConfigService NavConfigService
+@inject IThemeService ThemeService
+@inject NavigationManager Navigation
+@inject ThemeStateService ThemeState
+@inject IJSRuntime JS
+@implements IDisposable
 
-<MudThemeProvider Theme="_theme" />
+<MudThemeProvider Theme="_currentTheme" IsDarkMode="_isDarkMode" />
 <MudPopoverProvider />
 <MudDialogProvider />
 <MudSnackbarProvider />
 
 <SessionPersistence />
 
-@* Portal theme class -- will be dynamic when multiple portals are active *@
-<div class="page theme-recruitingportal">
+<div class="page @_themeCssClass @(_isDarkMode ? "portal-dark" : "")">
     <NavMenu />
     <main class="main-content">
         @Body
@@ -22,14 +27,57 @@
 </div>
 
 @code {
-    private MudTheme _theme = new()
+    private MudTheme _currentTheme = new();
+    private string _themeCssClass = "theme-recruitingportal";
+    private bool _isDarkMode;
+
+    protected override void OnInitialized()
     {
-        PaletteLight = new PaletteLight
+        Navigation.LocationChanged += OnLocationChanged;
+        ThemeState.OnChange += OnThemeStateChanged;
+        UpdateTheme();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
         {
-            Primary = "#1a9b89",
-            PrimaryDarken = "#178a79",
-            Dark = "#054541",
-            DarkLighten = "#1a9b89",
+            var stored = await JS.InvokeAsync<string?>("themePreference.get");
+            var isDark = stored == "dark";
+            ThemeState.Initialize(isDark);
+            _isDarkMode = isDark;
+            StateHasChanged();
         }
-    };
+    }
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        UpdateTheme();
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void OnThemeStateChanged()
+    {
+        _isDarkMode = ThemeState.IsDarkMode;
+        InvokeAsync(async () =>
+        {
+            await JS.InvokeVoidAsync("themePreference.set", _isDarkMode ? "dark" : "light");
+            StateHasChanged();
+        });
+    }
+
+    private void UpdateTheme()
+    {
+        var path = new Uri(Navigation.Uri).AbsolutePath;
+        var navConfig = NavConfigService.GetConfigForRoute(path);
+        var themeConfig = ThemeService.GetTheme(navConfig.PortalType);
+        _currentTheme = themeConfig.MudTheme;
+        _themeCssClass = themeConfig.CssClass;
+    }
+
+    public void Dispose()
+    {
+        Navigation.LocationChanged -= OnLocationChanged;
+        ThemeState.OnChange -= OnThemeStateChanged;
+    }
 }

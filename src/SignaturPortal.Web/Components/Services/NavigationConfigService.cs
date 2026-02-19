@@ -21,7 +21,12 @@ public class NavigationConfigService : INavigationConfigService
             PortalName = "Rekruttering",
             PortalNameKey = "ERecruitmentPortal",
             PortalUrl = "/recruiting/activities",
-            ThemeCssClass = "theme-recruitingportal",
+            ThemeCssClass = portal switch
+            {
+                PortalType.AdPortal   => "theme-adportal",
+                PortalType.Onboarding => "theme-onboarding",
+                _                     => "theme-recruitingportal",
+            },
             Row1Items = GetRow1Items(path),
             Row1RightItems = GetRow1RightItems(),
             Row2Items = GetRow2Items(path),

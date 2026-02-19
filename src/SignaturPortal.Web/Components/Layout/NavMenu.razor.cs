@@ -17,13 +17,17 @@ public partial class NavMenu : IDisposable
     private IUserSessionContext Session { get; set; } = default!;
 
     [Inject]
-    private ILocalizationService Localization{ get; set; } = default!;
+    private ILocalizationService Localization { get; set; } = default!;
+
+    [Inject]
+    private ThemeStateService _themeState { get; set; } = default!;
 
     private NavMenuConfig _config = new();
 
     protected override void OnInitialized()
     {
         Navigation.LocationChanged += OnLocationChanged;
+        _themeState.OnChange += OnThemeStateChanged;
         UpdateNavConfig();
     }
 
@@ -33,11 +37,21 @@ public partial class NavMenu : IDisposable
         InvokeAsync(StateHasChanged);
     }
 
+    private void OnThemeStateChanged()
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
     private void UpdateNavConfig()
     {
         var uri = new Uri(Navigation.Uri);
         var path = uri.AbsolutePath;
         _config = NavConfigService.GetConfigForRoute(path);
+    }
+
+    private void ToggleDarkMode()
+    {
+        _themeState.Toggle();
     }
 
     private string ResolveLabel(NavMenuItem item)
@@ -61,5 +75,6 @@ public partial class NavMenu : IDisposable
     public void Dispose()
     {
         Navigation.LocationChanged -= OnLocationChanged;
+        _themeState.OnChange -= OnThemeStateChanged;
     }
 }

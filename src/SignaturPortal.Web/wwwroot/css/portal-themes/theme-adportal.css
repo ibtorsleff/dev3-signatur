@@ -29,4 +29,14 @@
     --portal-secondary-dark: #d2d9da;
     --portal-secondary-light: #f2fbfa;
     --portal-action-hover-bg: #421a56;
+    --portal-nav-row1-color: #421a56;
+}
+
+/* Dark mode overrides for portal accent vars */
+.theme-adportal.portal-dark {
+    --portal-grid-bg:          #1e1424;
+    --portal-grid-header-bg:   #2c0740;
+    --portal-grid-headline-bg: #2c0740;
+    --portal-grid-cell-border: #3d1a52;
+    --portal-nav-row1-color: var(--mud-palette-text-primary);
 }
