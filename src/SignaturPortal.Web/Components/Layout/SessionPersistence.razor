@@ -23,7 +23,7 @@
             data is not null)
         {
             ((UserSessionContext)Session).Restore(
-                data.UserId, data.SiteId, data.ClientId, data.UserName, data.UserLanguageId);
+                data.UserId, data.SiteId, data.ClientId, data.UserName, data.FullName, data.UserLanguageId);
         }
     }
 
@@ -37,6 +37,7 @@
                 SiteId = Session.SiteId,
                 ClientId = Session.ClientId,
                 UserName = Session.UserName,
+                FullName = Session.FullName,
                 UserLanguageId = Session.UserLanguageId,
             });
         }
@@ -54,6 +55,7 @@
         public int? SiteId { get; set; }
         public int? ClientId { get; set; }
         public string UserName { get; set; } = string.Empty;
+        public string? FullName { get; set; }
         public int UserLanguageId { get; set; }
     }
 }

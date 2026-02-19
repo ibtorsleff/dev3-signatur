@@ -15,6 +15,7 @@ public class UserSessionContext : IUserSessionContext
     public int? SiteId { get; private set; }
     public int? ClientId { get; private set; }
     public string UserName { get; private set; } = string.Empty;
+    public string? FullName { get; private set; }
     public int UserLanguageId { get; private set; }
     public bool IsInitialized { get; private set; }
     public bool IsClientUser => ClientId.HasValue && ClientId.Value > 0;
@@ -38,6 +39,7 @@ public class UserSessionContext : IUserSessionContext
         SiteId = user.SiteId > 0 ? user.SiteId : null;
         ClientId = user.ClientId.HasValue && user.ClientId.Value > 0 ? user.ClientId : null;
         UserName = user.UserName ?? string.Empty;
+        FullName = user.FullName;
         UserLanguageId = user.UserLanguageId;
         IsInitialized = true;
     }
@@ -47,7 +49,7 @@ public class UserSessionContext : IUserSessionContext
     /// HTTP context is no longer available).
     /// Called by SessionPersistence component via PersistentComponentState.
     /// </summary>
-    public void Restore(Guid? userId, int? siteId, int? clientId, string userName, int userLanguageId)
+    public void Restore(Guid? userId, int? siteId, int? clientId, string userName, string? fullName, int userLanguageId)
     {
         if (IsInitialized)
             return;
@@ -56,6 +58,7 @@ public class UserSessionContext : IUserSessionContext
         SiteId = siteId > 0 ? siteId : null;
         ClientId = clientId > 0 ? clientId : null;
         UserName = userName;
+        FullName = fullName;
         UserLanguageId = userLanguageId;
         IsInitialized = true;
     }

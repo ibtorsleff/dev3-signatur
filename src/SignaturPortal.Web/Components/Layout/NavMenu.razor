@@ -42,7 +42,7 @@
         </ul>
         <ul class="menu-items menu-items-right">
             <li class="user-info">
-                <div>@(Session.IsInitialized ? Session.UserName : "User") <img class="user-icon" src="/Responsive/images/responsive/top-menu/user_44x44.png" alt="User" /></div>
+                <div>@(Session.IsInitialized ? (Session.FullName ?? Session.UserName) : "User") <img class="user-icon" src="/Responsive/images/responsive/top-menu/user_44x44.png" alt="User" /></div>
             </li>
         </ul>
     </div>

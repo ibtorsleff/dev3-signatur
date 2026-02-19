@@ -6,6 +6,7 @@ public interface IUserSessionContext
     int? SiteId { get; }
     int? ClientId { get; }
     string UserName { get; }
+    string? FullName { get; }
     int UserLanguageId { get; }
     bool IsInitialized { get; }
 
