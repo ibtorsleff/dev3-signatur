@@ -1,0 +1,46 @@
+@page "/admin/session-status"
+@rendermode InteractiveServer
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
+
+<PageTitle>Session Status</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Medium" Class="mt-4">
+    <MudText Typo="Typo.h4" Class="mb-4">Session Status</MudText>
+
+    <MudPaper Class="pa-4 mb-4" Elevation="2">
+        <MudText Typo="Typo.h6" Class="mb-3">UserSessionContext (available for SignalR circuit)</MudText>
+
+        <MudGrid>
+            <MudItem xs="4"><MudText Typo="Typo.body2" Color="Color.Secondary">UserId</MudText></MudItem>
+            <MudItem xs="8"><MudText Typo="Typo.body1">@(Session.UserId?.ToString() ?? "N/A")</MudText></MudItem>
+
+            <MudItem xs="4"><MudText Typo="Typo.body2" Color="Color.Secondary">SiteId</MudText></MudItem>
+            <MudItem xs="8"><MudText Typo="Typo.body1">@(Session.SiteId?.ToString() ?? "N/A")</MudText></MudItem>
+
+            <MudItem xs="4"><MudText Typo="Typo.body2" Color="Color.Secondary">ClientId</MudText></MudItem>
+            <MudItem xs="8"><MudText Typo="Typo.body1">@(Session.ClientId?.ToString() ?? "N/A")</MudText></MudItem>
+
+            <MudItem xs="4"><MudText Typo="Typo.body2" Color="Color.Secondary">UserName</MudText></MudItem>
+            <MudItem xs="8"><MudText Typo="Typo.body1">@Session.UserName</MudText></MudItem>
+
+            <MudItem xs="4"><MudText Typo="Typo.body2" Color="Color.Secondary">UserLanguageId</MudText></MudItem>
+            <MudItem xs="8"><MudText Typo="Typo.body1">@Session.UserLanguageId</MudText></MudItem>
+
+            <MudItem xs="4"><MudText Typo="Typo.body2" Color="Color.Secondary">IsClientUser</MudText></MudItem>
+            <MudItem xs="8"><MudText Typo="Typo.body1">@Session.IsClientUser</MudText></MudItem>
+
+            <MudItem xs="4"><MudText Typo="Typo.body2" Color="Color.Secondary">IsInitialized</MudText></MudItem>
+            <MudItem xs="8"><MudText Typo="Typo.body1">@Session.IsInitialized</MudText></MudItem>
+        </MudGrid>
+    </MudPaper>
+
+    <MudPaper Class="pa-4 mb-4" Elevation="2">
+        <MudText Typo="Typo.h6" Class="mb-3">Shared Legacy Session (SSR only)</MudText>
+
+        <MudGrid>
+            <MudItem xs="4"><MudText Typo="Typo.body2" Color="Color.Secondary">SsoLoginDisclaimerChecked</MudText></MudItem>
+            <MudItem xs="8"><MudText Typo="Typo.body1">@(_disclaimerChecked?.ToString() ?? "N/A (SSR only)")</MudText></MudItem>
+        </MudGrid>
+    </MudPaper>
+</MudContainer>

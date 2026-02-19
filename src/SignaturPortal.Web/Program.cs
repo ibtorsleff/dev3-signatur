@@ -65,10 +65,10 @@ builder.Services.AddSystemWebAdapters()
         //options.RegisterKey<int>("UserLanguageId");
 
         // Legacy session keys still needed from the shared session:
-        // Portal enum (int-backed): Undefined=0, AdPortal=1, RecruitingPortal=2, OnboardingPortal=3, OnboardingEmployeePortal=4
+        // SSO login disclaimer flag — set to true after user accepts disclaimer
         // Access in OnInitialized (SSR only — not available during SignalR interactions):
-        //   var lastPortal = (int)(System.Web.HttpContext.Current.Session["AtlantaUserLastPortal"] ?? 0);
-        options.RegisterKey<int>("AtlantaUserLastPortal");
+        //   var disclaimerChecked = (bool)(System.Web.HttpContext.Current.Session["SsoLoginDisclaimerChecked"] ?? false);
+        options.RegisterKey<bool>("SsoLoginDisclaimerChecked");
     })
     .AddRemoteAppClient(options =>
     {
