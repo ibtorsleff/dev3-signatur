@@ -1,8 +1,10 @@
+using Microsoft.EntityFrameworkCore;
 using SignaturPortal.Application.Interfaces;
+using SignaturPortal.Infrastructure.Data;
 
 namespace SignaturPortal.Web.Services;
 
-public class UserSessionContext : IUserSessionContext
+public class UserSessionContext(IDbContextFactory<SignaturDbContext> contextFactory) : IUserSessionContext
 {
     public Guid? UserId { get; private set; }
     public int? SiteId { get; private set; }
@@ -15,9 +17,10 @@ public class UserSessionContext : IUserSessionContext
 
     /// <summary>
     /// Initialize from legacy System.Web session (only works during SSR HTTP requests).
+    /// Queries IsInternal from Blazor's own DB using UserId — does not rely on legacy session.
     /// Called by UserSessionMiddleware.
     /// </summary>
-    public void Initialize()
+    public async Task InitializeAsync()
     {
         if (IsInitialized)
             return;
@@ -31,7 +34,15 @@ public class UserSessionContext : IUserSessionContext
         ClientId = swSession["ClientId"] is int cid && cid > 0 ? cid : null;
         UserName = swSession["UserName"] as string ?? string.Empty;
         UserLanguageId = swSession["UserLanguageId"] is int lid ? lid : 0;
-        IsInternal = swSession["IsInternal"] is bool isInt && isInt;
+
+        if (UserId.HasValue)
+        {
+            await using var db = await contextFactory.CreateDbContextAsync();
+            IsInternal = await db.Users
+                .Where(u => u.UserId == UserId.Value)
+                .Select(u => u.IsInternal)
+                .FirstOrDefaultAsync();
+        }
 
         IsInitialized = true;
     }
