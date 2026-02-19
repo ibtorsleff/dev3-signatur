@@ -884,6 +884,25 @@ public class ActivityService : IActivityService
     }
 
     /// <summary>
+    /// Writes a UserActivityLog entry recording that an external user was force-logged out
+    /// because they have no active recruitment activities.
+    /// Mirrors legacy: HelperERecruiting.UserActivityLogCreate(siteId, userId, "Tvunget logget ud...", null).
+    /// </summary>
+    public async Task LogExternalUserForceLogoutAsync(Guid userId, CancellationToken ct = default)
+    {
+        await using var context = await _contextFactory.CreateDbContextAsync(ct);
+
+        context.UserActivityLogs.Add(new Infrastructure.Data.Entities.UserActivityLog
+        {
+            ActionUserId = userId,
+            TimeStamp = DateTime.Now,
+            Log = "Tvunget logget ud. Ekstern bruger er ikke medlem af nogle aktive sager."
+        });
+
+        await context.SaveChangesAsync(ct);
+    }
+
+    /// <summary>
     /// Counts active (OnGoing) activities the given user is associated with
     /// as a member, creator, or responsible person.
     /// Mirrors legacy HelperERecruiting.UserInActiveActivitiesCount().

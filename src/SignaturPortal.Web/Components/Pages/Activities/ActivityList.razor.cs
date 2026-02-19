@@ -697,6 +697,10 @@ public partial class ActivityList
     private async Task ShowExternalUserNoActivitiesDialogAsync()
     {
         await _noActivitiesDialog.ShowAsync(options: new DialogOptions { BackdropClick = false });
+
+        if (Session.UserId.HasValue)
+            await ActivityService.LogExternalUserForceLogoutAsync(Session.UserId.Value);
+
         Navigation.NavigateTo("/Login.aspx", forceLoad: true);
     }
 }

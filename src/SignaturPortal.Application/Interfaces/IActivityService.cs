@@ -77,4 +77,11 @@ public interface IActivityService
     /// a disclaimer and is logged out (matches legacy UserInActiveActivitiesCount).
     /// </summary>
     Task<int> GetUserActiveActivitiesCountAsync(Guid userId, CancellationToken ct = default);
+
+    /// <summary>
+    /// Writes a UserActivityLog entry recording that an external user was force-logged out
+    /// because they have no active recruitment activities.
+    /// Matches legacy: HelperERecruiting.UserActivityLogCreate(siteId, userId, "Tvunget logget ud...", null).
+    /// </summary>
+    Task LogExternalUserForceLogoutAsync(Guid userId, CancellationToken ct = default);
 }
