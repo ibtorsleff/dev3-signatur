@@ -20,5 +20,6 @@ public interface IPermissionHelper
     Task<bool> UserCanAccessActivitiesUserNotMemberOfAsync(CancellationToken ct = default);
     Task<bool> UserCanAccessActivitiesWithWorkAreaUserNotMemberOfAsync(CancellationToken ct = default);
     Task<bool> UserCanCreateActivityAsync(CancellationToken ct = default);
+    Task<bool> UserCanCreateDraftActivityAsync(CancellationToken ct = default);
     Task<bool> UserCanExportActivityMembersAsync(CancellationToken ct = default);
 }

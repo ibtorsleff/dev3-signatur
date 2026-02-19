@@ -6,7 +6,7 @@
 
 <PageTitle>@_headlineText</PageTitle>
 
-@if (!_isClientUser || _canCreateActivity)
+@if (!_isClientUser || _canCreateActivityInCurrentMode)
 {
     <div style="display: inline-flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: @(_showMoreFilters ? "8px" : "20px");">
         @if (!_isClientUser)
@@ -48,7 +48,7 @@
                            Style="width: 310px;"
                            Clearable="true" />
         }
-        @if (_canCreateActivity)
+        @if (_canCreateActivityInCurrentMode)
         {
             <MudButton Variant="Variant.Filled" Color="Color.Dark"
                        StartIcon="@Icons.Material.Filled.AddCircle"

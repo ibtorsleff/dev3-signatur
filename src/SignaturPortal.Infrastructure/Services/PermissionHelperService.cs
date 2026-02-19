@@ -79,6 +79,10 @@ public class PermissionHelperService : IPermissionHelper
         => await HasPermissionAsync(PortalPermission.RecruitmentPortalRecruitmentAccess, ct)
            && await HasPermissionAsync(PortalPermission.RecruitmentPortalCreateActivity, ct);
 
+    public async Task<bool> UserCanCreateDraftActivityAsync(CancellationToken ct = default)
+        => await HasPermissionAsync(PortalPermission.RecruitmentPortalRecruitmentAccess, ct)
+           && await HasPermissionAsync(PortalPermission.RecruitmentPortalCreateDraftActivities, ct);
+
     public async Task<bool> UserCanExportActivityMembersAsync(CancellationToken ct = default)
         => await HasPermissionAsync(PortalPermission.RecruitmentPortalAllowExportActivityMembersInActivityList, ct);
 }

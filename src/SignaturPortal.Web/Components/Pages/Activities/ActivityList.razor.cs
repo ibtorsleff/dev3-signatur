@@ -39,6 +39,7 @@ public partial class ActivityList
     private bool _isClientUser;
     private bool _isInternalUser;
     private bool _canCreateActivity;
+    private bool _canCreateDraftActivity;
     private bool _canAccessDraftActivities;
     private bool _clientDraftEnabled;
     private bool _userHasExportPermission;
@@ -111,6 +112,11 @@ public partial class ActivityList
     private bool _hideTemplateGroupColumn => _currentStatus == ERActivityStatus.Draft || !_clientUsesTemplateGroups;
     // ClientSection ("Afdeling"): hidden when user is a client user (matches legacy dskClientTh visibility)
     private bool _hideClientSectionColumn => _isClientUser;
+    // Matches legacy ActivityList.aspx.cs:496-499: Draft mode uses RecruitmentPortalCreateDraftActivities,
+    // other modes use RecruitmentPortalCreateActivity.
+    private bool _canCreateActivityInCurrentMode =>
+        _currentStatus == ERActivityStatus.Draft ? _canCreateDraftActivity : _canCreateActivity;
+
     // Actions (copy): visible in Ongoing and Closed, hidden in Draft, AND user must have CreateActivity permission
     private bool _hideActionsColumn => _currentStatus == ERActivityStatus.Draft || !_canCreateActivity;
     // Whether to show candidate count in Headline
@@ -133,6 +139,7 @@ public partial class ActivityList
         var currentUser = await CurrentUserService.GetCurrentUserAsync();
         _isInternalUser = currentUser?.IsInternal ?? false;
         _canCreateActivity = await PermHelper.UserCanCreateActivityAsync();
+        _canCreateDraftActivity = await PermHelper.UserCanCreateDraftActivityAsync();
         _canAccessDraftActivities = await PermHelper.UserCanAccessRecruitmentDraftActivitiesAsync();
         _userHasExportPermission = await PermHelper.UserCanExportActivityMembersAsync();
 
