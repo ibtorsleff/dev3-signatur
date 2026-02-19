@@ -4,6 +4,13 @@ namespace SignaturPortal.Web.Services;
 
 public class UserSessionContext : IUserSessionContext
 {
+    private readonly ICurrentUserService _currentUserService;
+
+    public UserSessionContext(ICurrentUserService currentUserService)
+    {
+        _currentUserService = currentUserService;
+    }
+
     public Guid? UserId { get; private set; }
     public int? SiteId { get; private set; }
     public int? ClientId { get; private set; }
@@ -13,30 +20,31 @@ public class UserSessionContext : IUserSessionContext
     public bool IsClientUser => ClientId.HasValue && ClientId.Value > 0;
 
     /// <summary>
-    /// Initialize from legacy System.Web session (only works during SSR HTTP requests).
-    /// Called by UserSessionMiddleware.
+    /// Initialize from the DB-backed user record for the given UserName.
+    /// Called by UserSessionMiddleware during SSR HTTP requests (after UseAuthentication).
+    /// Receives UserName from HttpContext.User.Identity.Name — avoids AuthenticationStateProvider
+    /// which is only valid inside the Blazor circuit, not in the HTTP middleware pipeline.
     /// </summary>
-    public void Initialize()
+    public async Task InitializeAsync(string? userName)
     {
         if (IsInitialized)
             return;
 
-        var swSession = System.Web.HttpContext.Current?.Session;
-        if (swSession is null)
+        var user = await _currentUserService.GetUserByNameAsync(userName ?? string.Empty);
+        if (user is null)
             return;
 
-        UserId = swSession["UserId"] is Guid uid ? uid : null;
-        SiteId = swSession["SiteId"] is int sid && sid > 0 ? sid : null;
-        ClientId = swSession["ClientId"] is int cid && cid > 0 ? cid : null;
-        UserName = swSession["UserName"] as string ?? string.Empty;
-        UserLanguageId = swSession["UserLanguageId"] is int lid ? lid : 0;
-
+        UserId = user.UserId;
+        SiteId = user.SiteId > 0 ? user.SiteId : null;
+        ClientId = user.ClientId.HasValue && user.ClientId.Value > 0 ? user.ClientId : null;
+        UserName = user.UserName ?? string.Empty;
+        UserLanguageId = user.UserLanguageId;
         IsInitialized = true;
     }
 
     /// <summary>
     /// Restore from persisted values (used when SignalR circuit starts and
-    /// System.Web session is no longer available).
+    /// HTTP context is no longer available).
     /// Called by SessionPersistence component via PersistentComponentState.
     /// </summary>
     public void Restore(Guid? userId, int? siteId, int? clientId, string userName, int userLanguageId)

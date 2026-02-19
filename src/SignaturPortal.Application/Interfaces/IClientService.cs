@@ -32,4 +32,11 @@ public interface IClientService
     /// For internal (non-client) users this is always true — only checked for client users.
     /// </summary>
     Task<bool> GetExportActivityMembersEnabledAsync(int clientId, CancellationToken ct = default);
+
+    /// <summary>
+    /// Returns true if the client has ERecruitment enabled and the Recruitment Draft feature enabled.
+    /// Reads from Sig_Client.CustomData XPath: /ClientCustomData/Recruitment/DraftSettings/@DraftEnabled.
+    /// Matches legacy ClientHlp.ClientRecruitmentDraftEnabled.
+    /// </summary>
+    Task<bool> GetRecruitmentDraftEnabledAsync(int clientId, CancellationToken ct = default);
 }

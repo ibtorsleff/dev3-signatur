@@ -11,4 +11,5 @@ public record CurrentUserDto(
     bool IsInternal,
     bool Enabled,
     int SiteId,
-    int? ClientId);
+    int? ClientId,
+    int UserLanguageId);

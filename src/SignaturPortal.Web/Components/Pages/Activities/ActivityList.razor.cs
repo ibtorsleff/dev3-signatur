@@ -38,6 +38,8 @@ public partial class ActivityList
     private bool _isClientUser;
     private bool _isInternalUser;
     private bool _canCreateActivity;
+    private bool _canAccessDraftActivities;
+    private bool _clientDraftEnabled;
     private bool _userHasExportPermission;
     private bool _clientExportConfigEnabled;
 
@@ -120,7 +122,15 @@ public partial class ActivityList
         var currentUser = await CurrentUserService.GetCurrentUserAsync();
         _isInternalUser = currentUser?.IsInternal ?? false;
         _canCreateActivity = await PermHelper.UserCanCreateActivityAsync();
+        _canAccessDraftActivities = await PermHelper.UserCanAccessRecruitmentDraftActivitiesAsync();
         _userHasExportPermission = await PermHelper.UserCanExportActivityMembersAsync();
+
+        // Preload client-level draft flag for the session client (used in OnParametersSet Draft guard).
+        // Matches legacy: _isClientLoggedOn && ClientRecruitmentDraftEnabled(siteId, clientId).
+        var sessionClientId = Session.ClientId ?? 0;
+        _clientDraftEnabled = sessionClientId > 0
+            ? await ClientService.GetRecruitmentDraftEnabledAsync(sessionClientId)
+            : true; // No client in session — client-level draft check is skipped
         _pagerInfoFormat = $"{{first_item}}-{{last_item}} {Localization.GetText("Of")} {{all_items}}";
 
         if (!_isClientUser)
@@ -188,6 +198,19 @@ public partial class ActivityList
         // Matches legacy: if (!_currentUser.IsInternal) ResponseRedirect("/") when Mode = Closed.
         // Uses IsInternal (not IsClientUser) because internal users can also have a ClientId.
         if (newStatus == ERActivityStatus.Closed && !_isInternalUser)
+        {
+            Navigation.NavigateTo("/");
+            return;
+        }
+
+        // Guard: Draft mode requires all three conditions (matches legacy ActivityList.aspx.cs:385-388):
+        //   1. User must be internal
+        //   2. If a client is in session: that client must have RecruitmentDraftEnabled
+        //   3. User must have UserCanAccessRecruitmentDraftActivities permission
+        if (newStatus == ERActivityStatus.Draft &&
+            (!_isInternalUser ||
+             (Session.IsClientUser && !_clientDraftEnabled) ||
+             !_canAccessDraftActivities))
         {
             Navigation.NavigateTo("/");
             return;

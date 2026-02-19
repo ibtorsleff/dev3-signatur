@@ -56,11 +56,14 @@ builder.Services.AddSession(options =>
 builder.Services.AddSystemWebAdapters()
     .AddJsonSessionSerializer(options =>
     {
-        options.RegisterKey<Guid>("UserId");
-        options.RegisterKey<int>("SiteId");
-        options.RegisterKey<int>("ClientId");
-        options.RegisterKey<string>("UserName");
-        options.RegisterKey<int>("UserLanguageId");
+        // UserSessionContext now populates itself from the DB via ICurrentUserService
+        // (keyed on HttpContext.User.Identity.Name from the auth cookie) — no longer reading
+        // these values from the legacy shared session.
+        //options.RegisterKey<Guid>("UserId");
+        //options.RegisterKey<int>("SiteId");
+        //options.RegisterKey<int>("ClientId");
+        //options.RegisterKey<string>("UserName");
+        //options.RegisterKey<int>("UserLanguageId");
     })
     .AddRemoteAppClient(options =>
     {
@@ -98,9 +101,9 @@ app.UseStaticFiles();
 app.UseRouting();
 app.UseSession();
 app.UseSystemWebAdapters(); // MUST be before UseAuthentication to set up remote auth/session
-app.UseMiddleware<UserSessionMiddleware>(); // Populate scoped session context from legacy session
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseMiddleware<UserSessionMiddleware>(); // Populate scoped session context from DB (after auth so HttpContext.User is available)
 app.UseAntiforgery();
 
 // Legacy URL redirects to Blazor routes (controlled by ERActivityListUseLegacyUrls config)

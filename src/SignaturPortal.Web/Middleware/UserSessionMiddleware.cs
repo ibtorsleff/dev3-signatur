@@ -5,14 +5,14 @@ namespace SignaturPortal.Web.Middleware;
 
 public class UserSessionMiddleware(RequestDelegate next)
 {
-    public Task InvokeAsync(HttpContext context)
+    public async Task InvokeAsync(HttpContext context)
     {
         var sessionContext = context.RequestServices.GetService<IUserSessionContext>();
         if (sessionContext is UserSessionContext impl)
         {
-            impl.Initialize();
+            await impl.InitializeAsync(context.User.Identity?.Name);
         }
 
-        return next(context);
+        await next(context);
     }
 }
