@@ -197,6 +197,13 @@
         <MudText Typo="Typo.body1" Style="font-weight:bold; font-size:var(--portal-grid-headline-font-size);">@_headlineText</MudText>
         <MudChip T="string" Size="Size.Small" Variant="Variant.Filled" Color="Color.Default"
                  Style="background:#fff; font-weight:bold; font-size:12px; margin-left:8px;">@_totalCount.ToString()</MudChip>
+        @if (_hasActiveMoreFilters)
+        {
+            <MudChip T="string" Size="Size.Small" Variant="Variant.Filled" Color="Color.Default"
+                     Style="background:#fff; font-weight:bold; font-size:12px; margin-left:4px; color: darkorange;">
+                @Localization.GetText("Filter")
+            </MudChip>
+        }
         <MudSpacer />
         <MudTooltip Text="@(_showFilters ? Localization.GetText("HideFilter") : Localization.GetText("ShowFilter"))">
             <MudIconButton Icon="@Icons.Material.Filled.FilterList"
