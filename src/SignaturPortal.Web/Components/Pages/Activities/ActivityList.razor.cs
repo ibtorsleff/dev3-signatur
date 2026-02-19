@@ -99,6 +99,13 @@ public partial class ActivityList
     // ensures the grid loads only after all client/session data is ready.
     private bool _gridNeedsLoad;
 
+    // Whether the active client uses Fund applications (switches label to "RecruitingResponsableFund")
+    private bool _clientIsFund;
+    private string _recruitingResponsableKey => _clientIsFund ? "RecruitingResponsableFund" : "RecruitingResponsable";
+    private string _noActivitiesDisclaimerKey => _clientIsFund
+        ? "ExternalUserNotMemberOfAnyActiveRecruitmentActivitiesDisclaimerFund"
+        : "ExternalUserNotMemberOfAnyActiveRecruitmentActivitiesDisclaimer";
+
     // Column visibility: computed from current mode
     // CreatedBy: visible in Ongoing and Closed, hidden in Draft
     private bool _hideCreatedByColumn => _currentStatus == ERActivityStatus.Draft;
@@ -180,16 +187,20 @@ public partial class ActivityList
         }
         else
         {
-            // Client users: check whether their client has export enabled
+            // Client users: check whether their client has export enabled, and whether it is a Fund client
             var clientId = Session.ClientId ?? 0;
             if (clientId > 0)
+            {
                 _clientExportConfigEnabled = await ClientService.GetExportActivityMembersEnabledAsync(clientId);
+                _clientIsFund = await ClientService.GetRecruitmentIsFundAsync(clientId);
+            }
         }
 
         if (_activeClientId.HasValue)
         {
             _clientHasWebAdVisitorStatistics = await ClientService.GetWebAdVisitorStatisticsEnabledAsync(_activeClientId.Value);
             _clientUsesTemplateGroups = await ClientService.GetRecruitmentUseTemplateGroupsAsync(_activeClientId.Value);
+            _clientIsFund = await ClientService.GetRecruitmentIsFundAsync(_activeClientId.Value);
             var draftSettings = await ClientService.GetRecruitmentDraftSettingsAsync(_activeClientId.Value);
             _draftAreaTypeId = draftSettings.UserResponsabilityAreaTypeId;
             _draftSectionHierarchyEnabled = draftSettings.SectionHierarchyEnabled;
@@ -632,6 +643,7 @@ public partial class ActivityList
         _activeClientId = client.ClientId;
         _clientHasWebAdVisitorStatistics = await ClientService.GetWebAdVisitorStatisticsEnabledAsync(client.ClientId);
         _clientUsesTemplateGroups = await ClientService.GetRecruitmentUseTemplateGroupsAsync(client.ClientId);
+        _clientIsFund = await ClientService.GetRecruitmentIsFundAsync(client.ClientId);
         var draftSettings = await ClientService.GetRecruitmentDraftSettingsAsync(client.ClientId);
         _draftAreaTypeId = draftSettings.UserResponsabilityAreaTypeId;
         _draftSectionHierarchyEnabled = draftSettings.SectionHierarchyEnabled;

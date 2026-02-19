@@ -54,6 +54,14 @@ public interface IClientService
     Task<bool> GetRecruitmentDraftEnabledAsync(int clientId, CancellationToken ct = default);
 
     /// <summary>
+    /// Returns true if the client's default hosting application type is FundApplication.
+    /// Used to switch "Recruiting responsable" label to "Grant manager" (RecruitingResponsableFund).
+    /// Reads from Sig_Client.CustomData XPath: /ClientCustomData/DefaultHosting/@GeneralDefaultHostingApplicationType.
+    /// Matches legacy ClientHlp.ClientDefaultHostingApplicationType comparison.
+    /// </summary>
+    Task<bool> GetRecruitmentIsFundAsync(int clientId, CancellationToken ct = default);
+
+    /// <summary>
     /// Returns draft area column settings for the given client.
     /// Reads UserResponsabilityAreaTypeId and ListAreaHeaderTextId from DraftSettings XML,
     /// and ClientSection hierarchy flag from ClientSection XML.

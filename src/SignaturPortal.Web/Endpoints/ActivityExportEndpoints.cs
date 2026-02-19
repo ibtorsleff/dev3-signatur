@@ -25,6 +25,7 @@ public static class ActivityExportEndpoints
         IActivityService activityService,
         IPermissionHelper permHelper,
         ILocalizationService localization,
+        IClientService clientService,
         int clientId,
         string mode = "ongoing",
         string? clientName = null,
@@ -47,6 +48,9 @@ public static class ActivityExportEndpoints
         var canExport = await permHelper.UserCanExportActivityMembersAsync(ct);
         if (!canExport)
             return Results.Forbid();
+
+        var clientIsFund = await clientService.GetRecruitmentIsFundAsync(clientId, ct);
+        var recruitingResponsableKey = clientIsFund ? "RecruitingResponsableFund" : "RecruitingResponsable";
 
         var status = mode.ToLowerInvariant() switch
         {
@@ -89,7 +93,7 @@ public static class ActivityExportEndpoints
             createdByName, responsibleName, clientSectionName,
             templateGroupName, showTemplateGroups,
             clientSectionGroupName, showClientSectionGroups,
-            parsedDateFrom, parsedDateTo);
+            parsedDateFrom, parsedDateTo, recruitingResponsableKey);
 
         BuildMembersSheet(workbook, localization, members);
 
@@ -115,7 +119,8 @@ public static class ActivityExportEndpoints
         string? clientSectionGroupName,
         bool showClientSectionGroups,
         DateTime? dateFrom,
-        DateTime? dateTo)
+        DateTime? dateTo,
+        string recruitingResponsableKey = "RecruitingResponsable")
     {
         var sheet = workbook.Worksheets.Add(localization.GetText("Criterias"));
 
@@ -149,7 +154,7 @@ public static class ActivityExportEndpoints
 
         AddRow(localization.GetText("CreatedBy"),
             string.IsNullOrEmpty(createdByName) ? localization.GetText("All") : createdByName);
-        AddRow(localization.GetText("RecruitingResponsable"),
+        AddRow(localization.GetText(recruitingResponsableKey),
             string.IsNullOrEmpty(responsibleName) ? localization.GetText("All") : responsibleName);
         AddRow(localization.GetText("ClientSection"),
             string.IsNullOrEmpty(clientSectionName) ? localization.GetText("All") : clientSectionName);

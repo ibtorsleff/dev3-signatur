@@ -129,6 +129,20 @@ public class ClientService : IClientService
         return result.FirstOrDefault();
     }
 
+    public async Task<bool> GetRecruitmentIsFundAsync(int clientId, CancellationToken ct = default)
+    {
+        await using var context = await _contextFactory.CreateDbContextAsync(ct);
+        var result = await context.Database
+            .SqlQueryRaw<bool>(
+                @"SELECT CAST(1 AS BIT)
+                  FROM Sig_Client SCLI
+                  WHERE SCLI.ClientId = {0}
+                    AND SCLI.CustomData.value('(/ClientCustomData/DefaultHosting/@GeneralDefaultHostingApplicationType)[1]','NVARCHAR(20)') = 'FundApplication'",
+                clientId)
+            .ToListAsync(ct);
+        return result.FirstOrDefault();
+    }
+
     public async Task<RecruitmentDraftSettingsDto> GetRecruitmentDraftSettingsAsync(int clientId, CancellationToken ct = default)
     {
         await using var context = await _contextFactory.CreateDbContextAsync(ct);
