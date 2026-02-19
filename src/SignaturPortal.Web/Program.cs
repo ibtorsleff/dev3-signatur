@@ -56,14 +56,17 @@ builder.Services.AddSession(options =>
 builder.Services.AddSystemWebAdapters()
     .AddJsonSessionSerializer(options =>
     {
-        // UserSessionContext now populates itself from the DB via ICurrentUserService
-        // (keyed on HttpContext.User.Identity.Name from the auth cookie) — no longer reading
-        // these values from the legacy shared session.
+        // These 5 keys are now established by the Blazor app from the DB (via ICurrentUserService)
+        // and no longer need to be read from the legacy shared session.
         //options.RegisterKey<Guid>("UserId");
         //options.RegisterKey<int>("SiteId");
         //options.RegisterKey<int>("ClientId");
         //options.RegisterKey<string>("UserName");
         //options.RegisterKey<int>("UserLanguageId");
+
+        // Legacy session keys still needed from the shared session:
+        // Portal enum (int-backed): Undefined=0, AdPortal=1, RecruitingPortal=2, OnboardingPortal=3, OnboardingEmployeePortal=4
+        options.RegisterKey<int>("AtlantaUserLastPortal");
     })
     .AddRemoteAppClient(options =>
     {
