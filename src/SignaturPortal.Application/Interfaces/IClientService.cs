@@ -21,6 +21,13 @@ public interface IClientService
     Task<bool> GetWebAdVisitorStatisticsEnabledAsync(int clientId, CancellationToken ct = default);
 
     /// <summary>
+    /// Returns true if the client has ERecruitment enabled.
+    /// Maps to Sig_Client.ERecruitmentEnabled column.
+    /// Matches legacy ClientHlp.ClientRecruitmentEnabled.
+    /// </summary>
+    Task<bool> GetRecruitmentEnabledAsync(int clientId, CancellationToken ct = default);
+
+    /// <summary>
     /// Returns true if the client has ERecruitment enabled and uses template groups.
     /// Maps to Sig_Client.ERecruitmentEnabled and Sig_Client.ERecruitmentUseTemplateGroups columns.
     /// </summary>

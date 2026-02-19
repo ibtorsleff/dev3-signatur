@@ -84,4 +84,11 @@ public interface IActivityService
     /// Matches legacy: HelperERecruiting.UserActivityLogCreate(siteId, userId, "Tvunget logget ud...", null).
     /// </summary>
     Task LogExternalUserForceLogoutAsync(Guid userId, CancellationToken ct = default);
+
+    /// <summary>
+    /// Writes a UserActivityLog entry recording that an external user was force-logged out
+    /// because their client does not have the recruitment portal enabled.
+    /// Matches legacy ActivityList.aspx.cs:286.
+    /// </summary>
+    Task LogClientNoRecruitmentPortalForceLogoutAsync(Guid userId, CancellationToken ct = default);
 }

@@ -903,6 +903,25 @@ public class ActivityService : IActivityService
     }
 
     /// <summary>
+    /// Writes a UserActivityLog entry recording that an external user was force-logged out
+    /// because their client does not have the recruitment portal enabled.
+    /// Mirrors legacy ActivityList.aspx.cs:286.
+    /// </summary>
+    public async Task LogClientNoRecruitmentPortalForceLogoutAsync(Guid userId, CancellationToken ct = default)
+    {
+        await using var context = await _contextFactory.CreateDbContextAsync(ct);
+
+        context.UserActivityLogs.Add(new Infrastructure.Data.Entities.UserActivityLog
+        {
+            ActionUserId = userId,
+            TimeStamp = DateTime.Now,
+            Log = "Tvunget logget ud. Kunde har ikke rekrutteringsportal tilsluttet."
+        });
+
+        await context.SaveChangesAsync(ct);
+    }
+
+    /// <summary>
     /// Counts active (OnGoing) activities the given user is associated with
     /// as a member, creator, or responsible person.
     /// Mirrors legacy HelperERecruiting.UserInActiveActivitiesCount().

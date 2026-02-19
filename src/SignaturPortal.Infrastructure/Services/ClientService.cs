@@ -53,6 +53,19 @@ public class ClientService : IClientService
         return result.FirstOrDefault();
     }
 
+    public async Task<bool> GetRecruitmentEnabledAsync(int clientId, CancellationToken ct = default)
+    {
+        await using var context = await _contextFactory.CreateDbContextAsync(ct);
+        var result = await context.Database
+            .SqlQueryRaw<bool>(
+                @"SELECT CAST(SC.ERecruitmentEnabled AS BIT)
+                  FROM Sig_Client SC
+                  WHERE SC.ClientId = {0}",
+                clientId)
+            .ToListAsync(ct);
+        return result.FirstOrDefault();
+    }
+
     public async Task<bool> GetRecruitmentUseTemplateGroupsAsync(int clientId, CancellationToken ct = default)
     {
         await using var context = await _contextFactory.CreateDbContextAsync(ct);

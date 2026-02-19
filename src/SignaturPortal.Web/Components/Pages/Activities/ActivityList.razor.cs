@@ -81,6 +81,11 @@ public partial class ActivityList
     private List<TemplateGroupDropdownDto> _filterTemplateGroups = new();
     private List<ClientSectionGroupDropdownDto> _filterClientSectionGroups = new();
 
+    // Set in OnInitializedAsync when the external user's client has no recruitment portal enabled.
+    // Triggers a direct force-logout (no dialog) in OnAfterRenderAsync.
+    // Matches legacy ActivityList.aspx.cs:286.
+    private bool _clientHasNoRecruitmentPortal;
+
     // Set in OnInitializedAsync when an external user has zero active activities.
     // Triggers the disclaimer dialog + force-logout in OnAfterRenderAsync.
     // Matches legacy ActivityList.aspx.cs:362 + ExternalUserNoActiveActivtiesTmr_OnTick.
@@ -164,12 +169,23 @@ public partial class ActivityList
             _clientUsesTemplateGroups = await ClientService.GetRecruitmentUseTemplateGroupsAsync(_activeClientId.Value);
         }
 
-        // Guard: external users with no active activities see a disclaimer and are logged out.
-        // Matches legacy ActivityList.aspx.cs:362 — checked on first load only, non-internal users.
+        // Guards: external user access checks (matches legacy ActivityList.aspx.cs:286 and :362).
+        // Checked on first load only. Guard 1 takes precedence — if it fires, guard 2 is skipped.
         if (_isClientUser && Session.UserId.HasValue)
         {
-            var activeCount = await ActivityService.GetUserActiveActivitiesCountAsync(Session.UserId.Value);
-            _externalUserHasNoActiveActivities = activeCount == 0;
+            var clientId = Session.ClientId ?? 0;
+
+            // Guard 1: client has no recruitment portal — force-logout immediately, no dialog.
+            if (clientId > 0 && !await ClientService.GetRecruitmentEnabledAsync(clientId))
+            {
+                _clientHasNoRecruitmentPortal = true;
+            }
+            else
+            {
+                // Guard 2: external user has no active activities — show disclaimer then force-logout.
+                var activeCount = await ActivityService.GetUserActiveActivitiesCountAsync(Session.UserId.Value);
+                _externalUserHasNoActiveActivities = activeCount == 0;
+            }
         }
 
         // Signal that all state is ready; OnAfterRenderAsync will trigger the initial grid load.
@@ -191,7 +207,15 @@ public partial class ActivityList
                 StateHasChanged();
             }
 
-            // Guard: show disclaimer and log out external users with no active activities.
+            // Guard 1: client has no recruitment portal — log and force-logout immediately.
+            if (_clientHasNoRecruitmentPortal && Session.UserId.HasValue)
+            {
+                await ActivityService.LogClientNoRecruitmentPortalForceLogoutAsync(Session.UserId.Value);
+                Navigation.NavigateTo("/Login.aspx", forceLoad: true);
+                return;
+            }
+
+            // Guard 2: show disclaimer and log out external users with no active activities.
             // The dialog must open after the first render (grid reload ensures the DOM is ready).
             if (_externalUserHasNoActiveActivities)
                 await ShowExternalUserNoActivitiesDialogAsync();
