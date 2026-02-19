@@ -39,6 +39,25 @@ public class ClientService : IClientService
             .ToListAsync(ct);
     }
 
+    public async Task<List<ClientDropdownDto>> GetClientsForSiteWithDraftEnabledAsync(int siteId, CancellationToken ct = default)
+    {
+        await using var context = await _contextFactory.CreateDbContextAsync(ct);
+
+        return await context.Database
+            .SqlQueryRaw<ClientDropdownDto>(
+                @"SELECT c.ClientId,
+                         c.ObjectData.value('(/Client/ClientName)[1]','NVARCHAR(128)') AS ClientName
+                  FROM Client c
+                  JOIN Sig_Client sc ON sc.ClientId = c.ClientId
+                  WHERE c.SiteId = {0}
+                    AND c.ObjectData.value('(/Client/Enabled)[1]','NVARCHAR(5)') = 'true'
+                    AND sc.ERecruitmentEnabled = 1
+                    AND sc.CustomData.value('(/ClientCustomData/Recruitment/DraftSettings/@DraftEnabled)[1]','NVARCHAR(5)') = 'true'
+                  ORDER BY c.ObjectData.value('(/Client/ClientName)[1]','NVARCHAR(128)')",
+                siteId)
+            .ToListAsync(ct);
+    }
+
     public async Task<bool> GetWebAdVisitorStatisticsEnabledAsync(int clientId, CancellationToken ct = default)
     {
         await using var context = await _contextFactory.CreateDbContextAsync(ct);

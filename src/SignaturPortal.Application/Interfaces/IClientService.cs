@@ -15,6 +15,12 @@ public interface IClientService
     Task<List<ClientDropdownDto>> GetClientsForSiteAsync(int siteId, CancellationToken ct = default);
 
     /// <summary>
+    /// Gets enabled clients for a site that also have RecruitmentDraftEnabled.
+    /// Used in Draft mode — matches legacy ClientsGet with filters RecruitmentEnabled + RecruitmentDraftEnabled.
+    /// </summary>
+    Task<List<ClientDropdownDto>> GetClientsForSiteWithDraftEnabledAsync(int siteId, CancellationToken ct = default);
+
+    /// <summary>
     /// Returns true if the client has WebAd enabled and WebAdVisitorStatistics enabled.
     /// Maps to Sig_Client.WebAdEnabled and Sig_Client.WebAdVisitorStatisticsEnabled columns.
     /// </summary>

@@ -156,11 +156,16 @@ public partial class ActivityList
             // Internal users: client config is always enabled — only the permission check matters
             _clientExportConfigEnabled = true;
 
-            var siteId = Session.SiteId ?? 0;
-            if (siteId > 0)
-                _clients = await ClientService.GetClientsForSiteAsync(siteId);
-            _selectedClient = _clients.Count > 0 ? _clients[0] : null;
-            _activeClientId = _selectedClient?.ClientId;
+            // Derive initial status from Mode parameter (OnParametersSet runs after OnInitializedAsync).
+            // Draft mode filters clients to those with RecruitmentDraftEnabled — matches legacy
+            // ClientsGet with filters RecruitmentEnabled + RecruitmentDraftEnabled (ActivityList.aspx.cs:539-540).
+            var initialStatus = Mode?.ToLowerInvariant() switch
+            {
+                "draft" => ERActivityStatus.Draft,
+                "closed" => ERActivityStatus.Closed,
+                _ => ERActivityStatus.OnGoing
+            };
+            await LoadClientsAsync(initialStatus);
         }
         else
         {
@@ -235,7 +240,7 @@ public partial class ActivityList
         }
     }
 
-    protected override void OnParametersSet()
+    protected override async Task OnParametersSetAsync()
     {
         var newStatus = Mode?.ToLowerInvariant() switch
         {
@@ -275,6 +280,11 @@ public partial class ActivityList
 
         if (newStatus != _currentStatus)
         {
+            // Reload client list when switching to/from Draft — the client list is filtered
+            // differently in Draft mode (RecruitmentDraftEnabled required).
+            if (!_isClientUser && (newStatus == ERActivityStatus.Draft || _currentStatus == ERActivityStatus.Draft))
+                await LoadClientsAsync(newStatus);
+
             _currentStatus = newStatus;
             ResetMoreFilters();
             if (_currentStatus == ERActivityStatus.Closed)
@@ -285,6 +295,24 @@ public partial class ActivityList
             _filterOptionsNeedRefresh = true;
             _dataGrid?.ReloadServerData();
         }
+    }
+
+    /// <summary>
+    /// Loads the client dropdown list filtered by the given activity status.
+    /// Draft mode: only clients with RecruitmentDraftEnabled — matches legacy ActivityList.aspx.cs:539-540.
+    /// Other modes: all recruitment-enabled clients.
+    /// </summary>
+    private async Task LoadClientsAsync(ERActivityStatus status)
+    {
+        var siteId = Session.SiteId ?? 0;
+        if (siteId <= 0) return;
+
+        _clients = status == ERActivityStatus.Draft
+            ? await ClientService.GetClientsForSiteWithDraftEnabledAsync(siteId)
+            : await ClientService.GetClientsForSiteAsync(siteId);
+
+        _selectedClient = _clients.Count > 0 ? _clients[0] : null;
+        _activeClientId = _selectedClient?.ClientId;
     }
 
     /// <summary>
@@ -629,17 +657,19 @@ public partial class ActivityList
             return;
         }
 
-        var clientId = _isClientUser ? (Session.ClientId ?? 0) : (_activeClientId ?? 0);
-
         string url;
         if (_currentStatus == ERActivityStatus.Draft)
         {
-            url = clientId > 0
-                ? $"/Responsive/Recruiting/ActivityCreateDraft.aspx?ClientId={clientId}"
-                : "/Responsive/Recruiting/ActivityCreateDraft.aspx";
+            // Legacy: client users navigate without ClientId (session has it); internal users pass ClientId.
+            // Matches ActivityList.aspx.cs:639-642.
+            if (_isClientUser)
+                url = "/Responsive/Recruiting/ActivityCreateDraft.aspx";
+            else
+                url = $"/Responsive/Recruiting/ActivityCreateDraft.aspx?ClientId={_activeClientId ?? 0}";
         }
         else
         {
+            var clientId = _isClientUser ? (Session.ClientId ?? 0) : (_activeClientId ?? 0);
             url = clientId > 0
                 ? $"/Responsive/Recruiting/ActivityCreateEdit.aspx?ClientId={clientId}"
                 : "/Responsive/Recruiting/ActivityCreateEdit.aspx";
