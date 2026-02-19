@@ -20,7 +20,9 @@ public class ClientService : IClientService
     }
 
     /// <summary>
-    /// Gets enabled clients for a site with names extracted from ObjectData XML via SQL XPath.
+    /// Gets recruitment-enabled clients for a site, including disabled ones (marked IsEnabled=false).
+    /// Joins Sig_Client to filter by ERecruitmentEnabled=1, matching legacy ClientListFilter.RecruitmentEnabled.
+    /// Disabled clients (Client.ObjectData/Enabled='false') are included so the UI can display them as [ClientName].
     /// Does not set CurrentSiteId/CurrentClientId -- raw SQL bypasses EF global filters.
     /// </summary>
     public async Task<List<ClientDropdownDto>> GetClientsForSiteAsync(int siteId, CancellationToken ct = default)
@@ -30,10 +32,12 @@ public class ClientService : IClientService
         return await context.Database
             .SqlQueryRaw<ClientDropdownDto>(
                 @"SELECT c.ClientId,
-                         c.ObjectData.value('(/Client/ClientName)[1]','NVARCHAR(128)') AS ClientName
+                         c.ObjectData.value('(/Client/ClientName)[1]','NVARCHAR(128)') AS ClientName,
+                         CAST(CASE WHEN c.ObjectData.value('(/Client/Enabled)[1]','NVARCHAR(5)') = 'true' THEN 1 ELSE 0 END AS BIT) AS IsEnabled
                   FROM Client c
+                  JOIN Sig_Client sc ON sc.ClientId = c.ClientId
                   WHERE c.SiteId = {0}
-                    AND c.ObjectData.value('(/Client/Enabled)[1]','NVARCHAR(5)') = 'true'
+                    AND sc.ERecruitmentEnabled = 1
                   ORDER BY c.ObjectData.value('(/Client/ClientName)[1]','NVARCHAR(128)')",
                 siteId)
             .ToListAsync(ct);
@@ -46,11 +50,11 @@ public class ClientService : IClientService
         return await context.Database
             .SqlQueryRaw<ClientDropdownDto>(
                 @"SELECT c.ClientId,
-                         c.ObjectData.value('(/Client/ClientName)[1]','NVARCHAR(128)') AS ClientName
+                         c.ObjectData.value('(/Client/ClientName)[1]','NVARCHAR(128)') AS ClientName,
+                         CAST(CASE WHEN c.ObjectData.value('(/Client/Enabled)[1]','NVARCHAR(5)') = 'true' THEN 1 ELSE 0 END AS BIT) AS IsEnabled
                   FROM Client c
                   JOIN Sig_Client sc ON sc.ClientId = c.ClientId
                   WHERE c.SiteId = {0}
-                    AND c.ObjectData.value('(/Client/Enabled)[1]','NVARCHAR(5)') = 'true'
                     AND sc.ERecruitmentEnabled = 1
                     AND sc.CustomData.value('(/ClientCustomData/Recruitment/DraftSettings/@DraftEnabled)[1]','NVARCHAR(5)') = 'true'
                   ORDER BY c.ObjectData.value('(/Client/ClientName)[1]','NVARCHAR(128)')",

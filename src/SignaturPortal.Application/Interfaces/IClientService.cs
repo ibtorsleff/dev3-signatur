@@ -9,13 +9,14 @@ namespace SignaturPortal.Application.Interfaces;
 public interface IClientService
 {
     /// <summary>
-    /// Gets a list of enabled clients for a given site, with names extracted from ObjectData XML.
+    /// Gets recruitment-enabled clients for a site (ERecruitmentEnabled=1), including disabled ones (IsEnabled=false).
+    /// Disabled clients are included so the UI can display them as [ClientName], matching legacy bracket notation.
     /// Used to populate the client selector dropdown for non-client (staff/admin) users.
     /// </summary>
     Task<List<ClientDropdownDto>> GetClientsForSiteAsync(int siteId, CancellationToken ct = default);
 
     /// <summary>
-    /// Gets enabled clients for a site that also have RecruitmentDraftEnabled.
+    /// Gets clients for a site that have ERecruitmentEnabled=1 and RecruitmentDraftEnabled, including disabled ones (IsEnabled=false).
     /// Used in Draft mode — matches legacy ClientsGet with filters RecruitmentEnabled + RecruitmentDraftEnabled.
     /// </summary>
     Task<List<ClientDropdownDto>> GetClientsForSiteWithDraftEnabledAsync(int siteId, CancellationToken ct = default);

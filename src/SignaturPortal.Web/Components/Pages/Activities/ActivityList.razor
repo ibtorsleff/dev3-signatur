@@ -17,7 +17,7 @@
                              ValueChanged="OnClientChanged"
                              OpenChanged="OnClientDropdownOpenChanged"
                              SearchFunc="SearchClients"
-                             ToStringFunc="@(c => c?.ClientName ?? string.Empty)"
+                             ToStringFunc="@(c => c == null ? string.Empty : (c.IsEnabled ? c.ClientName : $"[{c.ClientName}]"))"
                              Label="@Localization.GetText("Client")"
                              Required="true"
                              Dense="true" Margin="Margin.Dense" Variant="Variant.Outlined"
