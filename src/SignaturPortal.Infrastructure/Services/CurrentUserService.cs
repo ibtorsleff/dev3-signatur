@@ -33,33 +33,32 @@ public class CurrentUserService : ICurrentUserService
         if (_loaded)
             return _cachedUser;
 
-        _loaded = true;
-
         var authState = await _authStateProvider.GetAuthenticationStateAsync();
         var userName = authState.User.Identity?.Name;
 
-        if (string.IsNullOrEmpty(userName))
-            return null;
+        if (!string.IsNullOrEmpty(userName))
+        {
+            await using var db = await _contextFactory.CreateDbContextAsync(ct);
 
-        await using var db = await _contextFactory.CreateDbContextAsync(ct);
+            var user = await db.Users
+                .Where(u => u.UserName == userName)
+                .FirstOrDefaultAsync(ct);
 
-        var user = await db.Users
-            .Where(u => u.UserName == userName)
-            .FirstOrDefaultAsync(ct);
+            if (user != null)
+            {
+                _cachedUser = new CurrentUserDto(
+                    UserId: user.UserId,
+                    FullName: user.FullName,
+                    UserName: user.UserName,
+                    Email: user.Email,
+                    IsInternal: user.IsInternal,
+                    Enabled: user.Enabled ?? false,
+                    SiteId: user.SiteId,
+                    ClientId: user.ClientId);
+            }
+        }
 
-        if (user == null)
-            return null;
-
-        _cachedUser = new CurrentUserDto(
-            UserId: user.UserId,
-            FullName: user.FullName,
-            UserName: user.UserName,
-            Email: user.Email,
-            IsInternal: user.IsInternal,
-            Enabled: user.Enabled ?? false,
-            SiteId: user.SiteId,
-            ClientId: user.ClientId);
-
+        _loaded = true;
         return _cachedUser;
     }
 }
