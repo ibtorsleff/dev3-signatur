@@ -18,6 +18,7 @@ public partial class ActivityList
     [Inject] private ICurrentUserService CurrentUserService { get; set; } = default!;
     [Inject] private IPermissionHelper PermHelper { get; set; } = default!;
     [Inject] private IClientService ClientService { get; set; } = default!;
+    private MudMessageBox _noActivitiesDialog = default!;
 
     [Parameter] public string? Mode { get; set; }
 
@@ -79,6 +80,11 @@ public partial class ActivityList
     private List<ClientSectionDropdownDto> _filterClientSections = new();
     private List<TemplateGroupDropdownDto> _filterTemplateGroups = new();
     private List<ClientSectionGroupDropdownDto> _filterClientSectionGroups = new();
+
+    // Set in OnInitializedAsync when an external user has zero active activities.
+    // Triggers the disclaimer dialog + force-logout in OnAfterRenderAsync.
+    // Matches legacy ActivityList.aspx.cs:362 + ExternalUserNoActiveActivtiesTmr_OnTick.
+    private bool _externalUserHasNoActiveActivities;
 
     // Flag set at the END of OnInitializedAsync to signal the grid should load.
     // OnAfterRenderAsync(firstRender: true) fires BEFORE OnInitializedAsync completes
@@ -158,6 +164,14 @@ public partial class ActivityList
             _clientUsesTemplateGroups = await ClientService.GetRecruitmentUseTemplateGroupsAsync(_activeClientId.Value);
         }
 
+        // Guard: external users with no active activities see a disclaimer and are logged out.
+        // Matches legacy ActivityList.aspx.cs:362 — checked on first load only, non-internal users.
+        if (_isClientUser && Session.UserId.HasValue)
+        {
+            var activeCount = await ActivityService.GetUserActiveActivitiesCountAsync(Session.UserId.Value);
+            _externalUserHasNoActiveActivities = activeCount == 0;
+        }
+
         // Signal that all state is ready; OnAfterRenderAsync will trigger the initial grid load.
         _gridNeedsLoad = true;
     }
@@ -176,6 +190,11 @@ public partial class ActivityList
                 await LoadFilterOptionsAsync();
                 StateHasChanged();
             }
+
+            // Guard: show disclaimer and log out external users with no active activities.
+            // The dialog must open after the first render (grid reload ensures the DOM is ready).
+            if (_externalUserHasNoActiveActivities)
+                await ShowExternalUserNoActivitiesDialogAsync();
         }
         else if (_filterOptionsNeedRefresh && !_isClientUser)
         {
@@ -669,5 +688,15 @@ public partial class ActivityList
         }
 
         Navigation.NavigateTo($"/api/activities/export-members?{string.Join("&", qp)}", forceLoad: true);
+    }
+
+    /// <summary>
+    /// Shows the "no active activities" disclaimer to external users and redirects to login.
+    /// Matches legacy ExternalUserNoActiveActivtiesTmr_OnTick + MessageBoxActionEn.ExternalUserNoActivities.
+    /// </summary>
+    private async Task ShowExternalUserNoActivitiesDialogAsync()
+    {
+        await _noActivitiesDialog.ShowAsync(options: new DialogOptions { BackdropClick = false });
+        Navigation.NavigateTo("/Login.aspx", forceLoad: true);
     }
 }

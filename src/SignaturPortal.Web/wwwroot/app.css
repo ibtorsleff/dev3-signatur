@@ -63,6 +63,10 @@ h1:focus {
 
 /* Activity List Page -- grid styling is in css/portal-themes/_grid-base.css */
 
+.mud-message-box .mud-dialog-title {
+    background-color: var(--mud-palette-primary-lighten);
+}
+
 .activity-filter-popover .mud-list-item-text {
     font-size: 0.875rem;
 }

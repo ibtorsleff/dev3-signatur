@@ -69,4 +69,12 @@ public interface IActivityService
         ERActivityStatus status,
         ActivityListFilterDto? moreFilters = null,
         CancellationToken ct = default);
+
+    /// <summary>
+    /// Counts active (OnGoing) activities the given user is associated with
+    /// as a member, creator, or responsible person.
+    /// Used for the external-user access guard: if count is zero the user sees
+    /// a disclaimer and is logged out (matches legacy UserInActiveActivitiesCount).
+    /// </summary>
+    Task<int> GetUserActiveActivitiesCountAsync(Guid userId, CancellationToken ct = default);
 }

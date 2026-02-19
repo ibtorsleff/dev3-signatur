@@ -258,3 +258,15 @@
         <MudText>@Localization.GetText("NoActivities")</MudText>
     </NoRecordsContent>
 </MudDataGrid>
+
+<MudMessageBox @ref="_noActivitiesDialog"
+               Title="@Localization.GetText("ActivityList")">
+    <MessageContent>
+        @Localization.GetText("ExternalUserNotMemberOfAnyActiveRecruitmentActivitiesDisclaimer")
+    </MessageContent>
+    <YesButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Dark" Style="text-transform:none;">
+            @Localization.GetText("Ok")
+        </MudButton>
+    </YesButton>
+</MudMessageBox>

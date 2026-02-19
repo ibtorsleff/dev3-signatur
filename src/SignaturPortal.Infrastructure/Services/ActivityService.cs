@@ -826,4 +826,26 @@ public class ActivityService : IActivityService
         return rows;
     }
 
+    /// <summary>
+    /// Counts active (OnGoing) activities the given user is associated with
+    /// as a member, creator, or responsible person.
+    /// Mirrors legacy HelperERecruiting.UserInActiveActivitiesCount().
+    /// </summary>
+    public async Task<int> GetUserActiveActivitiesCountAsync(Guid userId, CancellationToken ct = default)
+    {
+        await using var context = await _contextFactory.CreateDbContextAsync(ct);
+        context.CurrentSiteId = _sessionContext.SiteId;
+        context.CurrentClientId = _sessionContext.ClientId;
+
+        var ongoingStatusId = (int)ERActivityStatus.OnGoing;
+
+        return await context.Eractivities
+            .Where(a => !a.IsCleaned &&
+                        a.EractivityStatusId == ongoingStatusId &&
+                        (a.Responsible == userId ||
+                         a.CreatedBy == userId ||
+                         a.Eractivitymembers.Any(m => m.UserId == userId)))
+            .CountAsync(ct);
+    }
+
 }
