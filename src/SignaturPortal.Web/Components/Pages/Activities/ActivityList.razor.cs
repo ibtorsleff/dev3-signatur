@@ -180,6 +180,13 @@ public partial class ActivityList
             _ => ERActivityStatus.OnGoing
         };
 
+        // Guard: Closed mode is for internal users only — redirect external/client users to home
+        if (newStatus == ERActivityStatus.Closed && _isClientUser)
+        {
+            Navigation.NavigateTo("/");
+            return;
+        }
+
         _headlineText = newStatus switch
         {
             ERActivityStatus.Draft => Localization.GetText("ERecruitmentDraftActivities"),
