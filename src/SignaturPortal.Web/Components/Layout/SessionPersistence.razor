@@ -23,7 +23,7 @@
             data is not null)
         {
             ((UserSessionContext)Session).Restore(
-                data.UserId, data.SiteId, data.ClientId, data.UserName, data.UserLanguageId, data.IsInternal);
+                data.UserId, data.SiteId, data.ClientId, data.UserName, data.UserLanguageId);
         }
     }
 
@@ -38,7 +38,6 @@
                 ClientId = Session.ClientId,
                 UserName = Session.UserName,
                 UserLanguageId = Session.UserLanguageId,
-                IsInternal = Session.IsInternal,
             });
         }
         return Task.CompletedTask;
@@ -56,6 +55,5 @@
         public int? ClientId { get; set; }
         public string UserName { get; set; } = string.Empty;
         public int UserLanguageId { get; set; }
-        public bool IsInternal { get; set; }
     }
 }

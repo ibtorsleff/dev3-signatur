@@ -15,6 +15,7 @@ public partial class ActivityList
     [Inject] private IConfiguration Configuration { get; set; } = default!;
     [Inject] private ILocalizationService Localization { get; set; } = default!;
     [Inject] private IUserSessionContext Session { get; set; } = default!;
+    [Inject] private ICurrentUserService CurrentUserService { get; set; } = default!;
     [Inject] private IPermissionHelper PermHelper { get; set; } = default!;
     [Inject] private IClientService ClientService { get; set; } = default!;
 
@@ -35,6 +36,7 @@ public partial class ActivityList
 
     // Permission state (loaded once in OnInitializedAsync)
     private bool _isClientUser;
+    private bool _isInternalUser;
     private bool _canCreateActivity;
     private bool _userHasExportPermission;
     private bool _clientExportConfigEnabled;
@@ -115,6 +117,8 @@ public partial class ActivityList
     protected override async Task OnInitializedAsync()
     {
         _isClientUser = Session.IsClientUser;
+        var currentUser = await CurrentUserService.GetCurrentUserAsync();
+        _isInternalUser = currentUser?.IsInternal ?? false;
         _canCreateActivity = await PermHelper.UserCanCreateActivityAsync();
         _userHasExportPermission = await PermHelper.UserCanExportActivityMembersAsync();
         _pagerInfoFormat = $"{{first_item}}-{{last_item}} {Localization.GetText("Of")} {{all_items}}";
@@ -183,7 +187,7 @@ public partial class ActivityList
         // Guard: Closed mode is for internal users only — redirect non-internal users to home.
         // Matches legacy: if (!_currentUser.IsInternal) ResponseRedirect("/") when Mode = Closed.
         // Uses IsInternal (not IsClientUser) because internal users can also have a ClientId.
-        if (newStatus == ERActivityStatus.Closed && !Session.IsInternal)
+        if (newStatus == ERActivityStatus.Closed && !_isInternalUser)
         {
             Navigation.NavigateTo("/");
             return;

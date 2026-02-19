@@ -7,7 +7,6 @@ public interface IUserSessionContext
     int? ClientId { get; }
     string UserName { get; }
     int UserLanguageId { get; }
-    bool IsInternal { get; }
     bool IsInitialized { get; }
 
     /// <summary>
