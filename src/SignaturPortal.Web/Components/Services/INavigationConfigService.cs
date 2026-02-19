@@ -11,6 +11,6 @@ public interface INavigationConfigService
     /// <summary>
     /// Returns a fully populated NavMenuConfig for the given absolute URL path.
     /// </summary>
-    /// <param name="path">Absolute path portion of the URL (e.g., "/activities", "/activities/closed").</param>
+    /// <param name="path">Absolute path portion of the URL (e.g., "/recruiting/activities", "/recruiting/activities/closed").</param>
     NavMenuConfig GetConfigForRoute(string path);
 }

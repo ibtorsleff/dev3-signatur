@@ -5,7 +5,7 @@ using SignaturPortal.Application.DTOs;
 using SignaturPortal.Application.Interfaces;
 using SignaturPortal.Domain.Enums;
 
-namespace SignaturPortal.Web.Components.Pages.Activities;
+namespace SignaturPortal.Web.Components.Pages.Recruiting;
 
 public partial class ActivityList
 {
@@ -610,7 +610,7 @@ public partial class ActivityList
         else
         {
             // Navigate to Blazor activity detail page (SPA navigation)
-            Navigation.NavigateTo($"/activities/{activityId}");
+            Navigation.NavigateTo($"/recruiting/activities/{activityId}");
         }
     }
 

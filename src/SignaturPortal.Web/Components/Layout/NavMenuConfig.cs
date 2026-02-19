@@ -1,3 +1,5 @@
+using SignaturPortal.Application.Enums;
+
 namespace SignaturPortal.Web.Components.Layout;
 
 public class NavMenuItem
@@ -11,6 +13,7 @@ public class NavMenuItem
 
 public class NavMenuConfig
 {
+    public PortalType PortalType { get; set; } = PortalType.Recruiting;
     public string PortalName { get; set; } = "";
     public string? PortalNameKey { get; set; }
     public string PortalUrl { get; set; } = "/";

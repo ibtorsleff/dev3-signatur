@@ -1,3 +1,4 @@
+using SignaturPortal.Application.Enums;
 using SignaturPortal.Web.Components.Layout;
 
 namespace SignaturPortal.Web.Components.Services;
@@ -10,42 +11,43 @@ namespace SignaturPortal.Web.Components.Services;
 /// </summary>
 public class NavigationConfigService : INavigationConfigService
 {
-    private enum NavigationArea
-    {
-        Default,
-        Activities
-    }
-
     public NavMenuConfig GetConfigForRoute(string path)
     {
-        var area = ResolveArea(path);
+        var portal = ResolvePortal(path);
 
         return new NavMenuConfig
         {
+            PortalType = portal,
             PortalName = "Rekruttering",
             PortalNameKey = "ERecruitmentPortal",
-            PortalUrl = "/activities",
+            PortalUrl = "/recruiting/activities",
             ThemeCssClass = "theme-recruitingportal",
-            Row1Items = GetRow1Items(area),
+            Row1Items = GetRow1Items(path),
             Row1RightItems = GetRow1RightItems(),
-            Row2Items = GetRow2Items(path, area),
-            Row3Items = GetRow3Items(path, area)
+            Row2Items = GetRow2Items(path),
+            Row3Items = GetRow3Items(path, portal)
         };
     }
 
-    private static NavigationArea ResolveArea(string path)
+    private static PortalType ResolvePortal(string path)
     {
-        if (path.StartsWith("/activities", StringComparison.OrdinalIgnoreCase))
-            return NavigationArea.Activities;
-
-        return NavigationArea.Default;
+        var segment = path.Split('/', StringSplitOptions.RemoveEmptyEntries)
+                          .FirstOrDefault() ?? "";
+        return segment.ToLowerInvariant() switch
+        {
+            "recruiting"  => PortalType.Recruiting,
+            "adportal"    => PortalType.AdPortal,
+            "onboarding"  => PortalType.Onboarding,
+            _             => PortalType.Recruiting,
+        };
     }
 
-    private static List<NavMenuItem> GetRow1Items(NavigationArea area)
+    private static List<NavMenuItem> GetRow1Items(string path)
     {
+        var isRecruiting = path.StartsWith("/recruiting", StringComparison.OrdinalIgnoreCase);
         return
         [
-            new() { LabelKey = "ActivityList", Label = "Sagsliste", Url = "/activities", IconClass = "icon-activity-list", IsSelected = area == NavigationArea.Activities },
+            new() { LabelKey = "ActivityList", Label = "Sagsliste", Url = "/recruiting/activities", IconClass = "icon-activity-list", IsSelected = isRecruiting },
             new() { LabelKey = "Search", Label = "S\u00f8g", Url = "/Responsive/Recruiting/Search.aspx", IconClass = "icon-search" },
             new() { LabelKey = "JobBank", Label = "Jobbank", Url = "/Responsive/Recruiting/JobBank.aspx", IconClass = "icon-jobbank" },
             new() { LabelKey = "Help", Label = "Hj\u00e6lp", Url = "/Responsive/Recruiting/Help.aspx", IconClass = "icon-help" },
@@ -63,29 +65,29 @@ public class NavigationConfigService : INavigationConfigService
         ];
     }
 
-    private static List<NavMenuItem> GetRow2Items(string path, NavigationArea area)
+    private static List<NavMenuItem> GetRow2Items(string path)
     {
-        if (area != NavigationArea.Activities)
+        if (!path.StartsWith("/recruiting", StringComparison.OrdinalIgnoreCase))
             return [];
 
         // Normalize: remove trailing slash for consistent matching
         var normalizedPath = path.TrimEnd('/');
 
-        var isDraft = normalizedPath.Equals("/activities/draft", StringComparison.OrdinalIgnoreCase);
-        var isClosed = normalizedPath.Equals("/activities/closed", StringComparison.OrdinalIgnoreCase);
-        // "Ongoing" is the default for /activities and any sub-path that isn't draft or closed
-        // This includes detail pages like /activities/123
+        var isDraft = normalizedPath.Equals("/recruiting/activities/draft", StringComparison.OrdinalIgnoreCase);
+        var isClosed = normalizedPath.Equals("/recruiting/activities/closed", StringComparison.OrdinalIgnoreCase);
+        // "Ongoing" is the default for /recruiting/activities and any sub-path that isn't draft or closed
+        // This includes detail pages like /recruiting/activities/123
         var isOngoing = !isDraft && !isClosed;
 
         return
         [
-            new() { LabelKey = "ERecruitmentDraftActivities", Label = "Kladdesager", Url = "/activities/draft", IsSelected = isDraft },
-            new() { LabelKey = "ERecruitmentOngoingActivities", Label = "Igangv\u00e6rende sager", Url = "/activities", IsSelected = isOngoing },
-            new() { LabelKey = "ERecruitmentClosedActivities", Label = "Afsluttede sager", Url = "/activities/closed", IsSelected = isClosed },
+            new() { LabelKey = "ERecruitmentDraftActivities", Label = "Kladdesager", Url = "/recruiting/activities/draft", IsSelected = isDraft },
+            new() { LabelKey = "ERecruitmentOngoingActivities", Label = "Igangv\u00e6rende sager", Url = "/recruiting/activities", IsSelected = isOngoing },
+            new() { LabelKey = "ERecruitmentClosedActivities", Label = "Afsluttede sager", Url = "/recruiting/activities/closed", IsSelected = isClosed },
         ];
     }
 
-    private static List<NavMenuItem> GetRow3Items(string path, NavigationArea area)
+    private static List<NavMenuItem> GetRow3Items(string path, PortalType portal)
     {
         // Row 3 is not used for the activity list area.
         // Future phases will add Row 3 items for candidate detail pages.

@@ -3,7 +3,7 @@ using MudBlazor;
 using SignaturPortal.Application.DTOs;
 using SignaturPortal.Application.Interfaces;
 
-namespace SignaturPortal.Web.Components.Pages.Activities;
+namespace SignaturPortal.Web.Components.Pages.Recruiting;
 
 public partial class ActivityDetail
 {
@@ -21,7 +21,7 @@ public partial class ActivityDetail
     {
         _breadcrumbs = new List<BreadcrumbItem>
         {
-            new("Activities", "/activities"),
+            new("Activities", "/recruiting/activities"),
             new("Detail", null, disabled: true)
         };
 

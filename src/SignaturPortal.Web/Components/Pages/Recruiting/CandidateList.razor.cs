@@ -3,7 +3,7 @@ using MudBlazor;
 using SignaturPortal.Application.DTOs;
 using SignaturPortal.Application.Interfaces;
 
-namespace SignaturPortal.Web.Components.Pages.Activities;
+namespace SignaturPortal.Web.Components.Pages.Recruiting;
 
 public partial class CandidateList
 {
@@ -20,8 +20,8 @@ public partial class CandidateList
     {
         _breadcrumbs = new List<BreadcrumbItem>
         {
-            new("Activities", "/activities"),
-            new("Activity", $"/activities/{ActivityId}"),
+            new("Activities", "/recruiting/activities"),
+            new("Activity", $"/recruiting/activities/{ActivityId}"),
             new("Candidates", null, disabled: true)
         };
     }
@@ -70,7 +70,7 @@ public partial class CandidateList
 
     private void NavigateToDetail(int candidateId)
     {
-        Navigation.NavigateTo($"/activities/{ActivityId}/candidates/{candidateId}");
+        Navigation.NavigateTo($"/recruiting/activities/{ActivityId}/candidates/{candidateId}");
     }
 
     private void OnRowClick(DataGridRowClickEventArgs<CandidateListDto> args)

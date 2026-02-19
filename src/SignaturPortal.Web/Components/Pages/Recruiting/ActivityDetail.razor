@@ -1,4 +1,4 @@
-@page "/activities/{ActivityId:int}"
+@page "/recruiting/activities/{ActivityId:int}"
 @attribute [Authorize(Policy = "RecruitmentAccess")]
 
 <PageTitle>Activity Detail - @(_activity?.Headline ?? "Loading...")</PageTitle>
@@ -212,7 +212,7 @@ else
             </MudText>
             <MudButton Variant="Variant.Outlined"
                        Color="Color.Primary"
-                       Href="@($"/activities/{ActivityId}/candidates")"
+                       Href="@($"/recruiting/activities/{ActivityId}/candidates")"
                        StartIcon="@Icons.Material.Filled.People">
                 View Candidates
             </MudButton>
