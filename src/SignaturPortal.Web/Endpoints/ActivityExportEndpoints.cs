@@ -22,7 +22,7 @@ public static class ActivityExportEndpoints
     }
 
     private static async Task<IResult> HandleExportAsync(
-        IActivityService activityService,
+        IErActivityService erActivityService,
         IPermissionHelper permHelper,
         ILocalizationService localization,
         IClientService clientService,
@@ -84,7 +84,7 @@ public static class ActivityExportEndpoints
             };
         }
 
-        var members = await activityService.GetActivityMembersForExportAsync(clientId, status, moreFilters, ct);
+        var members = await erActivityService.GetActivityMembersForExportAsync(clientId, status, moreFilters, ct);
 
         var timestamp = DateTime.Now;
         using var workbook = new XLWorkbook();

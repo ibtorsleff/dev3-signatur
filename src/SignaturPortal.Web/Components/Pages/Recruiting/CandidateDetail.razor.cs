@@ -10,7 +10,7 @@ public partial class CandidateDetail
 {
     [Parameter] public int ActivityId { get; set; }
     [Parameter] public int CandidateId { get; set; }
-    [Inject] private IActivityService ActivityService { get; set; } = default!;
+    [Inject] private IErActivityService ErActivityService { get; set; } = default!;
     [Inject] private NavigationManager Navigation { get; set; } = default!;
     [Inject] private IJSRuntime JSRuntime { get; set; } = default!;
     [Inject] private ISnackbar Snackbar { get; set; } = default!;
@@ -26,7 +26,7 @@ public partial class CandidateDetail
     {
         try
         {
-            _candidate = await ActivityService.GetCandidateDetailAsync(ActivityId, CandidateId);
+            _candidate = await ErActivityService.GetCandidateDetailAsync(ActivityId, CandidateId);
             _loading = false;
 
             if (_candidate != null)
@@ -61,7 +61,7 @@ public partial class CandidateDetail
 
         try
         {
-            var fileData = await ActivityService.GetCandidateFileDataAsync(CandidateId, binaryFileId);
+            var fileData = await ErActivityService.GetCandidateFileDataAsync(CandidateId, binaryFileId);
 
             if (fileData == null)
             {

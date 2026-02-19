@@ -9,7 +9,7 @@ public partial class ActivityDetail
 {
     [Parameter] public int ActivityId { get; set; }
 
-    [Inject] private IActivityService ActivityService { get; set; } = default!;
+    [Inject] private IErActivityService ErActivityService { get; set; } = default!;
     [Inject] private NavigationManager Navigation { get; set; } = default!;
 
     private ActivityDetailDto? _activity;
@@ -27,7 +27,7 @@ public partial class ActivityDetail
 
         try
         {
-            _activity = await ActivityService.GetActivityDetailAsync(ActivityId);
+            _activity = await ErActivityService.GetActivityDetailAsync(ActivityId);
 
             if (_activity == null)
             {

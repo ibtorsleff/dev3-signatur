@@ -178,5 +178,6 @@ public class PermissionServiceTests
         public int UserLanguageId => 1;
         public bool IsInitialized { get; }
         public bool IsClientUser => ClientId.HasValue && ClientId.Value > 0;
+        public string? FullName => null;
     }
 }

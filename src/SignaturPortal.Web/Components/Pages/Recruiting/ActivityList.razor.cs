@@ -9,7 +9,7 @@ namespace SignaturPortal.Web.Components.Pages.Recruiting;
 
 public partial class ActivityList
 {
-    [Inject] private IActivityService ActivityService { get; set; } = default!;
+    [Inject] private IErActivityService ErActivityService { get; set; } = default!;
     [Inject] private NavigationManager Navigation { get; set; } = default!;
     [Inject] private ISnackbar Snackbar { get; set; } = default!;
     [Inject] private IConfiguration Configuration { get; set; } = default!;
@@ -222,7 +222,7 @@ public partial class ActivityList
             else
             {
                 // Guard 2: external user has no active activities — show disclaimer then force-logout.
-                var activeCount = await ActivityService.GetUserActiveActivitiesCountAsync(Session.UserId.Value);
+                var activeCount = await ErActivityService.GetUserActiveActivitiesCountAsync(Session.UserId.Value);
                 _externalUserHasNoActiveActivities = activeCount == 0;
             }
         }
@@ -249,7 +249,7 @@ public partial class ActivityList
             // Guard 1: client has no recruitment portal — log and force-logout immediately.
             if (_clientHasNoRecruitmentPortal && Session.UserId.HasValue)
             {
-                await ActivityService.LogClientNoRecruitmentPortalForceLogoutAsync(Session.UserId.Value);
+                await ErActivityService.LogClientNoRecruitmentPortalForceLogoutAsync(Session.UserId.Value);
                 Navigation.NavigateTo("/Login.aspx", forceLoad: true);
                 return;
             }
@@ -347,7 +347,7 @@ public partial class ActivityList
     /// </summary>
     private async Task LoadFilterOptionsAsync()
     {
-        var options = await ActivityService.GetActivityFilterOptionsAsync(_currentStatus, _activeClientId);
+        var options = await ErActivityService.GetActivityFilterOptionsAsync(_currentStatus, _activeClientId);
         _filterCreatedByUsers = options.CreatedByUsers;
         _filterRecruitmentResponsibleUsers = options.RecruitmentResponsibleUsers;
         _filterClientSections = options.ClientSections;
@@ -562,7 +562,7 @@ public partial class ActivityList
             }
 
             var activeDraftAreaTypeId = _currentStatus == ERActivityStatus.Draft ? _draftAreaTypeId : 0;
-            var response = await ActivityService.GetActivitiesAsync(request, _currentStatus, clientFilter, moreFilters, activeDraftAreaTypeId);
+            var response = await ErActivityService.GetActivitiesAsync(request, _currentStatus, clientFilter, moreFilters, activeDraftAreaTypeId);
             _totalCount = response.TotalCount;
 
             return new GridData<ActivityListDto>
@@ -794,7 +794,7 @@ public partial class ActivityList
         await _noActivitiesDialog.ShowAsync(options: new DialogOptions { BackdropClick = false });
 
         if (Session.UserId.HasValue)
-            await ActivityService.LogExternalUserForceLogoutAsync(Session.UserId.Value);
+            await ErActivityService.LogExternalUserForceLogoutAsync(Session.UserId.Value);
 
         Navigation.NavigateTo("/Login.aspx", forceLoad: true);
     }

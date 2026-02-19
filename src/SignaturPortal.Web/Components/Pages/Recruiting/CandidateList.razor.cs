@@ -8,7 +8,7 @@ namespace SignaturPortal.Web.Components.Pages.Recruiting;
 public partial class CandidateList
 {
     [Parameter] public int ActivityId { get; set; }
-    [Inject] private IActivityService ActivityService { get; set; } = default!;
+    [Inject] private IErActivityService ErActivityService { get; set; } = default!;
     [Inject] private NavigationManager Navigation { get; set; } = default!;
     [Inject] private ISnackbar Snackbar { get; set; } = default!;
 
@@ -44,7 +44,7 @@ public partial class CandidateList
                 request.Filters.Add(new FilterDefinition("FullName", "contains", _searchString));
             }
 
-            var response = await ActivityService.GetCandidatesAsync(ActivityId, request);
+            var response = await ErActivityService.GetCandidatesAsync(ActivityId, request);
 
             return new GridData<CandidateListDto>
             {

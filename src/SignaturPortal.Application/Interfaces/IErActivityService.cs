@@ -7,7 +7,7 @@ namespace SignaturPortal.Application.Interfaces;
 /// Service for activity-related operations.
 /// Provides server-side paginated, sorted, and filtered activity queries.
 /// </summary>
-public interface IActivityService
+public interface IErActivityService
 {
     /// <summary>
     /// Gets a paginated list of activities with server-side sorting and filtering.

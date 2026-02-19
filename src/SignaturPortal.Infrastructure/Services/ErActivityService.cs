@@ -13,14 +13,14 @@ namespace SignaturPortal.Infrastructure.Services;
 /// Service for activity-related operations.
 /// Implements server-side pagination, sorting, filtering with tenant isolation.
 /// </summary>
-public class ActivityService : IActivityService
+public class ErActivityService : IErActivityService
 {
     private readonly IDbContextFactory<SignaturDbContext> _contextFactory;
     private readonly IUserSessionContext _sessionContext;
     private readonly IPermissionService _permissionService;
     private readonly ICurrentUserService _currentUserService;
 
-    public ActivityService(
+    public ErActivityService(
         IDbContextFactory<SignaturDbContext> contextFactory,
         IUserSessionContext sessionContext,
         IPermissionService permissionService,
