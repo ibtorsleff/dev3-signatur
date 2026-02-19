@@ -180,8 +180,10 @@ public partial class ActivityList
             _ => ERActivityStatus.OnGoing
         };
 
-        // Guard: Closed mode is for internal users only — redirect external/client users to home
-        if (newStatus == ERActivityStatus.Closed && _isClientUser)
+        // Guard: Closed mode is for internal users only — redirect non-internal users to home.
+        // Matches legacy: if (!_currentUser.IsInternal) ResponseRedirect("/") when Mode = Closed.
+        // Uses IsInternal (not IsClientUser) because internal users can also have a ClientId.
+        if (newStatus == ERActivityStatus.Closed && !Session.IsInternal)
         {
             Navigation.NavigateTo("/");
             return;
