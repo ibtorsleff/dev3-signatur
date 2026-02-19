@@ -36,6 +36,13 @@ public partial class ActivityList
     // Permission state (loaded once in OnInitializedAsync)
     private bool _isClientUser;
     private bool _canCreateActivity;
+    private bool _userHasExportPermission;
+    private bool _clientExportConfigEnabled;
+
+    private bool _canExportActivityMembers =>
+        _currentStatus == ERActivityStatus.OnGoing &&
+        _userHasExportPermission &&
+        _clientExportConfigEnabled;
 
     // Client dropdown state (non-client users only)
     private List<ClientDropdownDto> _clients = new();
@@ -109,15 +116,26 @@ public partial class ActivityList
     {
         _isClientUser = Session.IsClientUser;
         _canCreateActivity = await PermHelper.UserCanCreateActivityAsync();
+        _userHasExportPermission = await PermHelper.UserCanExportActivityMembersAsync();
         _pagerInfoFormat = $"{{first_item}}-{{last_item}} {Localization.GetText("Of")} {{all_items}}";
 
         if (!_isClientUser)
         {
+            // Internal users: client config is always enabled — only the permission check matters
+            _clientExportConfigEnabled = true;
+
             var siteId = Session.SiteId ?? 0;
             if (siteId > 0)
                 _clients = await ClientService.GetClientsForSiteAsync(siteId);
             _selectedClient = _clients.Count > 0 ? _clients[0] : null;
             _activeClientId = _selectedClient?.ClientId;
+        }
+        else
+        {
+            // Client users: check whether their client has export enabled
+            var clientId = Session.ClientId ?? 0;
+            if (clientId > 0)
+                _clientExportConfigEnabled = await ClientService.GetExportActivityMembersEnabledAsync(clientId);
         }
 
         if (_activeClientId.HasValue)
@@ -550,4 +568,70 @@ public partial class ActivityList
     private string _createButtonText => _currentStatus == ERActivityStatus.Draft
         ? Localization.GetText("ERCreateNewDraftActivity")
         : Localization.GetText("CreateNewActivity");
+
+    /// <summary>
+    /// Navigates to the Excel export endpoint with current filter state as query parameters.
+    /// The endpoint generates and returns the .xlsx file as a file download.
+    /// Only available in OnGoing mode when the user has the export permission.
+    /// </summary>
+    private void OnExportActivityMembersClick()
+    {
+        var clientId = _isClientUser ? (Session.ClientId ?? 0) : (_activeClientId ?? 0);
+        if (clientId <= 0)
+        {
+            Snackbar.Add(Localization.GetText("PleaseSelectClient"), Severity.Warning);
+            return;
+        }
+
+        var clientName = _isClientUser ? "" : (_selectedClient?.ClientName ?? "");
+        var mode = _currentStatus.ToString().ToLower();
+
+        var qp = new List<string>
+        {
+            $"clientId={clientId}",
+            $"mode={Uri.EscapeDataString(mode)}",
+            $"showTemplateGroups={(_clientUsesTemplateGroups ? "true" : "false")}",
+            $"showClientSectionGroups={(_filterClientSectionGroups.Count > 0 ? "true" : "false")}"
+        };
+
+        if (!string.IsNullOrEmpty(clientName))
+            qp.Add($"clientName={Uri.EscapeDataString(clientName)}");
+
+        if (_createdByFilter.HasValue)
+        {
+            qp.Add($"createdById={_createdByFilter.Value}");
+            if (!string.IsNullOrEmpty(_createdByFilterUser?.DisplayName))
+                qp.Add($"createdByName={Uri.EscapeDataString(_createdByFilterUser.DisplayName)}");
+        }
+
+        if (_recruitmentResponsibleFilter.HasValue)
+        {
+            qp.Add($"responsibleId={_recruitmentResponsibleFilter.Value}");
+            if (!string.IsNullOrEmpty(_recruitmentResponsibleFilterUser?.DisplayName))
+                qp.Add($"responsibleName={Uri.EscapeDataString(_recruitmentResponsibleFilterUser.DisplayName)}");
+        }
+
+        if (_clientSectionFilter.HasValue)
+        {
+            qp.Add($"clientSectionId={_clientSectionFilter.Value}");
+            if (!string.IsNullOrEmpty(_clientSectionFilterSection?.Name))
+                qp.Add($"clientSectionName={Uri.EscapeDataString(_clientSectionFilterSection.Name)}");
+        }
+
+        if (_templateGroupFilter.HasValue)
+        {
+            qp.Add($"templateGroupId={_templateGroupFilter.Value}");
+            if (!string.IsNullOrEmpty(_templateGroupFilterItem?.Name))
+                qp.Add($"templateGroupName={Uri.EscapeDataString(_templateGroupFilterItem.Name)}");
+        }
+
+        if (_clientSectionGroupFilter.HasValue)
+        {
+            qp.Add($"clientSectionGroupId={_clientSectionGroupFilter.Value}");
+            if (!string.IsNullOrEmpty(_clientSectionGroupFilterItem?.Name))
+                qp.Add($"clientSectionGroupName={Uri.EscapeDataString(_clientSectionGroupFilterItem.Name)}");
+        }
+
+        Navigation.NavigateTo($"/api/activities/export-members?{string.Join("&", qp)}", forceLoad: true);
+    }
 }

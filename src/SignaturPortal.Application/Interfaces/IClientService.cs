@@ -25,4 +25,11 @@ public interface IClientService
     /// Maps to Sig_Client.ERecruitmentEnabled and Sig_Client.ERecruitmentUseTemplateGroups columns.
     /// </summary>
     Task<bool> GetRecruitmentUseTemplateGroupsAsync(int clientId, CancellationToken ct = default);
+
+    /// <summary>
+    /// Returns true if the client allows exporting activity members from the activity list.
+    /// Reads from Sig_Client.CustomData XPath: /ClientCustomData/Recruitment/@ExportActivityMembersInActivityListEnabled.
+    /// For internal (non-client) users this is always true — only checked for client users.
+    /// </summary>
+    Task<bool> GetExportActivityMembersEnabledAsync(int clientId, CancellationToken ct = default);
 }

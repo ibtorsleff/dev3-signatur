@@ -167,6 +167,19 @@
                                  Clearable="true" />
             }
         </div>
+        @if (_canExportActivityMembers)
+        {
+            <div style="margin-bottom: 20px;">
+                <MudButton Variant="Variant.Filled"
+                           Color="Color.Primary"
+                           StartIcon="@Icons.Material.Filled.FileDownload"
+                           OnClick="OnExportActivityMembersClick"
+                           Class="btn-export-activity-members"
+                           Style="text-transform: none;">
+                    @Localization.GetText("ExportActivityMembers")
+                </MudButton>
+            </div>
+        }
     </MudCollapse>
 }
 

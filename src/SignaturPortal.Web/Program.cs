@@ -6,6 +6,7 @@ using SignaturPortal.Infrastructure;
 using SignaturPortal.Infrastructure.Authorization;
 using SignaturPortal.Web.Components;
 using SignaturPortal.Web.Components.Services;
+using SignaturPortal.Web.Endpoints;
 using SignaturPortal.Web.Middleware;
 using SignaturPortal.Web.Services;
 
@@ -120,6 +121,9 @@ if (app.Configuration.GetValue<bool>("ERActivityListUseLegacyUrls"))
         return Results.Redirect(blazorRoute, permanent: false);
     });
 }
+
+// Activity Excel export endpoint (before Blazor components, before YARP catch-all)
+app.MapActivityExportEndpoints();
 
 // Blazor components (higher precedence - matched first)
 app.MapRazorComponents<App>()

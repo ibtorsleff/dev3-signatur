@@ -635,4 +635,195 @@ public class ActivityService : IActivityService
         return (file.FileData, file.FileName);
     }
 
+    /// <summary>
+    /// Gets all activity members for the Excel export.
+    /// Mirrors the legacy ERActivityAndMembersGet logic:
+    ///  - Responsible users get IsMember=true (but IsResponsible stays false — legacy behavior)
+    ///  - AlternativeResponsible users get IsResponsibleAlternative=true
+    ///  - ERActivityMember rows get IsMember=true
+    ///  - Users can appear in multiple categories; flags are merged per (ActivityId, UserId)
+    ///  - InRoles: comma-separated ASP.NET role names filtered to RecruitmentPortal (PermissionTypeId=2) for clientId
+    /// </summary>
+    public async Task<List<ActivityMemberExportRow>> GetActivityMembersForExportAsync(
+        int clientId,
+        ERActivityStatus status,
+        ActivityListFilterDto? moreFilters = null,
+        CancellationToken ct = default)
+    {
+        await using var context = await _contextFactory.CreateDbContextAsync(ct);
+
+        context.CurrentSiteId = _sessionContext.SiteId;
+        context.CurrentClientId = clientId;
+
+        // Use UserId directly from session — avoids AuthenticationStateProvider which is
+        // only valid inside Blazor circuit scope, not in minimal API request context.
+        var currentUserGuid = _sessionContext.UserId;
+
+        var hasAdminAccess = await _permissionService.HasPermissionAsync(
+            _sessionContext.UserName,
+            (int)PortalPermission.RecruitmentPortalAdminAccess,
+            ct);
+
+        var statusId = (int)status;
+
+        var activityQuery = context.Eractivities
+            .Where(a => !a.IsCleaned && a.EractivityStatusId == statusId);
+
+        if (!hasAdminAccess && currentUserGuid.HasValue)
+        {
+            activityQuery = activityQuery.Where(a =>
+                a.Responsible == currentUserGuid.Value ||
+                a.CreatedBy == currentUserGuid.Value);
+        }
+
+        if (moreFilters != null)
+        {
+            if (moreFilters.CreatedByUserId.HasValue)
+                activityQuery = activityQuery.Where(a => a.CreatedBy == moreFilters.CreatedByUserId.Value);
+            if (moreFilters.RecruitmentResponsibleUserId.HasValue)
+                activityQuery = activityQuery.Where(a => a.Responsible == moreFilters.RecruitmentResponsibleUserId.Value);
+            if (moreFilters.ClientSectionId.HasValue)
+                activityQuery = activityQuery.Where(a => a.ClientSectionId == moreFilters.ClientSectionId.Value);
+            if (moreFilters.TemplateGroupId.HasValue)
+                activityQuery = activityQuery.Where(a => a.ErtemplateGroupId == moreFilters.TemplateGroupId.Value);
+            if (moreFilters.ClientSectionGroupId.HasValue)
+                activityQuery = activityQuery.Where(a => a.ClientSection != null && a.ClientSection.ClientSectionGroupId == moreFilters.ClientSectionGroupId.Value);
+            if (moreFilters.DateFrom.HasValue)
+                activityQuery = activityQuery.Where(a => a.CreateDate >= moreFilters.DateFrom.Value.Date);
+            if (moreFilters.DateTo.HasValue)
+                activityQuery = activityQuery.Where(a => a.CreateDate < moreFilters.DateTo.Value.Date.AddDays(1));
+        }
+
+        var activities = await activityQuery
+            .Select(a => new { a.EractivityId, a.Responsible })
+            .OrderBy(a => a.EractivityId)
+            .ToListAsync(ct);
+
+        if (activities.Count == 0)
+            return [];
+
+        var activityIds = activities.Select(a => a.EractivityId).ToList();
+
+        // Roles: aspnet_Roles for this client, active, that grant any RecruitmentPortal permission (PermissionTypeId = 2)
+        const int recruitmentPortalTypeId = 2;
+        var roleAssignments = await context.AspnetRoles
+            .Where(r => r.ClientId == clientId && r.IsActive &&
+                        r.PermissionInRoles.Any(pir => pir.Permission.PermissionTypeId == recruitmentPortalTypeId))
+            .SelectMany(r => r.Users, (role, user) => new { user.UserId, role.RoleName })
+            .ToListAsync(ct);
+
+        var userRolesDict = roleAssignments
+            .GroupBy(x => x.UserId)
+            .ToDictionary(g => g.Key, g => string.Join(", ", g.Select(x => x.RoleName).OrderBy(r => r)));
+
+        // Responsible user data
+        var responsibleIds = activities
+            .Where(a => a.Responsible.HasValue)
+            .Select(a => a.Responsible!.Value)
+            .Distinct()
+            .ToList();
+
+        var responsibleDataById = new Dictionary<Guid, (string FullName, string Email, bool IsInternal, bool IsActive)>();
+        if (responsibleIds.Count > 0)
+        {
+            var responsibleUsers = await context.Users
+                .Where(u => responsibleIds.Contains(u.UserId))
+                .Select(u => new { u.UserId, u.FullName, u.Email, u.IsInternal, IsActive = u.Enabled ?? false })
+                .ToListAsync(ct);
+            responsibleDataById = responsibleUsers.ToDictionary(
+                u => u.UserId,
+                u => (u.FullName ?? "", u.Email ?? "", u.IsInternal, u.IsActive));
+        }
+
+        // AlternativeResponsible users
+        var altResponsibles = await context.EractivityAlternativeResponsibles
+            .Where(ar => activityIds.Contains(ar.EractivityId))
+            .Select(ar => new
+            {
+                ar.EractivityId,
+                ar.UserId,
+                FullName = ar.User.FullName ?? "",
+                Email = ar.User.Email ?? "",
+                ar.User.IsInternal,
+                IsActive = ar.User.Enabled ?? false
+            })
+            .ToListAsync(ct);
+
+        var altResponsibleLookup = altResponsibles
+            .GroupBy(x => x.EractivityId)
+            .ToDictionary(g => g.Key, g => g.ToList());
+
+        // Committee members (ERActivityMember)
+        var committeeMembers = await context.Eractivitymembers
+            .Where(m => activityIds.Contains(m.EractivityId))
+            .Select(m => new
+            {
+                m.EractivityId,
+                m.UserId,
+                FullName = m.User.FullName ?? "",
+                Email = m.User.Email ?? "",
+                m.User.IsInternal,
+                IsActive = m.User.Enabled ?? false
+            })
+            .ToListAsync(ct);
+
+        var committeeMemberLookup = committeeMembers
+            .GroupBy(x => x.EractivityId)
+            .ToDictionary(g => g.Key, g => g.ToList());
+
+        // Merge into flat export rows — mirrors legacy ERActivityAndMembersGet merge logic
+        var rows = new List<ActivityMemberExportRow>();
+        foreach (var activity in activities)
+        {
+            // (userId) → (FullName, Email, IsInternal, IsActive, IsAltResponsible, IsMember)
+            var memberMap = new Dictionary<Guid, (string FullName, string Email, bool IsInternal, bool IsActive, bool IsAltResponsible, bool IsMember)>();
+
+            // 1. Responsible user → IsMember=true (legacy: Table[1] sets IsMember=true for Responsible)
+            if (activity.Responsible.HasValue && responsibleDataById.TryGetValue(activity.Responsible.Value, out var respData))
+                memberMap[activity.Responsible.Value] = (respData.FullName, respData.Email, respData.IsInternal, respData.IsActive, false, true);
+
+            // 2. AlternativeResponsible users → IsAltResponsible=true; merge if already in map
+            if (altResponsibleLookup.TryGetValue(activity.EractivityId, out var altList))
+            {
+                foreach (var ar in altList)
+                {
+                    if (memberMap.TryGetValue(ar.UserId, out var existing))
+                        memberMap[ar.UserId] = (existing.FullName, existing.Email, existing.IsInternal, existing.IsActive, true, existing.IsMember);
+                    else
+                        memberMap[ar.UserId] = (ar.FullName, ar.Email, ar.IsInternal, ar.IsActive, true, false);
+                }
+            }
+
+            // 3. Committee members → IsMember=true; merge if already in map
+            if (committeeMemberLookup.TryGetValue(activity.EractivityId, out var memberList))
+            {
+                foreach (var cm in memberList)
+                {
+                    if (memberMap.TryGetValue(cm.UserId, out var existing))
+                        memberMap[cm.UserId] = (existing.FullName, existing.Email, existing.IsInternal, existing.IsActive, existing.IsAltResponsible, true);
+                    else
+                        memberMap[cm.UserId] = (cm.FullName, cm.Email, cm.IsInternal, cm.IsActive, false, true);
+                }
+            }
+
+            foreach (var (userId, info) in memberMap.OrderBy(kvp => kvp.Value.FullName))
+            {
+                rows.Add(new ActivityMemberExportRow
+                {
+                    ActivityId = activity.EractivityId,
+                    FullName = info.FullName,
+                    Email = info.Email,
+                    InRoles = userRolesDict.GetValueOrDefault(userId, ""),
+                    IsResponsible = false, // Legacy never sets IsResponsible=true in ERActivityAndMembersGet
+                    IsResponsibleAlternative = info.IsAltResponsible,
+                    IsMember = info.IsMember,
+                    IsInternal = info.IsInternal,
+                    IsActive = info.IsActive
+                });
+            }
+        }
+
+        return rows;
+    }
+
 }

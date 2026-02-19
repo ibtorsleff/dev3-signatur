@@ -58,4 +58,15 @@ public interface IActivityService
     /// Verifies file ownership through candidate-activity-tenant chain.
     /// </summary>
     Task<(byte[] FileData, string FileName)?> GetCandidateFileDataAsync(int candidateId, int binaryFileId, CancellationToken ct = default);
+
+    /// <summary>
+    /// Gets all activity members for Excel export.
+    /// Applies the same tenant + permission filters as GetActivitiesAsync (no pagination).
+    /// Returns one row per member per activity; activities with no members are excluded.
+    /// </summary>
+    Task<List<ActivityMemberExportRow>> GetActivityMembersForExportAsync(
+        int clientId,
+        ERActivityStatus status,
+        ActivityListFilterDto? moreFilters = null,
+        CancellationToken ct = default);
 }

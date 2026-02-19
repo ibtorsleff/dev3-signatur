@@ -28,6 +28,22 @@ public partial class SignaturDbContext
                 .HasConstraintName("FK_ERCandidate_ERActivity");
         });
 
+        // ERActivityAlternativeResponsible — composite key join table (ERActivityId, UserId)
+        modelBuilder.Entity<EractivityAlternativeResponsible>(entity =>
+        {
+            entity.ToTable("ERActivityAlternativeResponsible");
+            entity.HasKey(e => new { e.EractivityId, e.UserId });
+            entity.Property(e => e.EractivityId).HasColumnName("ERActivityId");
+
+            entity.HasOne(d => d.Eractivity).WithMany()
+                .HasForeignKey(d => d.EractivityId)
+                .OnDelete(DeleteBehavior.ClientSetNull);
+
+            entity.HasOne(d => d.User).WithMany()
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull);
+        });
+
         // PermissionInRole join table
         modelBuilder.Entity<PermissionInRole>(entity =>
         {
