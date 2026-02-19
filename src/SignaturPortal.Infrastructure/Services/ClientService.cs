@@ -128,4 +128,41 @@ public class ClientService : IClientService
             .ToListAsync(ct);
         return result.FirstOrDefault();
     }
+
+    public async Task<RecruitmentDraftSettingsDto> GetRecruitmentDraftSettingsAsync(int clientId, CancellationToken ct = default)
+    {
+        await using var context = await _contextFactory.CreateDbContextAsync(ct);
+        var rows = await context.Database
+            .SqlQueryRaw<DraftSettingsRow>(
+                @"SELECT
+                    ISNULL(SCLI.CustomData.value('(/ClientCustomData/Recruitment/DraftSettings/@UserResponsabilityAreaTypeId)[1]', 'INT'), 0) AS UserResponsabilityAreaTypeId,
+                    ISNULL(SCLI.CustomData.value('(/ClientCustomData/Recruitment/DraftSettings/@ListAreaHeaderTextId)[1]', 'NVARCHAR(200)'), '') AS ListAreaHeaderTextId,
+                    ISNULL(SCLI.CustomData.value('(/ClientCustomData/Recruitment/DraftSettings/@DraftResponsibleHeaderTextId)[1]', 'NVARCHAR(200)'), '') AS DraftResponsibleHeaderTextId,
+                    CAST(CASE WHEN SCLI.CustomData.value('(/ClientCustomData/ClientSection/@HierachyEnabled)[1]', 'NVARCHAR(5)') = 'true' THEN 1 ELSE 0 END AS BIT) AS SectionHierarchyEnabled
+                  FROM Sig_Client SCLI
+                  WHERE SCLI.ClientId = {0}",
+                clientId)
+            .ToListAsync(ct);
+
+        var row = rows.FirstOrDefault();
+        return new RecruitmentDraftSettingsDto
+        {
+            UserResponsabilityAreaTypeId = row?.UserResponsabilityAreaTypeId ?? 0,
+            ListAreaHeaderTextId = string.IsNullOrEmpty(row?.ListAreaHeaderTextId)
+                ? "ERDraftListAreaHeader"
+                : row.ListAreaHeaderTextId,
+            DraftResponsibleHeaderTextId = string.IsNullOrEmpty(row?.DraftResponsibleHeaderTextId)
+                ? "ERDraftResponsibleHeader"
+                : row.DraftResponsibleHeaderTextId,
+            SectionHierarchyEnabled = row?.SectionHierarchyEnabled ?? false
+        };
+    }
+
+    private class DraftSettingsRow
+    {
+        public int UserResponsabilityAreaTypeId { get; set; }
+        public string? ListAreaHeaderTextId { get; set; }
+        public string? DraftResponsibleHeaderTextId { get; set; }
+        public bool SectionHierarchyEnabled { get; set; }
+    }
 }

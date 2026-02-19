@@ -25,4 +25,9 @@ public record ActivityListDto
     public string DraftResponsibleName { get; init; } = "";
     public string ClientSectionName { get; init; } = "";
     public string TemplateGroupName { get; init; } = "";
+
+    // Draft Area name: populated only in Draft mode.
+    // When AreaType==ERTemplateGroup: same as TemplateGroupName.
+    // When AreaType==ClientSection: top-level parent section name via CTE hierarchy traversal.
+    public string DraftAreaName { get; init; } = "";
 }

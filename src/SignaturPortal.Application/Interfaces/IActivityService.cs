@@ -19,6 +19,7 @@ public interface IActivityService
         ERActivityStatus? statusFilter = null,
         int? clientIdFilter = null,
         ActivityListFilterDto? moreFilters = null,
+        int draftAreaTypeId = 0,
         CancellationToken ct = default);
 
     /// <summary>

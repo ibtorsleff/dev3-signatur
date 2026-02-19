@@ -42,6 +42,7 @@ public class ActivityService : IActivityService
         ERActivityStatus? statusFilter = null,
         int? clientIdFilter = null,
         ActivityListFilterDto? moreFilters = null,
+        int draftAreaTypeId = 0,
         CancellationToken ct = default)
     {
         await using var context = await _contextFactory.CreateDbContextAsync(ct);
@@ -166,6 +167,7 @@ public class ActivityService : IActivityService
             ["RecruitingResponsibleName"] = null,
             ["CreatedByName"] = null,
             ["DraftResponsibleName"] = null,
+            ["DraftAreaName"] = null,
             ["WebAdVisitors"] = null
         };
 
@@ -223,9 +225,54 @@ public class ActivityService : IActivityService
                     : "",
                 // Resolve lookup names via navigation properties (LEFT JOIN)
                 ClientSectionName = a.ClientSection != null ? a.ClientSection.Name : "",
-                TemplateGroupName = a.ErTemplateGroup != null ? a.ErTemplateGroup.Name : ""
+                TemplateGroupName = a.ErTemplateGroup != null ? a.ErTemplateGroup.Name : "",
+                // DraftAreaName: populated via post-query logic below (draftAreaTypeId 1=ClientSection, 2=ERTemplateGroup)
+                DraftAreaName = ""
             })
             .ToListAsync(ct);
+
+        // Populate DraftAreaName based on draftAreaTypeId:
+        // Type 2 (ERTemplateGroup): reuse the already-resolved TemplateGroupName.
+        // Type 1 (ClientSection): traverse the ClientSection hierarchy to find the top-level root name.
+        //   Uses a recursive CTE — mirrors legacy HelperERecruiting.ERForListGet includeClientSectionTopLevel logic.
+        //   Activity IDs are integers from our own filtered query, so inline IN list is safe.
+        if (draftAreaTypeId == 2 && items.Count > 0)
+        {
+            items = items
+                .Select(item => item with { DraftAreaName = item.TemplateGroupName })
+                .ToList();
+        }
+        else if (draftAreaTypeId == 1 && items.Count > 0)
+        {
+            var idCsv = string.Join(",", items.Select(item => item.EractivityId.ToString("D")));
+#pragma warning disable EF1002 // idCsv contains only integer literals from our own paginated query — not user input
+            var topLevelRows = await context.Database
+                .SqlQueryRaw<ActivityTopLevelSectionRow>($"""
+                    WITH CTE AS (
+                        SELECT ERA.ERActivityId, CS.Name, CS.ParentClientSectionId
+                        FROM ERActivity ERA
+                        LEFT JOIN ClientSection CS ON ERA.ClientSectionId = CS.ClientSectionId
+                        WHERE ERA.ERActivityId IN ({idCsv})
+                        UNION ALL
+                        SELECT CTE.ERActivityId, CS.Name, CS.ParentClientSectionId
+                        FROM CTE
+                        INNER JOIN ClientSection CS ON CS.ClientSectionId = CTE.ParentClientSectionId
+                    )
+                    SELECT CTE.ERActivityId, CTE.Name AS TopLevelName
+                    FROM CTE
+                    WHERE CTE.ParentClientSectionId IS NULL
+                    """)
+                .ToListAsync(ct);
+#pragma warning restore EF1002
+
+            var topLevelMap = topLevelRows.ToDictionary(r => r.ERActivityId, r => r.TopLevelName ?? "");
+            items = items
+                .Select(item => item with
+                {
+                    DraftAreaName = topLevelMap.TryGetValue(item.EractivityId, out var name) ? name : ""
+                })
+                .ToList();
+        }
 
         return new GridResponse<ActivityListDto>
         {
@@ -924,6 +971,13 @@ public class ActivityService : IActivityService
     /// <summary>
     /// Counts active (OnGoing) activities the given user is associated with
     /// as a member, creator, or responsible person.
+    // Result type for the Draft Area ClientSection top-level hierarchy CTE query.
+    private class ActivityTopLevelSectionRow
+    {
+        public int ERActivityId { get; set; }
+        public string? TopLevelName { get; set; }
+    }
+
     /// Mirrors legacy HelperERecruiting.UserInActiveActivitiesCount().
     /// </summary>
     public async Task<int> GetUserActiveActivitiesCountAsync(Guid userId, CancellationToken ct = default)

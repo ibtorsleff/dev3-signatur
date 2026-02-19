@@ -52,4 +52,13 @@ public interface IClientService
     /// Matches legacy ClientHlp.ClientRecruitmentDraftEnabled.
     /// </summary>
     Task<bool> GetRecruitmentDraftEnabledAsync(int clientId, CancellationToken ct = default);
+
+    /// <summary>
+    /// Returns draft area column settings for the given client.
+    /// Reads UserResponsabilityAreaTypeId and ListAreaHeaderTextId from DraftSettings XML,
+    /// and ClientSection hierarchy flag from ClientSection XML.
+    /// Used to control the Draft Area column in the activity list.
+    /// Matches legacy ClientHlp.ClientRecruitmentDraftSettings + ClientSectionHierachyEnabled.
+    /// </summary>
+    Task<RecruitmentDraftSettingsDto> GetRecruitmentDraftSettingsAsync(int clientId, CancellationToken ct = default);
 }

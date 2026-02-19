@@ -233,11 +233,12 @@
                 }
             </CellTemplate>
         </PropertyColumn>
+        <PropertyColumn Property="x => x.DraftAreaName" Title="@Localization.GetText(_draftAreaHeaderKey)" Sortable="false" Hidden="@_hideDraftAreaColumn" HeaderStyle="width:170px;" />
         <PropertyColumn Property="x => x.ClientSectionName" Title="@Localization.GetText("ClientSection")" Hidden="@_hideClientSectionColumn" HeaderStyle="width:240px;" />
         <PropertyColumn Property="x => x.RecruitingResponsibleName" Title="@Localization.GetText("RecruitingResponsable")" Sortable="false" HeaderStyle="width:150px;" />
         <PropertyColumn Property="x => x.CreateDate" Title="@Localization.GetText("CreateDate")" Format="dd-MM-yyyy" InitialDirection="SortDirection.Descending" HeaderStyle="width:110px;" />
         <PropertyColumn Property="x => x.CreatedByName" Title="@Localization.GetText("CreatedBy")" Sortable="false" Hidden="@_hideCreatedByColumn" HeaderStyle="width:130px;" />
-        <PropertyColumn Property="x => x.DraftResponsibleName" Title="@Localization.GetText("ERDraftResponsibleHeader")" Sortable="false" Hidden="@_hideDraftResponsibleColumn" HeaderStyle="width:170px;" />
+        <PropertyColumn Property="x => x.DraftResponsibleName" Title="@Localization.GetText(_draftResponsibleHeaderKey)" Sortable="false" Hidden="@_hideDraftResponsibleColumn" HeaderStyle="width:170px;" />
         <PropertyColumn Property="x => x.TemplateGroupName" Title="@Localization.GetText("TemplateGroup")" Hidden="@_hideTemplateGroupColumn" HeaderStyle="width:140px;" />
         <TemplateColumn T="ActivityListDto" Hidden="@_hideActionsColumn" Sortable="false" Filterable="false"
                         HeaderStyle="width:36px; padding:0;" CellStyle="padding:2px 4px; text-align:center;">

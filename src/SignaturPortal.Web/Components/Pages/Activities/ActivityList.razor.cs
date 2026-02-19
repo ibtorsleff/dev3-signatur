@@ -110,6 +110,17 @@ public partial class ActivityList
     // TemplateGroup: visible in Ongoing and Closed, hidden in Draft, AND only if client uses template groups
     private bool _clientUsesTemplateGroups;
     private bool _hideTemplateGroupColumn => _currentStatus == ERActivityStatus.Draft || !_clientUsesTemplateGroups;
+    // DraftArea: visible in Draft only, AND area type must be configured.
+    //   Type 2 (ERTemplateGroup): always shown when in Draft mode.
+    //   Type 1 (ClientSection): only shown when client has section hierarchy enabled.
+    //   Matches legacy ActivityList.aspx.cs:1300-1302 ShowDraftAreaColumn condition.
+    private int _draftAreaTypeId;
+    private bool _draftSectionHierarchyEnabled;
+    private string _draftAreaHeaderKey = "ERDraftListAreaHeader";
+    private string _draftResponsibleHeaderKey = "ERDraftResponsibleHeader";
+    private bool _hideDraftAreaColumn =>
+        _currentStatus != ERActivityStatus.Draft ||
+        !((_draftAreaTypeId == 1 && _draftSectionHierarchyEnabled) || _draftAreaTypeId == 2);
     // ClientSection ("Afdeling"): hidden when user is a client user (matches legacy dskClientTh visibility)
     private bool _hideClientSectionColumn => _isClientUser;
     // Matches legacy ActivityList.aspx.cs:496-499: Draft mode uses RecruitmentPortalCreateDraftActivities,
@@ -179,6 +190,11 @@ public partial class ActivityList
         {
             _clientHasWebAdVisitorStatistics = await ClientService.GetWebAdVisitorStatisticsEnabledAsync(_activeClientId.Value);
             _clientUsesTemplateGroups = await ClientService.GetRecruitmentUseTemplateGroupsAsync(_activeClientId.Value);
+            var draftSettings = await ClientService.GetRecruitmentDraftSettingsAsync(_activeClientId.Value);
+            _draftAreaTypeId = draftSettings.UserResponsabilityAreaTypeId;
+            _draftSectionHierarchyEnabled = draftSettings.SectionHierarchyEnabled;
+            _draftAreaHeaderKey = draftSettings.ListAreaHeaderTextId;
+            _draftResponsibleHeaderKey = draftSettings.DraftResponsibleHeaderTextId;
         }
 
         // Guards: external user access checks (matches legacy ActivityList.aspx.cs:286 and :362).
@@ -534,7 +550,8 @@ public partial class ActivityList
                 }
             }
 
-            var response = await ActivityService.GetActivitiesAsync(request, _currentStatus, clientFilter, moreFilters);
+            var activeDraftAreaTypeId = _currentStatus == ERActivityStatus.Draft ? _draftAreaTypeId : 0;
+            var response = await ActivityService.GetActivitiesAsync(request, _currentStatus, clientFilter, moreFilters, activeDraftAreaTypeId);
             _totalCount = response.TotalCount;
 
             return new GridData<ActivityListDto>
@@ -615,6 +632,11 @@ public partial class ActivityList
         _activeClientId = client.ClientId;
         _clientHasWebAdVisitorStatistics = await ClientService.GetWebAdVisitorStatisticsEnabledAsync(client.ClientId);
         _clientUsesTemplateGroups = await ClientService.GetRecruitmentUseTemplateGroupsAsync(client.ClientId);
+        var draftSettings = await ClientService.GetRecruitmentDraftSettingsAsync(client.ClientId);
+        _draftAreaTypeId = draftSettings.UserResponsabilityAreaTypeId;
+        _draftSectionHierarchyEnabled = draftSettings.SectionHierarchyEnabled;
+        _draftAreaHeaderKey = draftSettings.ListAreaHeaderTextId;
+        _draftResponsibleHeaderKey = draftSettings.DraftResponsibleHeaderTextId;
         ResetMoreFilters();
         if (_currentStatus == ERActivityStatus.Closed)
         {
