@@ -70,6 +70,11 @@ public class PermissionHelperService : IPermissionHelper
            && (await HasPermissionAsync(PortalPermission.RecruitmentPortalViewActivitiesUserNotMemberOf, ct)
                || await HasPermissionAsync(PortalPermission.RecruitmentPortalEditActivitiesUserNotMemberOf, ct));
 
+    public async Task<bool> UserCanAccessActivitiesWithWorkAreaUserNotMemberOfAsync(CancellationToken ct = default)
+        => await HasPermissionAsync(PortalPermission.RecruitmentPortalRecruitmentAccess, ct)
+           && (await HasPermissionAsync(PortalPermission.RecruitmentPortalViewActivitiesFromWorkAreaUserNotMemberOf, ct)
+               || await HasPermissionAsync(PortalPermission.RecruitmentPortalEditActivitiesFromWorkAreaUserNotMemberOf, ct));
+
     public async Task<bool> UserCanCreateActivityAsync(CancellationToken ct = default)
         => await HasPermissionAsync(PortalPermission.RecruitmentPortalRecruitmentAccess, ct)
            && await HasPermissionAsync(PortalPermission.RecruitmentPortalCreateActivity, ct);

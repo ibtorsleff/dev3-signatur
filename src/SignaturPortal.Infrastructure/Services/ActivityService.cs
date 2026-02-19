@@ -62,24 +62,55 @@ public class ActivityService : IActivityService
         var currentUser = await _currentUserService.GetCurrentUserAsync(ct);
         var currentUserGuid = currentUser?.UserId;
 
-        // Check if user has admin access (can see all activities)
-        var hasAdminAccess = await _permissionService.HasPermissionAsync(
-            _sessionContext.UserName,
-            (int)PortalPermission.RecruitmentPortalAdminAccess,
-            ct);
+        // Load all user permissions once (cached within this scope by IPermissionService)
+        var userPermissions = await _permissionService.GetUserPermissionsAsync(_sessionContext.UserName, ct);
+        bool hasRecruitmentAccess = userPermissions.Contains((int)PortalPermission.RecruitmentPortalRecruitmentAccess);
 
-        System.Diagnostics.Debug.WriteLine($"[DEBUG] UserGuid={currentUserGuid}, Admin={hasAdminAccess}");
+        // Mirrors legacy PermissionHelper.UserCanAccessActivitiesUserNotMemberOf
+        bool canViewActivitiesNotMemberOf = hasRecruitmentAccess
+            && (userPermissions.Contains((int)PortalPermission.RecruitmentPortalViewActivitiesUserNotMemberOf)
+                || userPermissions.Contains((int)PortalPermission.RecruitmentPortalEditActivitiesUserNotMemberOf));
+
+        // Mirrors legacy PermissionHelper.UserCanAccessActivitiesWithWorkAreaUserNotMemberOf
+        bool canViewActivitiesFromWorkAreaNotMemberOf = hasRecruitmentAccess
+            && (userPermissions.Contains((int)PortalPermission.RecruitmentPortalViewActivitiesFromWorkAreaUserNotMemberOf)
+                || userPermissions.Contains((int)PortalPermission.RecruitmentPortalEditActivitiesFromWorkAreaUserNotMemberOf));
+
+        System.Diagnostics.Debug.WriteLine($"[DEBUG] UserGuid={currentUserGuid}, CanViewNotMemberOf={canViewActivitiesNotMemberOf}, CanViewFromWorkArea={canViewActivitiesFromWorkAreaNotMemberOf}");
 
         // Build base query
         var query = context.Eractivities
             .Where(a => !a.IsCleaned); // Exclude cleaned activities
 
-        // Apply permission-based filtering for non-admin users
-        if (!hasAdminAccess && currentUserGuid.HasValue)
+        // Apply permission-based visibility filtering (mirrors legacy ActivityList.aspx LoadFiltersData)
+        if (!canViewActivitiesNotMemberOf && currentUserGuid.HasValue)
         {
+            // Filter 1 (most restrictive): user may only see activities where they are a member, creator, or responsible
             query = query.Where(a =>
-                a.Responsible == currentUserGuid.Value ||
-                a.CreatedBy == currentUserGuid.Value);
+                a.Eractivitymembers.Any(m => m.UserId == currentUserGuid.Value) ||
+                a.CreatedBy == currentUserGuid.Value ||
+                a.Responsible == currentUserGuid.Value);
+        }
+        else if (!canViewActivitiesFromWorkAreaNotMemberOf && _sessionContext.IsClientUser && currentUserGuid.HasValue)
+        {
+            // Filter 2: client user restricted to their template groups — but still sees activities
+            // where they are a member/creator/responsible, and activities with no template group
+            var userTemplateGroupIds = await context.Database
+                .SqlQueryRaw<int>(
+                    "SELECT TemplateGroupId FROM UserRecruitmentTemplateGroup WHERE UserId = {0}",
+                    currentUserGuid.Value)
+                .ToListAsync(ct);
+
+            if (userTemplateGroupIds.Count > 0)
+            {
+                query = query.Where(a =>
+                    a.Eractivitymembers.Any(m => m.UserId == currentUserGuid.Value) ||
+                    a.CreatedBy == currentUserGuid.Value ||
+                    a.Responsible == currentUserGuid.Value ||
+                    !a.ErtemplateGroupId.HasValue ||
+                    a.ErtemplateGroupId.Value <= 0 ||
+                    userTemplateGroupIds.Contains(a.ErtemplateGroupId.Value));
+            }
         }
 
         // Filter by activity status mode (Ongoing, Closed, Draft)
@@ -659,21 +690,47 @@ public class ActivityService : IActivityService
         // only valid inside Blazor circuit scope, not in minimal API request context.
         var currentUserGuid = _sessionContext.UserId;
 
-        var hasAdminAccess = await _permissionService.HasPermissionAsync(
-            _sessionContext.UserName,
-            (int)PortalPermission.RecruitmentPortalAdminAccess,
-            ct);
+        var userPermissions = await _permissionService.GetUserPermissionsAsync(_sessionContext.UserName, ct);
+        bool hasRecruitmentAccess = userPermissions.Contains((int)PortalPermission.RecruitmentPortalRecruitmentAccess);
+
+        bool canViewActivitiesNotMemberOf = hasRecruitmentAccess
+            && (userPermissions.Contains((int)PortalPermission.RecruitmentPortalViewActivitiesUserNotMemberOf)
+                || userPermissions.Contains((int)PortalPermission.RecruitmentPortalEditActivitiesUserNotMemberOf));
+
+        bool canViewActivitiesFromWorkAreaNotMemberOf = hasRecruitmentAccess
+            && (userPermissions.Contains((int)PortalPermission.RecruitmentPortalViewActivitiesFromWorkAreaUserNotMemberOf)
+                || userPermissions.Contains((int)PortalPermission.RecruitmentPortalEditActivitiesFromWorkAreaUserNotMemberOf));
 
         var statusId = (int)status;
 
         var activityQuery = context.Eractivities
             .Where(a => !a.IsCleaned && a.EractivityStatusId == statusId);
 
-        if (!hasAdminAccess && currentUserGuid.HasValue)
+        if (!canViewActivitiesNotMemberOf && currentUserGuid.HasValue)
         {
             activityQuery = activityQuery.Where(a =>
-                a.Responsible == currentUserGuid.Value ||
-                a.CreatedBy == currentUserGuid.Value);
+                a.Eractivitymembers.Any(m => m.UserId == currentUserGuid.Value) ||
+                a.CreatedBy == currentUserGuid.Value ||
+                a.Responsible == currentUserGuid.Value);
+        }
+        else if (!canViewActivitiesFromWorkAreaNotMemberOf && _sessionContext.IsClientUser && currentUserGuid.HasValue)
+        {
+            var userTemplateGroupIds = await context.Database
+                .SqlQueryRaw<int>(
+                    "SELECT TemplateGroupId FROM UserRecruitmentTemplateGroup WHERE UserId = {0}",
+                    currentUserGuid.Value)
+                .ToListAsync(ct);
+
+            if (userTemplateGroupIds.Count > 0)
+            {
+                activityQuery = activityQuery.Where(a =>
+                    a.Eractivitymembers.Any(m => m.UserId == currentUserGuid.Value) ||
+                    a.CreatedBy == currentUserGuid.Value ||
+                    a.Responsible == currentUserGuid.Value ||
+                    !a.ErtemplateGroupId.HasValue ||
+                    a.ErtemplateGroupId.Value <= 0 ||
+                    userTemplateGroupIds.Contains(a.ErtemplateGroupId.Value));
+            }
         }
 
         if (moreFilters != null)
