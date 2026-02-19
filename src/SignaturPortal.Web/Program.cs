@@ -66,6 +66,8 @@ builder.Services.AddSystemWebAdapters()
 
         // Legacy session keys still needed from the shared session:
         // Portal enum (int-backed): Undefined=0, AdPortal=1, RecruitingPortal=2, OnboardingPortal=3, OnboardingEmployeePortal=4
+        // Access in OnInitialized (SSR only — not available during SignalR interactions):
+        //   var lastPortal = (int)(System.Web.HttpContext.Current.Session["AtlantaUserLastPortal"] ?? 0);
         options.RegisterKey<int>("AtlantaUserLastPortal");
     })
     .AddRemoteAppClient(options =>
