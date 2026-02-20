@@ -191,6 +191,7 @@
              SortMode="SortMode.Multiple"
              Hover="true"
              RowClick="OnRowClick"
+             RowClassFunc="@((item, _) => GetActivityRowCombinedClass(item))"
              RowStyle="cursor: pointer;"
              Class="portal-data-grid">
     <ToolBarContent>

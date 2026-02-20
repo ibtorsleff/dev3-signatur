@@ -786,6 +786,41 @@ public partial class ActivityList
     }
 
     /// <summary>
+    /// Returns the combined CSS class(es) for a data grid row based on the activity's state.
+    /// activity-row-cleaned  → gray italic text when the activity is archived/cleaned.
+    /// activity-row-needs-review → orange ID cell: member has unread/unevaluated candidates, deadline not exceeded.
+    /// activity-row-overdue       → red ID cell:    member has unread/unevaluated candidates, deadline exceeded.
+    /// activity-row-reviewed      → gray ID cell:   member has no pending candidates, activity still active.
+    /// Color applies only to OnGoing activities where the current user is a member.
+    /// </summary>
+    private string GetActivityRowCombinedClass(ActivityListDto item)
+    {
+        var colorClass = GetActivityRowColorClass(item);
+        var cleanedClass = item.IsCleaned ? "activity-row-cleaned" : string.Empty;
+
+        return colorClass.Length > 0 && cleanedClass.Length > 0
+            ? $"{cleanedClass} {colorClass}"
+            : colorClass.Length > 0 ? colorClass : cleanedClass;
+    }
+
+    private static string GetActivityRowColorClass(ActivityListDto item)
+    {
+        if (item.EractivityStatusId != (int)ERActivityStatus.OnGoing) return string.Empty;
+        if (!item.IsUserMember) return string.Empty;
+
+        var hasUnread = item.CandidateEvaluationEnabled
+            ? item.CandidateMissingEvaluationCount > 0
+            : item.CandidateNotReadCount > 0;
+
+        var deadlineExceeded = !item.ContinuousPosting && item.ApplicationDeadline < DateTime.Today;
+
+        if (hasUnread)
+            return deadlineExceeded ? "activity-row-overdue" : "activity-row-needs-review";
+
+        return deadlineExceeded ? string.Empty : "activity-row-reviewed";
+    }
+
+    /// <summary>
     /// Shows the "no active activities" disclaimer to external users and redirects to login.
     /// Matches legacy ExternalUserNoActiveActivtiesTmr_OnTick + MessageBoxActionEn.ExternalUserNoActivities.
     /// </summary>

@@ -79,9 +79,10 @@ public class ErActivityService : IErActivityService
 
         System.Diagnostics.Debug.WriteLine($"[DEBUG] UserGuid={currentUserGuid}, CanViewNotMemberOf={canViewActivitiesNotMemberOf}, CanViewFromWorkArea={canViewActivitiesFromWorkAreaNotMemberOf}");
 
-        // Build base query
-        var query = context.Eractivities
-            .Where(a => !a.IsCleaned); // Exclude cleaned activities
+        // Build base query.
+        // IsCleaned activities are included — they render with gray italic styling (activity-row-cleaned).
+        // Matches legacy ActivityList.ascx.cs which shows cleaned activities in the OnGoing list.
+        var query = context.Eractivities.AsQueryable();
 
         // Apply permission-based visibility filtering (mirrors legacy ActivityList.aspx LoadFiltersData)
         if (!canViewActivitiesNotMemberOf && currentUserGuid.HasValue)
@@ -227,7 +228,13 @@ public class ErActivityService : IErActivityService
                 ClientSectionName = a.ClientSection != null ? a.ClientSection.Name : "",
                 TemplateGroupName = a.ErTemplateGroup != null ? a.ErTemplateGroup.Name : "",
                 // DraftAreaName: populated via post-query logic below (draftAreaTypeId 1=ClientSection, 2=ERTemplateGroup)
-                DraftAreaName = ""
+                DraftAreaName = "",
+                // Row-coloring fields — IsUserMember resolved here; candidate counts populated post-query via raw SQL
+                IsCleaned = a.IsCleaned,
+                CandidateEvaluationEnabled = a.CandidateEvaluationEnabled,
+                IsUserMember = currentUserGuid.HasValue && a.Eractivitymembers.Any(m => m.UserId == currentUserGuid.Value),
+                CandidateMissingEvaluationCount = 0,
+                CandidateNotReadCount = 0
             })
             .ToListAsync(ct);
 
@@ -270,6 +277,73 @@ public class ErActivityService : IErActivityService
                 .Select(item => item with
                 {
                     DraftAreaName = topLevelMap.TryGetValue(item.EractivityId, out var name) ? name : ""
+                })
+                .ToList();
+        }
+
+        // Populate candidate counts for row color logic.
+        // Only computed for OnGoing mode — color applies only there — and only when the user is known.
+        // Two raw SQL queries (one per evaluation mode) covering the full page in one round-trip each.
+        // Mirrors legacy HelperERecruiting ERForListGet CandidateReadCount / CandidateHasEvaluationCount queries.
+        if (statusFilter == ERActivityStatus.OnGoing && items.Count > 0 && currentUserGuid.HasValue)
+        {
+            var userIdStr = currentUserGuid.Value.ToString("D");
+            var idCsv = string.Join(",", items.Select(item => item.EractivityId.ToString("D")));
+
+#pragma warning disable EF1002 // idCsv = integers from our own query; userIdStr = Guid (hex+hyphens only) — not user input
+            // CandidateNotReadCount: candidates not yet read by the current user, for activities
+            // where CandidateEvaluationEnabled = false.
+            var unreadRows = await context.Database
+                .SqlQueryRaw<ActivityCandidateCountRow>($"""
+                    SELECT era.ERActivityId, COUNT(erc.ERCandidateId) AS CandidateCount
+                    FROM ERActivity era
+                    JOIN ERActivityMember eram ON eram.ERActivityId = era.ERActivityId AND eram.UserId = '{userIdStr}'
+                    JOIN ERCandidate erc ON erc.ERActivityId = era.ERActivityId
+                        AND erc.IsDeleted = 0
+                        AND erc.ERCandidateStatusId NOT IN (3, 4)
+                    WHERE era.ERActivityId IN ({idCsv})
+                        AND era.CandidateEvaluationEnabled = 0
+                        AND NOT EXISTS (
+                            SELECT 1 FROM ErCandidateUser ercu
+                            WHERE ercu.CandidateId = erc.ERCandidateId AND ercu.UserId = '{userIdStr}'
+                        )
+                    GROUP BY era.ERActivityId
+                    """)
+                .ToListAsync(ct);
+
+            // CandidateMissingEvaluationCount: candidates not yet evaluated by the current member, for
+            // activities where CandidateEvaluationEnabled = true and NOT using extended evaluation.
+            // Extended evaluation (CandidateExtendedEvaluationEnabled = true) requires per-criteria checks
+            // across ERCandidateExtendedEvaluation — that path is deferred to Option B icon work.
+            var missingEvalRows = await context.Database
+                .SqlQueryRaw<ActivityCandidateCountRow>($"""
+                    SELECT era.ERActivityId, COUNT(erc.ERCandidateId) AS CandidateCount
+                    FROM ERActivity era
+                    JOIN ERActivityMember eram ON eram.ERActivityId = era.ERActivityId AND eram.UserId = '{userIdStr}'
+                    JOIN ERCandidate erc ON erc.ERActivityId = era.ERActivityId
+                        AND erc.IsDeleted = 0
+                        AND erc.ERCandidateStatusId NOT IN (3, 4)
+                    WHERE era.ERActivityId IN ({idCsv})
+                        AND era.CandidateEvaluationEnabled = 1
+                        AND era.CandidateExtendedEvaluationEnabled = 0
+                        AND NOT EXISTS (
+                            SELECT 1 FROM ERCandidateEvaluation erce
+                            WHERE erce.ERCandidateId = erc.ERCandidateId
+                              AND erce.ERActivityMemberId = eram.ERActivityMemberId
+                        )
+                    GROUP BY era.ERActivityId
+                    """)
+                .ToListAsync(ct);
+#pragma warning restore EF1002
+
+            var unreadMap = unreadRows.ToDictionary(r => r.ERActivityId, r => r.CandidateCount);
+            var missingEvalMap = missingEvalRows.ToDictionary(r => r.ERActivityId, r => r.CandidateCount);
+
+            items = items
+                .Select(item => item with
+                {
+                    CandidateNotReadCount = unreadMap.TryGetValue(item.EractivityId, out var unread) ? unread : 0,
+                    CandidateMissingEvaluationCount = missingEvalMap.TryGetValue(item.EractivityId, out var missing) ? missing : 0
                 })
                 .ToList();
         }
@@ -976,6 +1050,13 @@ public class ErActivityService : IErActivityService
     {
         public int ERActivityId { get; set; }
         public string? TopLevelName { get; set; }
+    }
+
+    // Result type for the candidate count raw SQL queries (unread / missing evaluation).
+    private class ActivityCandidateCountRow
+    {
+        public int ERActivityId { get; set; }
+        public int CandidateCount { get; set; }
     }
 
     /// Mirrors legacy HelperERecruiting.UserInActiveActivitiesCount().

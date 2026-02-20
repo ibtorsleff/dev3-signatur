@@ -142,3 +142,22 @@
     width: 100%;
     background-color: var(--mud-palette-surface);
 }
+
+/* === Activity list row color coding (ID cell only — matches legacy behavior) ===
+   activity-row-needs-review : orange — member has unread/unevaluated candidates, deadline not exceeded
+   activity-row-overdue      : red    — member has unread/unevaluated candidates, deadline exceeded
+   activity-row-reviewed     : gray   — member has no pending candidates, activity still active
+   Hover colors lighten the tint (matching legacy CSS color-1/2/3 hover values). */
+.portal-data-grid .mud-table-row.activity-row-needs-review td:first-child { background-color: #fadfaa; }
+.portal-data-grid .mud-table-row.activity-row-overdue td:first-child      { background-color: #fac0c0; }
+.portal-data-grid .mud-table-row.activity-row-reviewed td:first-child      { background-color: #e8e8e8; }
+
+.portal-data-grid .mud-table-row.activity-row-needs-review:hover td:first-child { background-color: #fff0d8; }
+.portal-data-grid .mud-table-row.activity-row-overdue:hover td:first-child      { background-color: #fff0f0; }
+.portal-data-grid .mud-table-row.activity-row-reviewed:hover td:first-child      { background-color: #f0f0f0; }
+
+/* === Cleaned/archived activity rows — gray italic text across all cells === */
+.portal-data-grid .mud-table-row.activity-row-cleaned td {
+    color: #b0a0a0 !important;
+    font-style: italic !important;
+}

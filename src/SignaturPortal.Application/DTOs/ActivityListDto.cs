@@ -30,4 +30,12 @@ public record ActivityListDto
     // When AreaType==ERTemplateGroup: same as TemplateGroupName.
     // When AreaType==ClientSection: top-level parent section name via CTE hierarchy traversal.
     public string DraftAreaName { get; init; } = "";
+
+    // Row styling fields — used to compute color class and cleaned-row style.
+    // Populated in GetActivitiesAsync; zero/false when not applicable (Draft/Closed mode, user not a member).
+    public bool IsUserMember { get; init; }
+    public bool CandidateEvaluationEnabled { get; init; }
+    public int CandidateMissingEvaluationCount { get; init; }
+    public int CandidateNotReadCount { get; init; }
+    public bool IsCleaned { get; init; }
 }
