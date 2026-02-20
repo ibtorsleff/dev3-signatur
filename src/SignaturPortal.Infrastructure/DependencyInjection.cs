@@ -54,6 +54,7 @@ public static class DependencyInjection
         services.AddScoped<IErActivityService, ErActivityService>();
         services.AddScoped<IClientService, ClientService>();
         services.AddScoped<IUserProfileService, UserProfileService>();
+        services.AddScoped<IImpersonateService, ImpersonateService>();
 
         // Localization: in-memory cache + scoped service + startup warmup
         services.AddMemoryCache();

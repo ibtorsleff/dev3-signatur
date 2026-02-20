@@ -24,4 +24,7 @@ public interface IPermissionHelper
     Task<bool> UserCanExportActivityMembersAsync(CancellationToken ct = default);
     Task<bool> UserCanEditActivitiesNotMemberOfAsync(CancellationToken ct = default);
     Task<bool> UserCanPublishWebAdAsync(CancellationToken ct = default);
+
+    /// <summary>Matches legacy AdPortalAllowImpersonate (1700).</summary>
+    Task<bool> UserCanImpersonateAsync(CancellationToken ct = default);
 }

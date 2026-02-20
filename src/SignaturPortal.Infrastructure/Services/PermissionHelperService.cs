@@ -92,4 +92,7 @@ public class PermissionHelperService : IPermissionHelper
 
     public async Task<bool> UserCanPublishWebAdAsync(CancellationToken ct = default)
         => await HasPermissionAsync(PortalPermission.AdPortalPublishWebAd, ct);
+
+    public async Task<bool> UserCanImpersonateAsync(CancellationToken ct = default)
+        => await HasPermissionAsync(PortalPermission.AdPortalAllowImpersonate, ct);
 }

@@ -80,9 +80,18 @@ public partial class NavMenu : IDisposable
         _themeState.Toggle();
     }
 
-    private void NavigateToImpersonate()
+    private async Task OpenImpersonateDialogAsync()
     {
-        Navigation.NavigateTo("/User/Impersonate.aspx", forceLoad: true);
+        var options = new DialogOptions
+        {
+            MaxWidth = MaxWidth.Medium,
+            FullWidth = true,
+            CloseButton = true,
+            CloseOnEscapeKey = true,
+            BackdropClick = false,
+        };
+        await DialogService.ShowAsync<ImpersonateDialog>(
+            Localization.GetText("Impersonate"), options);
     }
 
     private void OnImpersonateToggled(bool newValue)

@@ -1,0 +1,103 @@
+@using SignaturPortal.Application.DTOs
+@* ImpersonateDialog.razor
+   Blazor migration of legacy Impersonate.ascx modal.
+   Opened from the user hover-menu in NavMenu when the admin has AdPortalAllowImpersonate.
+   Admin types a search term, optionally picks a client, and clicks a row to begin impersonating.
+   The auth-cookie swap is handled by Default.aspx.cs ?DoImpersonate= handler.
+*@
+
+<MudDialog>
+    <DialogContent>
+        <div class="impersonate-search-toolbar">
+            <MudTextField T="string"
+                          @bind-Value="_searchText"
+                          Label="@Localization.GetText("EnterSearchTerm")"
+                          Variant="Variant.Outlined"
+                          Margin="Margin.Dense"
+                          Immediate="false"
+                          OnKeyUp="OnSearchKeyUp"
+                          Class="impersonate-search-field" />
+
+            @if (!Session.IsClientUser)
+            {
+                <MudSelect T="int?"
+                           @bind-Value="_selectedClientId"
+                           Label="@Localization.GetText("Client")"
+                           Variant="Variant.Outlined"
+                           Margin="Margin.Dense"
+                           Clearable="true"
+                           Class="impersonate-client-select">
+                    @foreach (var client in _clients)
+                    {
+                        <MudSelectItem T="int?" Value="@((int?)client.ClientId)">
+                            @(client.IsEnabled ? client.ClientName : $"[{client.ClientName}]")
+                        </MudSelectItem>
+                    }
+                </MudSelect>
+            }
+
+            <MudButton OnClick="SearchAsync"
+                       Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       Disabled="_loading"
+                       Class="impersonate-search-btn">
+                @Localization.GetText("Search")
+            </MudButton>
+        </div>
+
+        @if (_loading)
+        {
+            <div class="d-flex justify-center pa-6">
+                <MudProgressCircular Indeterminate="true" Color="Color.Primary" />
+            </div>
+        }
+        else if (_tooManyResults)
+        {
+            <MudAlert Severity="Severity.Warning" Class="mt-3">
+                @Localization.GetText("UserSearchResultedInXUsersNarrowDownSearchCriteriasWithArgs", "50+")
+            </MudAlert>
+        }
+        else if (_users is not null)
+        {
+            <MudDataGrid T="ImpersonateUserDto"
+                         Items="_users"
+                         Hover="true"
+                         Dense="true"
+                         ReadOnly="true"
+                         Filterable="false"
+                         SortMode="SortMode.Multiple"
+                         RowClick="OnUserRowClick"
+                         RowStyle="cursor: pointer;"
+                         Class="portal-data-grid mt-3">
+                <Columns>
+                    <PropertyColumn Property="x => x.FullName"
+                                    Title="@Localization.GetText("FullName")" />
+                    <PropertyColumn Property="x => x.Title"
+                                    Title="@Localization.GetText("Title")"
+                                    HeaderStyle="width:150px;" />
+                    <PropertyColumn Property="x => x.Email"
+                                    Title="@Localization.GetText("Email")"
+                                    HeaderStyle="width:200px;" />
+                    <PropertyColumn Property="x => x.ClientSection"
+                                    Title="@Localization.GetText("ClientSection")"
+                                    HeaderStyle="width:150px;" />
+                    <PropertyColumn Property="x => x.ClientName"
+                                    Title="@Localization.GetText("Client")"
+                                    HeaderStyle="width:160px;"
+                                    Hidden="@Session.IsClientUser" />
+                </Columns>
+                <NoRecordsContent>
+                    <MudText>@Localization.GetText("NoUsers")</MudText>
+                </NoRecordsContent>
+            </MudDataGrid>
+        }
+    </DialogContent>
+
+    <DialogActions>
+        <MudButton Variant="Variant.Text"
+                   OnClick="Cancel"
+                   Disabled="_loading">
+            @Localization.GetText("Cancel")
+        </MudButton>
+    </DialogActions>
+</MudDialog>
