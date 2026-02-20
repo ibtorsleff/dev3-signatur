@@ -1226,15 +1226,27 @@ public class ErActivityService : IErActivityService
 
         var ongoingStatusId = (int)ERActivityStatus.OnGoing;
 
-        // Matches legacy UserInActiveActivitiesCount — no IsCleaned filter.
-        // Cleaned activities are still shown in the grid (with gray italic styling),
-        // so excluding them here causes a false-positive "no activities" dialog.
-        return await context.Eractivities
-            .Where(a => a.EractivityStatusId == ongoingStatusId &&
-                        (a.Responsible == userId ||
-                         a.CreatedBy == userId ||
-                         a.Eractivitymembers.Any(m => m.UserId == userId)))
-            .CountAsync(ct);
+        // Mirror the same visibility logic as GetActivitiesAsync so the count reflects
+        // exactly what the grid shows. Users with ViewActivitiesUserNotMemberOf see ALL
+        // client activities — applying a membership filter here would return 0 for them.
+        var userPermissions = await _permissionService.GetUserPermissionsAsync(_sessionContext.UserName, ct);
+        bool hasRecruitmentAccess = userPermissions.Contains((int)PortalPermission.RecruitmentPortalRecruitmentAccess);
+        bool canViewActivitiesNotMemberOf = hasRecruitmentAccess
+            && (userPermissions.Contains((int)PortalPermission.RecruitmentPortalViewActivitiesUserNotMemberOf)
+                || userPermissions.Contains((int)PortalPermission.RecruitmentPortalEditActivitiesUserNotMemberOf));
+
+        var query = context.Eractivities
+            .Where(a => a.EractivityStatusId == ongoingStatusId);
+
+        if (!canViewActivitiesNotMemberOf)
+        {
+            query = query.Where(a =>
+                a.Responsible == userId ||
+                a.CreatedBy == userId ||
+                a.Eractivitymembers.Any(m => m.UserId == userId));
+        }
+
+        return await query.CountAsync(ct);
     }
 
 }
