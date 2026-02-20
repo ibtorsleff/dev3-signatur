@@ -1199,8 +1199,9 @@ public class ErActivityService : IErActivityService
         public string? ExtraData { get; set; }
     }
 
-    // Builds a comma-separated summary of changed field names for the web ad changes icon tooltip.
+    // Builds a newline-separated list of changed field names for the web ad changes icon tooltip.
     // Skips mail-only changes and deduplicates by field name.
+    // The component adds the localized header text; this returns only the raw field names.
     internal static string BuildWebAdChangeSummary(List<ActivityWebAdChangeRow> changes)
     {
         var sb = new System.Text.StringBuilder();
@@ -1209,7 +1210,7 @@ public class ErActivityService : IErActivityService
         {
             if (row.IsMail) continue;
             if (!seenFields.Add(row.FieldName)) continue;
-            if (sb.Length > 0) sb.Append(", ");
+            if (sb.Length > 0) sb.Append('\n');
             sb.Append(row.FieldName);
         }
         return sb.ToString();

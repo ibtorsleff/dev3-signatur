@@ -230,6 +230,48 @@
         </PropertyColumn>
         <PropertyColumn Property="x => x.Headline" Title="@Localization.GetText("Headline")">
             <CellTemplate>
+                @* Icon 1: Email warning — non-client users with EditActivitiesNotMemberOf permission *@
+                @if (!_hideEmailWarningIconColumn
+                     && context.Item.EractivityStatusId == (int)ERActivityStatus.OnGoing
+                     && context.Item.MembersMissingNotificationEmail > 0)
+                {
+                    <MudTooltip Text="@GetEmailWarningTooltip(context.Item)" Placement="Placement.Bottom">
+                        <img src="/Responsive/images/responsive/list/email-warning-gray_36x32.png"
+                             alt="Email warning"
+                             style="width:18px; height:16px; cursor:default; opacity:0.85; margin-right:4px; vertical-align:middle;"
+                             @onclick:stopPropagation="true" />
+                    </MudTooltip>
+                }
+                @* Icon 2: Web ad status — client users with ShowWebAdStatusInActivityList config *@
+                @if (!_hideWebAdStatusIconColumn
+                     && context.Item.EractivityStatusId == (int)ERActivityStatus.OnGoing)
+                {
+                    var webAdIconSrc = GetWebAdStatusIconSrc(context.Item);
+                    if (!string.IsNullOrEmpty(webAdIconSrc))
+                    {
+                        var tooltipKey = GetWebAdStatusTooltipKey(context.Item);
+                        <MudTooltip Text="@Localization.GetText(tooltipKey)" Placement="Placement.Bottom">
+                            <img src="@webAdIconSrc"
+                                 alt="Web ad status"
+                                 style="width:18px; height:18px; cursor:pointer; opacity:0.85; margin-right:4px; vertical-align:middle;"
+                                 @onclick="() => NavigateToActivityAdTab(context.Item.EractivityId)"
+                                 @onclick:stopPropagation="true" />
+                        </MudTooltip>
+                    }
+                }
+                @* Icon 3: Web ad changes — client users with WebAdSendMailOnAdChanges + PublishWebAd *@
+                @if (!_hideWebAdChangesIconColumn
+                     && context.Item.HasWebAdChanges
+                     && !string.IsNullOrEmpty(context.Item.WebAdChangeSummary))
+                {
+                    <MudTooltip Text="@GetWebAdChangesTooltip(context.Item)" Placement="Placement.Bottom">
+                        <img src="/Responsive/images/responsive/list/insertion-is-new_28x36.png"
+                             alt="Web ad changes"
+                             style="width:14px; height:18px; cursor:default; opacity:0.85; margin-right:4px; vertical-align:middle;"
+                             @onclick:stopPropagation="true" />
+                    </MudTooltip>
+                }
+                @* Headline text *@
                 @if (_showCandidateCount && context.Item.CandidateCount > 0)
                 {
                     @($"{context.Item.Headline} ({context.Item.CandidateCount})")
@@ -265,57 +307,12 @@
         <TemplateColumn T="ActivityListDto" Hidden="@_hideActionsColumn" Sortable="false" Filterable="false"
                         HeaderStyle="@($"width:{_actionsColumnWidth}; padding:0;")" CellStyle="padding:2px 4px; text-align:center;">
             <CellTemplate>
-                @* Existing copy icon *@
                 <img src="/Responsive/images/responsive/list/copy-gray_32x32.png"
                      alt="Copy"
                      style="width:20px; height:20px; cursor:pointer; opacity:0.7;"
                      title="@Localization.GetText("CopyActivity")"
                      @onclick="() => CopyActivity(context.Item.EractivityId)"
                      @onclick:stopPropagation="true" />
-
-                @* Icon 1: Email warning (non-client users, EditActivitiesNotMemberOf permission) *@
-                @if (!_hideEmailWarningIconColumn
-                     && context.Item.EractivityStatusId == (int)ERActivityStatus.OnGoing
-                     && context.Item.MembersMissingNotificationEmail > 0)
-                {
-                    <MudTooltip Text="@GetEmailWarningTooltip(context.Item)" Placement="Placement.Left">
-                        <img src="/Responsive/images/responsive/list/email-warning-gray_36x32.png"
-                             alt="Email warning"
-                             style="width:18px; height:16px; cursor:default; opacity:0.85; margin-left:4px;"
-                             @onclick:stopPropagation="true" />
-                    </MudTooltip>
-                }
-
-                @* Icon 2: Web ad status (client users, ShowWebAdStatusInActivityList) *@
-                @if (!_hideWebAdStatusIconColumn
-                     && context.Item.EractivityStatusId == (int)ERActivityStatus.OnGoing)
-                {
-                    var webAdIconSrc = GetWebAdStatusIconSrc(context.Item);
-                    if (!string.IsNullOrEmpty(webAdIconSrc))
-                    {
-                        var tooltipKey = GetWebAdStatusTooltipKey(context.Item);
-                        <MudTooltip Text="@Localization.GetText(tooltipKey)" Placement="Placement.Left">
-                            <img src="@webAdIconSrc"
-                                 alt="Web ad status"
-                                 style="width:18px; height:18px; cursor:pointer; opacity:0.85; margin-left:4px;"
-                                 @onclick="() => NavigateToActivityAdTab(context.Item.EractivityId)"
-                                 @onclick:stopPropagation="true" />
-                        </MudTooltip>
-                    }
-                }
-
-                @* Icon 3: Web ad changes (client users, WebAdSendMailOnAdChanges + PublishWebAd) *@
-                @if (!_hideWebAdChangesIconColumn
-                     && context.Item.HasWebAdChanges
-                     && !string.IsNullOrEmpty(context.Item.WebAdChangeSummary))
-                {
-                    <MudTooltip Text="@context.Item.WebAdChangeSummary" Placement="Placement.Left">
-                        <img src="/Responsive/images/responsive/list/insertion-is-new_28x36.png"
-                             alt="Web ad changes"
-                             style="width:14px; height:18px; cursor:default; opacity:0.85; margin-left:4px;"
-                             @onclick:stopPropagation="true" />
-                    </MudTooltip>
-                }
             </CellTemplate>
         </TemplateColumn>
     </Columns>

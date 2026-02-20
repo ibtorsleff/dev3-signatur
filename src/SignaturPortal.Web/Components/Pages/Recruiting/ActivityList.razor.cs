@@ -809,11 +809,7 @@ public partial class ActivityList
     private const int WebAdStatusDraft = 1;
     private const int JobnetStatusDraft = 1;
 
-    private string _actionsColumnWidth =>
-        (!_hideActionsColumn ? 36 : 0) +
-        (!_hideEmailWarningIconColumn ? 26 : 0) +
-        (!_hideWebAdStatusIconColumn ? 26 : 0) +
-        (!_hideWebAdChangesIconColumn ? 24 : 0) + "px";
+    private string _actionsColumnWidth => "36px";
 
     /// <summary>
     /// Navigates to the activity's Ad tab in the legacy app via YARP.
@@ -871,10 +867,37 @@ public partial class ActivityList
         return string.Empty;
     }
 
+    // Matches legacy: singular/plural keys × job/fund application type.
+    // Legacy: applicationType == JobApplication ? singular/plural job keys : singular/plural fund keys.
     private string GetEmailWarningTooltip(ActivityListDto item)
     {
-        return string.Format(Localization.GetText("NotificationMailNotSendToXMembersWithArgs"),
-            item.MembersMissingNotificationEmail);
+        var count = item.MembersMissingNotificationEmail;
+        string key;
+        if (_clientIsFund)
+            key = count == 1 ? "NotificationMailNotSendToXMemberWithArgsFund" : "NotificationMailNotSendToXMembersWithArgsFund";
+        else
+            key = count == 1 ? "NotificationMailNotSendToXMemberWithArgs" : "NotificationMailNotSendToXMembersWithArgs";
+        return string.Format(Localization.GetText(key), count);
+    }
+
+    // Builds a structured multi-line tooltip matching legacy WebAdChangesTooltipGet:
+    //   Line 1: "Web-annoncen er ændret" (WebAdHasBeenChanged)
+    //   Line 2: "Følgende felter er ændret:" (FollowingFieldHaveBeenChanged)
+    //   Lines 3+: "- fieldname" for each changed field
+    // Mail change links from legacy (interactive JS onclick) are omitted.
+    private string GetWebAdChangesTooltip(ActivityListDto item)
+    {
+        if (string.IsNullOrEmpty(item.WebAdChangeSummary)) return string.Empty;
+
+        var sb = new System.Text.StringBuilder();
+        sb.AppendLine(Localization.GetText("WebAdHasBeenChanged"));
+        sb.AppendLine(Localization.GetText("FollowingFieldHaveBeenChanged") + ":");
+        foreach (var field in item.WebAdChangeSummary.Split('\n'))
+        {
+            if (!string.IsNullOrEmpty(field))
+                sb.AppendLine($"- {field}");
+        }
+        return sb.ToString().TrimEnd();
     }
 
     /// <summary>
