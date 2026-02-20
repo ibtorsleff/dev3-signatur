@@ -19,14 +19,17 @@ public class UserSessionContext : IUserSessionContext
     public int UserLanguageId { get; private set; }
     public bool IsInitialized { get; private set; }
     public bool IsClientUser => ClientId.HasValue && ClientId.Value > 0;
+    public bool IsImpersonating { get; private set; }
+    public string? ImpersonatedByFullName { get; private set; }
 
     /// <summary>
     /// Initialize from the DB-backed user record for the given UserName.
     /// Called by UserSessionMiddleware during SSR HTTP requests (after UseAuthentication).
     /// Receives UserName from HttpContext.User.Identity.Name — avoids AuthenticationStateProvider
     /// which is only valid inside the Blazor circuit, not in the HTTP middleware pipeline.
+    /// If impersonatedByUserId is provided, looks up the impersonating admin's FullName from DB.
     /// </summary>
-    public async Task InitializeAsync(string? userName)
+    public async Task InitializeAsync(string? userName, Guid? impersonatedByUserId = null)
     {
         if (IsInitialized)
             return;
@@ -41,6 +44,14 @@ public class UserSessionContext : IUserSessionContext
         UserName = user.UserName ?? string.Empty;
         FullName = user.FullName;
         UserLanguageId = user.UserLanguageId;
+
+        if (impersonatedByUserId.HasValue)
+        {
+            var originalUser = await _currentUserService.GetUserByIdAsync(impersonatedByUserId.Value);
+            ImpersonatedByFullName = originalUser?.FullName;
+            IsImpersonating = true;
+        }
+
         IsInitialized = true;
     }
 
@@ -49,7 +60,8 @@ public class UserSessionContext : IUserSessionContext
     /// HTTP context is no longer available).
     /// Called by SessionPersistence component via PersistentComponentState.
     /// </summary>
-    public void Restore(Guid? userId, int? siteId, int? clientId, string userName, string? fullName, int userLanguageId)
+    public void Restore(Guid? userId, int? siteId, int? clientId, string userName, string? fullName, int userLanguageId,
+        bool isImpersonating, string? impersonatedByFullName)
     {
         if (IsInitialized)
             return;
@@ -60,6 +72,8 @@ public class UserSessionContext : IUserSessionContext
         UserName = userName;
         FullName = fullName;
         UserLanguageId = userLanguageId;
+        IsImpersonating = isImpersonating;
+        ImpersonatedByFullName = impersonatedByFullName;
         IsInitialized = true;
     }
 }

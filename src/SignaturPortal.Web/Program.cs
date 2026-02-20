@@ -65,10 +65,15 @@ builder.Services.AddSystemWebAdapters()
         //options.RegisterKey<int>("UserLanguageId");
 
         // Legacy session keys still needed from the shared session:
+
         // SSO login disclaimer flag — set to true after user accepts disclaimer
         // Access in OnInitialized (SSR only — not available during SignalR interactions):
         //   var disclaimerChecked = (bool)(System.Web.HttpContext.Current.Session["SsoLoginDisclaimerChecked"] ?? false);
         options.RegisterKey<bool>("SsoLoginDisclaimerChecked");
+
+        // Impersonation: holds the original admin's UserId (Guid) when impersonating another user.
+        // Read during SSR in UserSessionMiddleware → IUserSessionContext.IsImpersonating / ImpersonatedByFullName.
+        options.RegisterKey<Guid>("ImpersonatedBy");
     })
     .AddRemoteAppClient(options =>
     {

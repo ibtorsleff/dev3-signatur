@@ -216,6 +216,29 @@
     background-image: linear-gradient(to bottom, #054541 0%, #178a7a 100%);
 }
 
+/* Impersonation chip inside the user-menu activator */
+.user-menu-activator ::deep .impersonate-chip {
+    font-size: 12px;
+    height: 24px;
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+/* Shrink the impersonate toggle to fit the 44px row */
+.user-menu-activator ::deep .impersonate-toggle {
+    margin: 0;
+}
+
+.user-menu-activator ::deep .impersonate-toggle .mud-switch-track {
+    height: 14px;
+    width: 28px;
+}
+
+.user-menu-activator ::deep .impersonate-toggle .mud-switch-thumb {
+    width: 20px;
+    height: 20px;
+}
+
 /* User menu container in row 2 */
 .user-menu {
     height: 44px;

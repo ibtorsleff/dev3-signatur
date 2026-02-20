@@ -85,6 +85,17 @@ public partial class NavMenu : IDisposable
         Navigation.NavigateTo("/User/Impersonate.aspx", forceLoad: true);
     }
 
+    private void OnImpersonateToggled(bool newValue)
+    {
+        if (!newValue)
+        {
+            var returnPath = "/" + Navigation.ToBaseRelativePath(Navigation.Uri);
+            Navigation.NavigateTo(
+                $"/Default.aspx?StopImpersonate=1&ReturnUrl={Uri.EscapeDataString(returnPath)}",
+                forceLoad: true);
+        }
+    }
+
     private void NavigateToLogout()
     {
         Navigation.NavigateTo("/auth/logout", forceLoad: true);

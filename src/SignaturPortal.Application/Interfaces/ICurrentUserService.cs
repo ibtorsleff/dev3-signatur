@@ -24,4 +24,11 @@ public interface ICurrentUserService
     /// Not cached — always queries the DB.
     /// </summary>
     Task<CurrentUserDto?> GetUserByNameAsync(string userName, CancellationToken ct = default);
+
+    /// <summary>
+    /// Loads a user record by UserId — used to resolve the impersonating admin's details
+    /// from Session["ImpersonatedBy"] during SSR initialization.
+    /// Not cached — always queries the DB.
+    /// </summary>
+    Task<CurrentUserDto?> GetUserByIdAsync(Guid userId, CancellationToken ct = default);
 }

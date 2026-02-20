@@ -23,7 +23,8 @@
             data is not null)
         {
             ((UserSessionContext)Session).Restore(
-                data.UserId, data.SiteId, data.ClientId, data.UserName, data.FullName, data.UserLanguageId);
+                data.UserId, data.SiteId, data.ClientId, data.UserName, data.FullName, data.UserLanguageId,
+                data.IsImpersonating, data.ImpersonatedByFullName);
         }
     }
 
@@ -39,6 +40,8 @@
                 UserName = Session.UserName,
                 FullName = Session.FullName,
                 UserLanguageId = Session.UserLanguageId,
+                IsImpersonating = Session.IsImpersonating,
+                ImpersonatedByFullName = Session.ImpersonatedByFullName,
             });
         }
         return Task.CompletedTask;
@@ -57,5 +60,7 @@
         public string UserName { get; set; } = string.Empty;
         public string? FullName { get; set; }
         public int UserLanguageId { get; set; }
+        public bool IsImpersonating { get; set; }
+        public string? ImpersonatedByFullName { get; set; }
     }
 }

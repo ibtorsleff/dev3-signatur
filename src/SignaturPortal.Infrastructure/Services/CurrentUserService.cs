@@ -47,6 +47,30 @@ public class CurrentUserService : ICurrentUserService
         return await LoadUserAsync(userName, ct);
     }
 
+    public async Task<CurrentUserDto?> GetUserByIdAsync(Guid userId, CancellationToken ct = default)
+    {
+        await using var db = await _contextFactory.CreateDbContextAsync(ct);
+
+        var user = await db.Users
+            .Where(u => u.UserId == userId)
+            .FirstOrDefaultAsync(ct);
+
+        if (user is null)
+            return null;
+
+        var userLanguageId = await GetUserLanguageIdAsync(db, user.UserName!, user.SiteId, ct);
+        return new CurrentUserDto(
+            UserId: user.UserId,
+            FullName: user.FullName,
+            UserName: user.UserName,
+            Email: user.Email,
+            IsInternal: user.IsInternal,
+            Enabled: user.Enabled ?? false,
+            SiteId: user.SiteId,
+            ClientId: user.ClientId,
+            UserLanguageId: userLanguageId);
+    }
+
     private async Task<CurrentUserDto?> LoadUserAsync(string? userName, CancellationToken ct)
     {
         if (string.IsNullOrEmpty(userName))
