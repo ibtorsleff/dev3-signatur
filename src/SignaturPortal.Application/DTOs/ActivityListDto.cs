@@ -31,6 +31,10 @@ public record ActivityListDto
     // When AreaType==ClientSection: top-level parent section name via CTE hierarchy traversal.
     public string DraftAreaName { get; init; } = "";
 
+    // Active candidate count: IsDeleted=false AND status NOT Hired(3)/Rejected(4).
+    // Used as the tooltip denominator on the ID cell, matching legacy CandidateTotalCount.
+    public int ActiveCandidateCount { get; init; }
+
     // Row styling fields — used to compute color class and cleaned-row style.
     // Populated in GetActivitiesAsync; zero/false when not applicable (Draft/Closed mode, user not a member).
     public bool IsUserMember { get; init; }

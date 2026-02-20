@@ -213,7 +213,21 @@
         </MudTooltip>
     </ToolBarContent>
     <Columns>
-        <PropertyColumn Property="x => x.EractivityId" Title="@Localization.GetText("Id")" HeaderStyle="width:80px;" CellStyle="text-align:right;" />
+        <PropertyColumn Property="x => x.EractivityId" Title="@Localization.GetText("Id")" HeaderStyle="width:80px;" CellStyle="text-align:right;">
+            <CellTemplate>
+                @{ var idTooltip = GetIdCellTooltip(context.Item); }
+                @if (!string.IsNullOrEmpty(idTooltip))
+                {
+                    <MudTooltip Text="@idTooltip" Placement="Placement.Right">
+                        <span>@context.Item.EractivityId</span>
+                    </MudTooltip>
+                }
+                else
+                {
+                    @context.Item.EractivityId
+                }
+            </CellTemplate>
+        </PropertyColumn>
         <PropertyColumn Property="x => x.Headline" Title="@Localization.GetText("Headline")">
             <CellTemplate>
                 @if (_showCandidateCount && context.Item.CandidateCount > 0)

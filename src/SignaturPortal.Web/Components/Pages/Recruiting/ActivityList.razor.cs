@@ -803,6 +803,36 @@ public partial class ActivityList
             : colorClass.Length > 0 ? colorClass : cleanedClass;
     }
 
+    /// <summary>
+    /// Builds the tooltip text for the ID cell, matching legacy ActivityList.ascx.cs tooltip logic.
+    /// Only shown for OnGoing activities where the current user is a member.
+    ///
+    /// Evaluation mode (CandidateEvaluationEnabled):
+    ///   "YouNeedEvaluateXOfYCandidatesWithArgs" + optional deadline suffix
+    /// Read mode:
+    ///   "YouHaveXOfYUnreadCandidatesWithArgs" + optional deadline suffix
+    /// Deadline suffix (omitted when ContinuousPosting):
+    ///   Exceeded  → ". ApplicationDeadlineExceeded."
+    ///   Not yet   → ". ApplicationDeadlineNotExceeded."
+    /// </summary>
+    private string GetIdCellTooltip(ActivityListDto item)
+    {
+        if (item.EractivityStatusId != (int)ERActivityStatus.OnGoing) return string.Empty;
+        if (!item.IsUserMember) return string.Empty;
+
+        var extraTooltip = string.Empty;
+        if (!item.ContinuousPosting)
+        {
+            extraTooltip = item.ApplicationDeadline < DateTime.Today
+                ? $". {Localization.GetText("ApplicationDeadlineExceeded")}."
+                : $". {Localization.GetText("ApplicationDeadlineNotExceeded")}.";
+        }
+
+        return item.CandidateEvaluationEnabled
+            ? Localization.GetText("YouNeedEvaluateXOfYCandidatesWithArgs", item.CandidateMissingEvaluationCount, item.ActiveCandidateCount) + extraTooltip
+            : Localization.GetText("YouHaveXOfYUnreadCandidatesWithArgs", item.CandidateNotReadCount, item.ActiveCandidateCount) + extraTooltip;
+    }
+
     private static string GetActivityRowColorClass(ActivityListDto item)
     {
         if (item.EractivityStatusId != (int)ERActivityStatus.OnGoing) return string.Empty;

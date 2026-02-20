@@ -210,6 +210,8 @@ public class ErActivityService : IErActivityService
                 EractivityStatusId = a.EractivityStatusId,
                 CreateDate = a.CreateDate,
                 CandidateCount = a.Ercandidates.Count(c => !c.IsDeleted),
+                // Active candidates: not deleted AND not Hired(3)/Rejected(4) — matches legacy CandidateTotalCount
+                ActiveCandidateCount = a.Ercandidates.Count(c => !c.IsDeleted && c.ErcandidateStatusId != 3 && c.ErcandidateStatusId != 4),
                 // Web ad visitor count via correlated subquery (LEFT JOIN on WebAdId)
                 WebAdVisitors = a.WebAdId.HasValue
                     ? context.WebAdVisitors.Where(w => w.WebAdId == a.WebAdId.Value).Select(w => w.Visitors).FirstOrDefault()
