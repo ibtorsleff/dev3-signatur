@@ -176,6 +176,35 @@ public class ClientService : IClientService
         };
     }
 
+    public async Task<bool> GetRecruitmentShowWebAdStatusInActivityListAsync(int clientId, CancellationToken ct = default)
+    {
+        await using var context = await _contextFactory.CreateDbContextAsync(ct);
+        var result = await context.Database
+            .SqlQueryRaw<bool>(
+                @"SELECT CAST(SC.ERecruitmentShowWebAdStatusInActivityList AS BIT)
+                  FROM Sig_Client SC
+                  WHERE SC.ClientId = {0}
+                    AND SC.ERecruitmentEnabled = 1",
+                clientId)
+            .ToListAsync(ct);
+        return result.FirstOrDefault();
+    }
+
+    public async Task<bool> GetWebAdSendMailOnAdChangesAsync(int clientId, CancellationToken ct = default)
+    {
+        await using var context = await _contextFactory.CreateDbContextAsync(ct);
+        var result = await context.Database
+            .SqlQueryRaw<bool>(
+                @"SELECT CAST(1 AS BIT)
+                  FROM Sig_Client SCLI
+                  WHERE SCLI.ClientId = {0}
+                    AND SCLI.WebAdEnabled = 1
+                    AND SCLI.CustomData.value('(/ClientCustomData/AdPortal/@WebAdSendMailOnAdChanges)[1]','NVARCHAR(5)') = 'true'",
+                clientId)
+            .ToListAsync(ct);
+        return result.FirstOrDefault();
+    }
+
     private class DraftSettingsRow
     {
         public int UserResponsabilityAreaTypeId { get; set; }

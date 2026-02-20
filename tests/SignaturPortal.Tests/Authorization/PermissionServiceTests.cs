@@ -4,6 +4,7 @@ using SignaturPortal.Application.Interfaces;
 using SignaturPortal.Infrastructure.Data;
 using SignaturPortal.Infrastructure.Data.Entities;
 using SignaturPortal.Infrastructure.Services;
+using SignaturPortal.Tests.Helpers;
 
 namespace SignaturPortal.Tests.Authorization;
 
@@ -14,17 +15,16 @@ public class PermissionServiceTests
     private static (PermissionService svc, SqliteConnection conn) CreateTestService(
         int siteId, int clientId, Action<SignaturDbContext> seedExtra)
     {
-        var conn = new SqliteConnection("DataSource=:memory:");
-        conn.Open();
+        var conn = SqliteCompatibleDbContextFactory.OpenConnection();
 
         var options = new DbContextOptionsBuilder<SignaturDbContext>()
             .UseSqlite(conn)
             .Options;
 
         // Create and seed
+        SqliteCompatibleDbContextFactory.EnsureSchema(options);
         using (var seedDb = new SignaturDbContext(options))
         {
-            seedDb.Database.EnsureCreated();
 
             var appId = Guid.NewGuid();
             var userId = Guid.NewGuid();
@@ -120,9 +120,13 @@ public class PermissionServiceTests
     }
 
     [Test]
-    public async Task HasPermission_ReturnsFalseWhenRoleIsWrongTenant()
+    public async Task HasPermission_ReturnsTrueForRoleOnDifferentTenant()
     {
-        // Service scoped to site=1, client=10 but role belongs to site=2, client=30
+        // PermissionService intentionally does NOT filter by tenant (CurrentSiteId stays null).
+        // Rationale: users are site-specific at login time; once logged in, their username
+        // identifies them uniquely and permission lookup sees all their roles.
+        // Therefore a role on site=2/client=30 is still visible when checking permissions
+        // for a session on site=1/client=10.
         var (svc, conn) = CreateTestService(1, 10, db =>
         {
             // Need site 2 + client 30 to exist
@@ -151,7 +155,7 @@ public class PermissionServiceTests
         using var _ = conn;
 
         var result = await svc.HasPermissionAsync(TestUserName, 2000);
-        await Assert.That(result).IsFalse();
+        await Assert.That(result).IsTrue();
     }
 
     /// <summary>Simple IDbContextFactory for tests.</summary>

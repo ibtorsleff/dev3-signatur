@@ -43,6 +43,9 @@ public class ErActivityService : IErActivityService
         int? clientIdFilter = null,
         ActivityListFilterDto? moreFilters = null,
         int draftAreaTypeId = 0,
+        bool includeEmailWarning = false,
+        bool includeWebAdStatus = false,
+        bool includeWebAdChanges = false,
         CancellationToken ct = default)
     {
         await using var context = await _contextFactory.CreateDbContextAsync(ct);
@@ -233,6 +236,7 @@ public class ErActivityService : IErActivityService
                 DraftAreaName = "",
                 // Row-coloring fields — IsUserMember resolved here; candidate counts populated post-query via raw SQL
                 IsCleaned = a.IsCleaned,
+                WebAdId = a.WebAdId,
                 CandidateEvaluationEnabled = a.CandidateEvaluationEnabled,
                 IsUserMember = currentUserGuid.HasValue && a.Eractivitymembers.Any(m => m.UserId == currentUserGuid.Value),
                 CandidateMissingEvaluationCount = 0,
@@ -348,6 +352,113 @@ public class ErActivityService : IErActivityService
                     CandidateMissingEvaluationCount = missingEvalMap.TryGetValue(item.EractivityId, out var missing) ? missing : 0
                 })
                 .ToList();
+
+#pragma warning disable EF1002 // idCsv = integers from our own query; userIdStr = Guid (hex+hyphens only) — not user input
+            if (includeEmailWarning)
+            {
+                var emailWarningRows = await context.Database
+                    .SqlQueryRaw<ActivityEmailWarningRow>($"""
+                        SELECT era.ERActivityId,
+                               COUNT(eram.ERActivityMemberId) AS MembersMissingNotificationEmail
+                        FROM ERActivity era
+                        LEFT JOIN ERActivityMember eram
+                            ON eram.ERActivityId = era.ERActivityId
+                            AND eram.NotificationMailSendToUser = 0
+                            AND eram.UserId <> era.CreatedBy
+                        WHERE era.ERActivityId IN ({idCsv})
+                        GROUP BY era.ERActivityId
+                        """)
+                    .ToListAsync(ct);
+
+                var emailWarningMap = emailWarningRows
+                    .ToDictionary(r => r.ERActivityId, r => r.MembersMissingNotificationEmail);
+
+                items = items
+                    .Select(item => item with
+                    {
+                        MembersMissingNotificationEmail = emailWarningMap
+                            .TryGetValue(item.EractivityId, out var count) ? count : 0
+                    })
+                    .ToList();
+            }
+
+            if (includeWebAdStatus)
+            {
+                var webAdRows = await context.Database
+                    .SqlQueryRaw<ActivityWebAdStatusRow>($"""
+                        SELECT
+                            era.ERActivityId,
+                            CAST(CASE WHEN era.ActivityId IS NOT NULL AND era.ActivityId > 0 AND
+                                (SELECT COUNT(*) FROM Insertion ins
+                                 INNER JOIN Media med ON ins.MediaId = med.MediaId
+                                 WHERE ins.ActivityId = era.ActivityId
+                                   AND med.MediaSpecialFunctionId IN (1, 3, 4, 5, 6)) > 0
+                            THEN 1 ELSE 0 END AS BIT) AS HasWebAdMedia,
+                            CAST(CASE WHEN era.ActivityId IS NOT NULL AND era.ActivityId > 0 AND
+                                (SELECT COUNT(*) FROM Insertion ins
+                                 INNER JOIN Media med ON ins.MediaId = med.MediaId
+                                 WHERE ins.ActivityId = era.ActivityId
+                                   AND med.MediaSpecialFunctionId IN (2, 3, 6)) > 0
+                            THEN 1 ELSE 0 END AS BIT) AS HasJobnetMedia,
+                            wa.WebAdStatusId,
+                            jwa.WebAdId AS JobnetWebAdId,
+                            jwa.JobnetStatusId
+                        FROM ERActivity era
+                        LEFT JOIN WebAd wa ON wa.WebAdId = era.WebAdId
+                        LEFT JOIN JobnetWebAd jwa ON jwa.WebAdId = era.WebAdId
+                        WHERE era.ERActivityId IN ({idCsv})
+                        """)
+                    .ToListAsync(ct);
+
+                var webAdMap = webAdRows.ToDictionary(r => r.ERActivityId);
+
+                items = items
+                    .Select(item =>
+                    {
+                        if (!webAdMap.TryGetValue(item.EractivityId, out var wa)) return item;
+                        return item with
+                        {
+                            HasWebAdMedia = wa.HasWebAdMedia,
+                            HasJobnetMedia = wa.HasJobnetMedia,
+                            WebAdStatusId = wa.WebAdStatusId,
+                            JobnetWebAdId = wa.JobnetWebAdId,
+                            JobnetStatusId = wa.JobnetStatusId,
+                        };
+                    })
+                    .ToList();
+            }
+
+            if (includeWebAdChanges && currentUserGuid.HasValue)
+            {
+                var changesRows = await context.Database
+                    .SqlQueryRaw<ActivityWebAdChangeRow>($"""
+                        SELECT era.ERActivityId, wafc.FieldName, wafc.IsMail, wafc.ExtraData
+                        FROM ERActivity era
+                        INNER JOIN WebAd wa ON wa.WebAdId = era.WebAdId
+                        INNER JOIN WebAdFieldChange wafc ON wafc.WebAdId = wa.WebAdId
+                        WHERE era.ERActivityId IN ({idCsv})
+                          AND wafc.UserId <> '{userIdStr}'
+                        ORDER BY era.ERActivityId, wafc.[SortOrder], wafc.TimeStamp
+                        """)
+                    .ToListAsync(ct);
+
+                var changesMap = changesRows
+                    .GroupBy(r => r.ERActivityId)
+                    .ToDictionary(g => g.Key, g => BuildWebAdChangeSummary(g.ToList()));
+
+                items = items
+                    .Select(item =>
+                    {
+                        if (!changesMap.TryGetValue(item.EractivityId, out var summary)) return item;
+                        return item with
+                        {
+                            HasWebAdChanges = true,
+                            WebAdChangeSummary = summary,
+                        };
+                    })
+                    .ToList();
+            }
+#pragma warning restore EF1002
         }
 
         return new GridResponse<ActivityListDto>
@@ -1059,6 +1170,49 @@ public class ErActivityService : IErActivityService
     {
         public int ERActivityId { get; set; }
         public int CandidateCount { get; set; }
+    }
+
+    // Result type for Icon 1 — email warning count per activity.
+    private class ActivityEmailWarningRow
+    {
+        public int ERActivityId { get; set; }
+        public int MembersMissingNotificationEmail { get; set; }
+    }
+
+    // Result type for Icon 2 — web ad status per activity.
+    private class ActivityWebAdStatusRow
+    {
+        public int ERActivityId { get; set; }
+        public bool HasWebAdMedia { get; set; }
+        public bool HasJobnetMedia { get; set; }
+        public int? WebAdStatusId { get; set; }
+        public int? JobnetWebAdId { get; set; }
+        public int? JobnetStatusId { get; set; }
+    }
+
+    // Result type for Icon 3 — web ad field changes per activity.
+    internal class ActivityWebAdChangeRow
+    {
+        public int ERActivityId { get; set; }
+        public string FieldName { get; set; } = "";
+        public bool IsMail { get; set; }
+        public string? ExtraData { get; set; }
+    }
+
+    // Builds a comma-separated summary of changed field names for the web ad changes icon tooltip.
+    // Skips mail-only changes and deduplicates by field name.
+    internal static string BuildWebAdChangeSummary(List<ActivityWebAdChangeRow> changes)
+    {
+        var sb = new System.Text.StringBuilder();
+        var seenFields = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var row in changes)
+        {
+            if (row.IsMail) continue;
+            if (!seenFields.Add(row.FieldName)) continue;
+            if (sb.Length > 0) sb.Append(", ");
+            sb.Append(row.FieldName);
+        }
+        return sb.ToString();
     }
 
     /// Mirrors legacy HelperERecruiting.UserInActiveActivitiesCount().

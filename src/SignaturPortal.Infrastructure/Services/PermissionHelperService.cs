@@ -85,4 +85,11 @@ public class PermissionHelperService : IPermissionHelper
 
     public async Task<bool> UserCanExportActivityMembersAsync(CancellationToken ct = default)
         => await HasPermissionAsync(PortalPermission.RecruitmentPortalAllowExportActivityMembersInActivityList, ct);
+
+    public async Task<bool> UserCanEditActivitiesNotMemberOfAsync(CancellationToken ct = default)
+        => await HasPermissionAsync(PortalPermission.RecruitmentPortalRecruitmentAccess, ct)
+           && await HasPermissionAsync(PortalPermission.RecruitmentPortalEditActivitiesUserNotMemberOf, ct);
+
+    public async Task<bool> UserCanPublishWebAdAsync(CancellationToken ct = default)
+        => await HasPermissionAsync(PortalPermission.AdPortalPublishWebAd, ct);
 }

@@ -16,15 +16,14 @@ public class TestDbContextFactory : IDisposable
 
     public TestDbContextFactory()
     {
-        _connection = new SqliteConnection("DataSource=:memory:");
-        _connection.Open();
+        _connection = SqliteCompatibleDbContextFactory.OpenConnection();
 
         _options = new DbContextOptionsBuilder<SignaturDbContext>()
             .UseSqlite(_connection)
             .Options;
 
+        SqliteCompatibleDbContextFactory.EnsureSchema(_options);
         using var db = CreateContext();
-        db.Database.EnsureCreated();
         SeedData(db);
     }
 

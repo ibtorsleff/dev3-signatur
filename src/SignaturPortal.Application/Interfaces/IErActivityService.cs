@@ -20,6 +20,9 @@ public interface IErActivityService
         int? clientIdFilter = null,
         ActivityListFilterDto? moreFilters = null,
         int draftAreaTypeId = 0,
+        bool includeEmailWarning = false,
+        bool includeWebAdStatus = false,
+        bool includeWebAdChanges = false,
         CancellationToken ct = default);
 
     /// <summary>

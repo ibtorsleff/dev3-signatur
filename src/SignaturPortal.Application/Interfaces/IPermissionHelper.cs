@@ -22,4 +22,6 @@ public interface IPermissionHelper
     Task<bool> UserCanCreateActivityAsync(CancellationToken ct = default);
     Task<bool> UserCanCreateDraftActivityAsync(CancellationToken ct = default);
     Task<bool> UserCanExportActivityMembersAsync(CancellationToken ct = default);
+    Task<bool> UserCanEditActivitiesNotMemberOfAsync(CancellationToken ct = default);
+    Task<bool> UserCanPublishWebAdAsync(CancellationToken ct = default);
 }

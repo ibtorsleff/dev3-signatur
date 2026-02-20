@@ -42,4 +42,19 @@ public record ActivityListDto
     public int CandidateMissingEvaluationCount { get; init; }
     public int CandidateNotReadCount { get; init; }
     public bool IsCleaned { get; init; }
+
+    // Icon 1: email warning (non-client users, EditActivitiesNotMemberOf permission, OnGoing only)
+    public int MembersMissingNotificationEmail { get; init; }
+
+    // Icon 2: web ad status (client users, client ShowWebAdStatus config, OnGoing only)
+    public bool HasWebAdMedia { get; init; }
+    public bool HasJobnetMedia { get; init; }
+    public int? WebAdId { get; init; }
+    public int? JobnetWebAdId { get; init; }
+    public int? WebAdStatusId { get; init; }
+    public int? JobnetStatusId { get; init; }
+
+    // Icon 3: web ad changes (client users, WebAdSendMailOnAdChanges config + PublishWebAd permission)
+    public bool HasWebAdChanges { get; init; }
+    public string? WebAdChangeSummary { get; init; }
 }

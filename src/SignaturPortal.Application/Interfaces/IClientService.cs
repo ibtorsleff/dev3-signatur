@@ -70,4 +70,18 @@ public interface IClientService
     /// Matches legacy ClientHlp.ClientRecruitmentDraftSettings + ClientSectionHierachyEnabled.
     /// </summary>
     Task<RecruitmentDraftSettingsDto> GetRecruitmentDraftSettingsAsync(int clientId, CancellationToken ct = default);
+
+    /// <summary>
+    /// Returns true if the client has ERecruitment enabled and ShowWebAdStatusInActivityList enabled.
+    /// Maps to Sig_Client.ERecruitmentEnabled and Sig_Client.ERecruitmentShowWebAdStatusInActivityList columns.
+    /// Matches legacy ClientHlp.ClientRecruitmentShowWebAdStatusInActivityList.
+    /// </summary>
+    Task<bool> GetRecruitmentShowWebAdStatusInActivityListAsync(int clientId, CancellationToken ct = default);
+
+    /// <summary>
+    /// Returns true if the client has WebAd enabled and WebAdSendMailOnAdChanges enabled.
+    /// Reads from Sig_Client.CustomData XPath: /ClientCustomData/AdPortal/@WebAdSendMailOnAdChanges.
+    /// Matches legacy ClientHlp.ClientWebAdSendMailOnAdChanges.
+    /// </summary>
+    Task<bool> GetWebAdSendMailOnAdChangesAsync(int clientId, CancellationToken ct = default);
 }

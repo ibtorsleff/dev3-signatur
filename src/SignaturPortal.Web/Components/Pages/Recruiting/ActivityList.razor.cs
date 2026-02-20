@@ -45,6 +45,12 @@ public partial class ActivityList
     private bool _userHasExportPermission;
     private bool _clientExportConfigEnabled;
 
+    // Icon permission/config state
+    private bool _canEditActivitiesNotMemberOf;
+    private bool _canPublishWebAd;
+    private bool _showWebAdStatus;       // IsClientUser AND client has ShowWebAdStatusInActivityList
+    private bool _includeWebAdChanges;   // IsClientUser AND WebAdSendMailOnAdChanges AND _canPublishWebAd
+
     private bool _canExportActivityMembers =>
         _currentStatus == ERActivityStatus.OnGoing &&
         _userHasExportPermission &&
@@ -137,6 +143,10 @@ public partial class ActivityList
 
     // Actions (copy): visible in Ongoing and Closed, hidden in Draft, AND user must have CreateActivity permission
     private bool _hideActionsColumn => _currentStatus == ERActivityStatus.Draft || !_canCreateActivity;
+    // Icon column visibility — individual icons are conditionally rendered within the actions column
+    private bool _hideEmailWarningIconColumn => _isClientUser || !_canEditActivitiesNotMemberOf;
+    private bool _hideWebAdStatusIconColumn => !_showWebAdStatus;
+    private bool _hideWebAdChangesIconColumn => !_includeWebAdChanges;
     // Whether to show candidate count in Headline
     private bool _showCandidateCount => _currentStatus != ERActivityStatus.Draft;
 
@@ -160,6 +170,8 @@ public partial class ActivityList
         _canCreateDraftActivity = await PermHelper.UserCanCreateDraftActivityAsync();
         _canAccessDraftActivities = await PermHelper.UserCanAccessRecruitmentDraftActivitiesAsync();
         _userHasExportPermission = await PermHelper.UserCanExportActivityMembersAsync();
+        _canEditActivitiesNotMemberOf = await PermHelper.UserCanEditActivitiesNotMemberOfAsync();
+        _canPublishWebAd = await PermHelper.UserCanPublishWebAdAsync();
 
         // Preload client-level draft flag for the session client (used in OnParametersSet Draft guard).
         // Matches legacy: _isClientLoggedOn && ClientRecruitmentDraftEnabled(siteId, clientId).
@@ -193,6 +205,10 @@ public partial class ActivityList
             {
                 _clientExportConfigEnabled = await ClientService.GetExportActivityMembersEnabledAsync(clientId);
                 _clientIsFund = await ClientService.GetRecruitmentIsFundAsync(clientId);
+                _showWebAdStatus = await ClientService.GetRecruitmentShowWebAdStatusInActivityListAsync(clientId);
+                _includeWebAdChanges = _showWebAdStatus
+                    && await ClientService.GetWebAdSendMailOnAdChangesAsync(clientId)
+                    && _canPublishWebAd;
             }
         }
 
@@ -562,7 +578,11 @@ public partial class ActivityList
             }
 
             var activeDraftAreaTypeId = _currentStatus == ERActivityStatus.Draft ? _draftAreaTypeId : 0;
-            var response = await ErActivityService.GetActivitiesAsync(request, _currentStatus, clientFilter, moreFilters, activeDraftAreaTypeId);
+            var response = await ErActivityService.GetActivitiesAsync(
+                request, _currentStatus, clientFilter, moreFilters, activeDraftAreaTypeId,
+                includeEmailWarning: !_isClientUser && _canEditActivitiesNotMemberOf,
+                includeWebAdStatus: _showWebAdStatus,
+                includeWebAdChanges: _includeWebAdChanges);
             _totalCount = response.TotalCount;
 
             return new GridData<ActivityListDto>
@@ -783,6 +803,78 @@ public partial class ActivityList
         }
 
         Navigation.NavigateTo($"/api/activities/export-members?{string.Join("&", qp)}", forceLoad: true);
+    }
+
+    // WebAdStatusId values matching legacy WebAdStatus enum
+    private const int WebAdStatusDraft = 1;
+    private const int JobnetStatusDraft = 1;
+
+    private string _actionsColumnWidth =>
+        (!_hideActionsColumn ? 36 : 0) +
+        (!_hideEmailWarningIconColumn ? 26 : 0) +
+        (!_hideWebAdStatusIconColumn ? 26 : 0) +
+        (!_hideWebAdChangesIconColumn ? 24 : 0) + "px";
+
+    /// <summary>
+    /// Navigates to the activity's Ad tab in the legacy app via YARP.
+    /// Matches legacy ListActionType.GoToActivityAdTab → ActivityAd.aspx redirect.
+    /// </summary>
+    private void NavigateToActivityAdTab(int activityId)
+    {
+        Navigation.NavigateTo(
+            $"/Responsive/Recruiting/ActivityAd.aspx?ErId={activityId}",
+            forceLoad: true);
+    }
+
+    private string GetWebAdStatusIconSrc(ActivityListDto item)
+    {
+        if (item.EractivityStatusId != (int)ERActivityStatus.OnGoing) return string.Empty;
+
+        // Sub-rule 1: No WebAdId → missing
+        if (!item.WebAdId.HasValue || item.WebAdId.Value <= 0)
+            return "/Responsive/images/responsive/list/web-ad-missing_36x36.png";
+
+        // Sub-rules 2-3: Has WebAd media but WebAdId not present (dead code after sub-rule 1, kept for safety)
+        if (item.HasWebAdMedia && (!item.WebAdId.HasValue || item.WebAdId.Value <= 0))
+            return "/Responsive/images/responsive/list/web-ad-missing_36x36.png";
+
+        // Sub-rule 4: Has Jobnet media but no published Jobnet ad
+        if (item.HasJobnetMedia && (!item.JobnetWebAdId.HasValue || item.JobnetWebAdId.Value <= 0))
+            return "/Responsive/images/responsive/list/web-ad-missing_36x36.png";
+
+        // Sub-rules 5-7: Draft status
+        var webAdDraft = item.HasWebAdMedia && item.WebAdStatusId == WebAdStatusDraft;
+        var jobnetDraft = item.HasJobnetMedia && item.JobnetStatusId == JobnetStatusDraft;
+        if (webAdDraft || jobnetDraft)
+            return "/Responsive/images/responsive/list/web-ad-draft_36x36.png";
+
+        return string.Empty;
+    }
+
+    private string GetWebAdStatusTooltipKey(ActivityListDto item)
+    {
+        if (!item.WebAdId.HasValue || item.WebAdId.Value <= 0)
+            return "NoWebAd";
+
+        if (item.HasWebAdMedia && (!item.WebAdId.HasValue || item.WebAdId.Value <= 0))
+            return item.HasJobnetMedia ? "NoWebAdAndJobnetAd" : "NoWebAd";
+
+        if (item.HasJobnetMedia && (!item.JobnetWebAdId.HasValue || item.JobnetWebAdId.Value <= 0))
+            return "NoJobnetAd";
+
+        var webAdDraft = item.HasWebAdMedia && item.WebAdStatusId == WebAdStatusDraft;
+        var jobnetDraft = item.HasJobnetMedia && item.JobnetStatusId == JobnetStatusDraft;
+        if (webAdDraft && jobnetDraft) return "WebAdAndJobnetAdInDraftStatus";
+        if (webAdDraft) return "WebAdInDraftStatus";
+        if (jobnetDraft) return "JobnetAdInDraftStatus";
+
+        return string.Empty;
+    }
+
+    private string GetEmailWarningTooltip(ActivityListDto item)
+    {
+        return string.Format(Localization.GetText("NotificationMailNotSendToXMembersWithArgs"),
+            item.MembersMissingNotificationEmail);
     }
 
     /// <summary>

@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using SignaturPortal.Infrastructure.Data;
 using SignaturPortal.Infrastructure.Data.Entities;
 using SignaturPortal.Infrastructure.Interceptors;
+using SignaturPortal.Tests.Helpers;
 
 namespace SignaturPortal.Tests.MultiTenancy;
 
@@ -10,16 +11,15 @@ public class SaveChangesInterceptorTests
 {
     private static (SignaturDbContext db, SqliteConnection conn) CreateDbWithInterceptor(int? clientId)
     {
-        var conn = new SqliteConnection("DataSource=:memory:");
-        conn.Open();
+        var conn = SqliteCompatibleDbContextFactory.OpenConnection();
 
         var options = new DbContextOptionsBuilder<SignaturDbContext>()
             .UseSqlite(conn)
             .AddInterceptors(new TenantSaveChangesInterceptor())
             .Options;
 
+        SqliteCompatibleDbContextFactory.EnsureSchema(options);
         var db = new SignaturDbContext(options) { CurrentClientId = clientId, CurrentSiteId = 1 };
-        db.Database.EnsureCreated();
 
         // Seed minimal data
         db.Sites.Add(new Site { SiteId = 1, SiteName = "Test", SiteUrls = "test.local", ExternalSiteId = "-1", Enabled = true, LanguageId = 1, CreateDate = DateTime.UtcNow });
