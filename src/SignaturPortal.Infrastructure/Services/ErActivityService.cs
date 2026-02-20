@@ -1226,10 +1226,10 @@ public class ErActivityService : IErActivityService
 
         var ongoingStatusId = (int)ERActivityStatus.OnGoing;
 
-        // Matches legacy UserInActiveActivitiesCount — no SiteId/ClientId/IsCleaned filter.
-        // Legacy SQL has no tenant scoping; IgnoreQueryFilters() replicates that.
+        // Matches legacy UserInActiveActivitiesCount — no IsCleaned filter.
+        // Cleaned activities are still shown in the grid (with gray italic styling),
+        // so excluding them here causes a false-positive "no activities" dialog.
         return await context.Eractivities
-            .IgnoreQueryFilters()
             .Where(a => a.EractivityStatusId == ongoingStatusId &&
                         (a.Responsible == userId ||
                          a.CreatedBy == userId ||
