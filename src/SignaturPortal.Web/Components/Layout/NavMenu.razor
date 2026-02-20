@@ -66,22 +66,25 @@
                         </div>
                     </ActivatorContent>
                     <ChildContent>
-                        <MudMenuItem Icon="@Icons.Material.Filled.Person"
-                                     OnClick="OpenProfileDialogAsync">
-                            @Localization.GetText("Profile")
-                        </MudMenuItem>
-                        @* Change Password — will be a Blazor dialog in a future phase *@
-                        <MudMenuItem Icon="@Icons.Material.Filled.Key">
-                            @Localization.GetText("ChangePassword")
-                        </MudMenuItem>
-                        @if (_isInternal && !Session.IsImpersonating)
+                        @if (!Session.IsImpersonating)
                         {
-                            <MudMenuItem Icon="@Icons.Material.Filled.ManageAccounts"
-                                         OnClick="NavigateToImpersonate">
-                                @Localization.GetText("Impersonate")
+                            <MudMenuItem Icon="@Icons.Material.Filled.Person"
+                                         OnClick="OpenProfileDialogAsync">
+                                @Localization.GetText("Profile")
                             </MudMenuItem>
+                            @* Change Password — will be a Blazor dialog in a future phase *@
+                            <MudMenuItem Icon="@Icons.Material.Filled.Key">
+                                @Localization.GetText("ChangePassword")
+                            </MudMenuItem>
+                            @if (_isInternal)
+                            {
+                                <MudMenuItem Icon="@Icons.Material.Filled.ManageAccounts"
+                                             OnClick="NavigateToImpersonate">
+                                    @Localization.GetText("Impersonate")
+                                </MudMenuItem>
+                            }
+                            <MudDivider />
                         }
-                        <MudDivider />
                         <MudMenuItem Icon="@(_themeState.IsDarkMode ? Icons.Material.Filled.LightMode : Icons.Material.Filled.DarkMode)"
                                      OnClick="ToggleDarkMode">
                             @(_themeState.IsDarkMode ? "Light mode" : "Dark mode")
