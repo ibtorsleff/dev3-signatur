@@ -63,8 +63,17 @@ h1:focus {
 
 /* Activity List Page -- grid styling is in css/portal-themes/_grid-base.css */
 
+/* MudMessageBox lacks the mud-dialog class so _grid-base.css dialog rules don't apply.
+   Mirror them here and add the 20px gap (matches MudForm mt-5 in UserProfileDialog). */
 .mud-message-box .mud-dialog-title {
-    background-color: var(--mud-palette-primary-lighten);
+    background-color: var(--portal-grid-header-bg);
+    border-bottom: 1px solid var(--portal-grid-cell-border);
+    margin-bottom: 20px;
+}
+
+.mud-message-box .mud-dialog-actions {
+    padding-right: 24px !important;
+    padding-bottom: 20px !important;
 }
 
 .activity-filter-popover .mud-list-item-text {
