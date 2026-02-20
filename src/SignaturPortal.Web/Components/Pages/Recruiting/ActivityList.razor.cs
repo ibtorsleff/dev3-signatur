@@ -270,9 +270,10 @@ public partial class ActivityList
                 return;
             }
 
-            // Guard 2: temporarily disabled.
-            // if (_externalUserHasNoActiveActivities)
-            //     await ShowExternalUserNoActivitiesDialogAsync();
+            // Guard 2: show disclaimer and log out external users with no active activities.
+            // The dialog must open after the first render (grid reload ensures the DOM is ready).
+            if (_externalUserHasNoActiveActivities)
+                await ShowExternalUserNoActivitiesDialogAsync();
         }
         else if (_filterOptionsNeedRefresh && !_isClientUser)
         {
