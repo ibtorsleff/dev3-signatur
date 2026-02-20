@@ -267,12 +267,6 @@
     </NoRecordsContent>
 </MudDataGrid>
 
-<MudButton Variant="Variant.Outlined" Color="Color.Warning"
-           OnClick="@(() => _noActivitiesDialog.ShowAsync(options: new DialogOptions { BackdropClick = false }))"
-           Style="margin-bottom:12px; text-transform:none;">
-    [TEST] No Activities Dialog
-</MudButton>
-
 <MudMessageBox @ref="_noActivitiesDialog"
                Title="@Localization.GetText("ActivityList")">
     <MessageContent>
