@@ -68,7 +68,7 @@ h1:focus {
 .mud-message-box .mud-dialog-title {
     background-color: var(--portal-grid-header-bg);
     border-bottom: 1px solid var(--portal-grid-cell-border);
-    margin-bottom: 20px;
+    margin-bottom: 20px !important;
 }
 
 .mud-message-box .mud-dialog-actions {

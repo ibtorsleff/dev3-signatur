@@ -267,13 +267,19 @@
     </NoRecordsContent>
 </MudDataGrid>
 
+<MudButton Variant="Variant.Outlined" Color="Color.Warning"
+           OnClick="@(() => _noActivitiesDialog.ShowAsync(options: new DialogOptions { BackdropClick = false }))"
+           Style="margin-bottom:12px; text-transform:none;">
+    [TEST] No Activities Dialog
+</MudButton>
+
 <MudMessageBox @ref="_noActivitiesDialog"
                Title="@Localization.GetText("ActivityList")">
     <MessageContent>
         @Localization.GetText(_noActivitiesDisclaimerKey)
     </MessageContent>
     <YesButton>
-        <MudButton Variant="Variant.Filled" Color="Color.Dark" Style="text-transform:none;">
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" Style="text-transform:none;">
             @Localization.GetText("Ok")
         </MudButton>
     </YesButton>
