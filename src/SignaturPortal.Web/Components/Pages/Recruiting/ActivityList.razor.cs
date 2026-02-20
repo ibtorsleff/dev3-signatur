@@ -828,9 +828,17 @@ public partial class ActivityList
                 : $". {Localization.GetText("ApplicationDeadlineNotExceeded")}.";
         }
 
-        return item.CandidateEvaluationEnabled
-            ? Localization.GetText("YouNeedEvaluateXOfYCandidatesWithArgs", item.CandidateMissingEvaluationCount, item.ActiveCandidateCount) + extraTooltip
-            : Localization.GetText("YouHaveXOfYUnreadCandidatesWithArgs", item.CandidateNotReadCount, item.ActiveCandidateCount) + extraTooltip;
+        // Use string.Format directly to avoid overload ambiguity:
+        // GetText(string, int, int) resolves to GetText(key, languageId, params object[]) rather
+        // than GetText(key, params object[]), treating the first int as a language ID.
+        var formatKey = item.CandidateEvaluationEnabled
+            ? "YouNeedEvaluateXOfYCandidatesWithArgs"
+            : "YouHaveXOfYUnreadCandidatesWithArgs";
+        var countArg = item.CandidateEvaluationEnabled
+            ? item.CandidateMissingEvaluationCount
+            : item.CandidateNotReadCount;
+
+        return string.Format(Localization.GetText(formatKey), countArg, item.ActiveCandidateCount) + extraTooltip;
     }
 
     private static string GetActivityRowColorClass(ActivityListDto item)
