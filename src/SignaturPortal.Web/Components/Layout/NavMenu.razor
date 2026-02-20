@@ -41,20 +41,44 @@
             }
         </ul>
         <ul class="menu-items menu-items-right">
-            <li class="user-info">
-                <div>@(Session.IsInitialized ? (Session.FullName ?? Session.UserName) : "User") <img class="user-icon" src="/Responsive/images/responsive/top-menu/user_44x44.png" alt="User" /></div>
-            </li>
-            <li class="dark-mode-toggle">
-                <button class="dark-mode-btn" @onclick="ToggleDarkMode" title="@(_themeState.IsDarkMode ? "Switch to light mode" : "Switch to dark mode")">
-                    @if (_themeState.IsDarkMode)
-                    {
-                        <span>&#9728;</span>
-                    }
-                    else
-                    {
-                        <span>&#9790;</span>
-                    }
-                </button>
+            <li class="user-menu">
+                <MudMenu AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight"
+                         Dense="true" PopoverClass="user-menu-popover"
+                         ActivationEvent="@MouseEvent.MouseOver">
+                    <ActivatorContent>
+                        <div class="user-menu-activator">
+                            @(Session.IsInitialized ? (Session.FullName ?? Session.UserName) : "User")
+                            <img class="user-icon" src="/Responsive/images/responsive/top-menu/user_44x44.png" alt="User" />
+                        </div>
+                    </ActivatorContent>
+                    <ChildContent>
+                        @* Profile — will be a Blazor dialog in a future phase *@
+                        <MudMenuItem Icon="@Icons.Material.Filled.Person">
+                            @Localization.GetText("Profile")
+                        </MudMenuItem>
+                        @* Change Password — will be a Blazor dialog in a future phase *@
+                        <MudMenuItem Icon="@Icons.Material.Filled.Key">
+                            @Localization.GetText("ChangePassword")
+                        </MudMenuItem>
+                        @if (_isInternal)
+                        {
+                            <MudMenuItem Icon="@Icons.Material.Filled.ManageAccounts"
+                                         OnClick="NavigateToImpersonate">
+                                @Localization.GetText("Impersonate")
+                            </MudMenuItem>
+                        }
+                        <MudDivider />
+                        <MudMenuItem Icon="@(_themeState.IsDarkMode ? Icons.Material.Filled.LightMode : Icons.Material.Filled.DarkMode)"
+                                     OnClick="ToggleDarkMode">
+                            @(_themeState.IsDarkMode ? "Light mode" : "Dark mode")
+                        </MudMenuItem>
+                        <MudDivider />
+                        <MudMenuItem Icon="@Icons.Material.Filled.Logout"
+                                     OnClick="NavigateToLogout">
+                            @Localization.GetText("Logout")
+                        </MudMenuItem>
+                    </ChildContent>
+                </MudMenu>
             </li>
         </ul>
     </div>

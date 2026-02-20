@@ -70,3 +70,53 @@ h1:focus {
 .activity-filter-popover .mud-list-item-text {
     font-size: 0.875rem;
 }
+
+/* ============================================================
+   User menu popup (MudMenu popover — rendered outside component tree)
+   Matches legacy dark-teal popup style.
+   NOTE: The popover element itself IS the surface (no nested .mud-paper),
+   so we must target .user-menu-popover directly for background.
+   In light mode MudBlazor sets background via --mud-palette-surface (white),
+   which is why we override both the CSS variable and the property.
+   ============================================================ */
+
+.user-menu-popover,
+.user-menu-popover .mud-paper {
+    --mud-palette-surface: #054541;
+    --mud-palette-background: #054541;
+    background-color: #054541 !important;
+    border-radius: 0 !important;
+    min-width: 210px;
+    border: none;
+}
+
+.user-menu-popover .mud-list-item,
+.user-menu-popover .mud-menu-item {
+    color: #fff !important;
+    min-height: 47px !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+}
+
+.user-menu-popover .mud-list-item:hover,
+.user-menu-popover .mud-menu-item:hover,
+.user-menu-popover .mud-list-item:focus,
+.user-menu-popover .mud-menu-item:focus {
+    background-color: #1d9684 !important;
+}
+
+/* Override light-mode text color on all typography inside the popup */
+.user-menu-popover .mud-list-item-text,
+.user-menu-popover .mud-list-item-text span,
+.user-menu-popover .mud-list-item-text p,
+.user-menu-popover .mud-typography {
+    color: #fff !important;
+}
+
+.user-menu-popover .mud-icon-root {
+    color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.user-menu-popover .mud-divider {
+    border-color: rgba(255, 255, 255, 0.2) !important;
+}

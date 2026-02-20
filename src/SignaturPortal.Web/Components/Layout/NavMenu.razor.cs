@@ -22,13 +22,20 @@ public partial class NavMenu : IDisposable
     [Inject]
     private ThemeStateService _themeState { get; set; } = default!;
 
-    private NavMenuConfig _config = new();
+    [Inject]
+    private ICurrentUserService CurrentUserService { get; set; } = default!;
 
-    protected override void OnInitialized()
+    private NavMenuConfig _config = new();
+    private bool _isInternal;
+
+    protected override async Task OnInitializedAsync()
     {
         Navigation.LocationChanged += OnLocationChanged;
         _themeState.OnChange += OnThemeStateChanged;
         UpdateNavConfig();
+
+        var currentUser = await CurrentUserService.GetCurrentUserAsync();
+        _isInternal = currentUser?.IsInternal ?? false;
     }
 
     private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
@@ -52,6 +59,16 @@ public partial class NavMenu : IDisposable
     private void ToggleDarkMode()
     {
         _themeState.Toggle();
+    }
+
+    private void NavigateToImpersonate()
+    {
+        Navigation.NavigateTo("/User/Impersonate.aspx", forceLoad: true);
+    }
+
+    private void NavigateToLogout()
+    {
+        Navigation.NavigateTo("/auth/logout", forceLoad: true);
     }
 
     private string ResolveLabel(NavMenuItem item)

@@ -136,6 +136,14 @@ if (app.Configuration.GetValue<bool>("ERActivityListUseLegacyUrls"))
     });
 }
 
+// Auth logout — clears session and Forms Auth cookie, then redirects to legacy login page
+app.MapGet("/auth/logout", (HttpContext context) =>
+{
+    context.Session.Clear();
+    context.Response.Cookies.Delete(".ASPXAUTH", new CookieOptions { Path = "/" });
+    return Results.Redirect("/login.aspx");
+});
+
 // Activity Excel export endpoint (before Blazor components, before YARP catch-all)
 app.MapActivityExportEndpoints();
 
