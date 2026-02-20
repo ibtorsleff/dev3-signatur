@@ -1226,9 +1226,11 @@ public class ErActivityService : IErActivityService
 
         var ongoingStatusId = (int)ERActivityStatus.OnGoing;
 
+        // Matches legacy UserInActiveActivitiesCount — no IsCleaned filter.
+        // Cleaned activities are still shown in the grid (with gray italic styling),
+        // so excluding them here causes a false-positive "no activities" dialog.
         return await context.Eractivities
-            .Where(a => !a.IsCleaned &&
-                        a.EractivityStatusId == ongoingStatusId &&
+            .Where(a => a.EractivityStatusId == ongoingStatusId &&
                         (a.Responsible == userId ||
                          a.CreatedBy == userId ||
                          a.Eractivitymembers.Any(m => m.UserId == userId)))
