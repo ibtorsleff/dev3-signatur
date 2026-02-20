@@ -8,12 +8,13 @@
 
 <MudThemeProvider Theme="_currentTheme" IsDarkMode="_isDarkMode" />
 <MudPopoverProvider />
-<MudDialogProvider />
 <MudSnackbarProvider />
 
 <SessionPersistence />
 
 <div class="page @_themeCssClass @(_isDarkMode ? "portal-dark" : "")">
+    @* MudDialogProvider lives inside the themed div so dialogs inherit portal CSS custom properties *@
+    <MudDialogProvider />
     <NavMenu />
     <main class="main-content">
         @Body

@@ -1,0 +1,142 @@
+@* UserProfileDialog.razor
+   Blazor migration of legacy UserProfile.ascx.
+   Opened from the user hover-menu in NavMenu Row 2 via IDialogService.
+   Supports ForcedUpdate mode (no cancel, no escape) for mandatory profile completion.
+*@
+
+<MudDialog>
+    <DialogContent>
+        @if (_loading)
+        {
+            <div class="d-flex justify-center pa-6">
+                <MudProgressCircular Indeterminate="true" Color="Color.Primary" />
+            </div>
+        }
+        else if (_loadError is not null)
+        {
+            <MudAlert Severity="Severity.Error" Class="mb-2">@_loadError</MudAlert>
+        }
+        else if (_profile is not null)
+        {
+            @* Forced-update message — mirrors legacy profileMessageOuterDiv *@
+            @if (_profile.Config.MustChangeEmailToWorkEmail)
+            {
+                <MudAlert Severity="Severity.Warning" Class="mb-4">
+                    @Localization.GetText("PleaseUpdateYourEmailToWorkEmail")
+                </MudAlert>
+            }
+            else if (ForcedUpdate)
+            {
+                <MudAlert Severity="Severity.Info" Class="mb-4">
+                    @Localization.GetText("PleaseUpdateYourInformation")
+                </MudAlert>
+            }
+
+            <MudForm @ref="_form" Class="mt-5">
+
+                @* WorkArea — internal users only *@
+                @if (_profile.Config.ShowWorkArea)
+                {
+                    <MudTextField T="string"
+                                  @bind-Value="_workArea"
+                                  Label="@Localization.GetText("WorkArea")"
+                                  MaxLength="200"
+                                  Immediate="true"
+                                  Required="@_profile.Config.WorkAreaRequired"
+                                  RequiredError="@Localization.GetText("FieldRequired")"
+                                  Variant="Variant.Outlined"
+                                  Margin="Margin.Dense"
+                                  Class="mb-4 mt-1"
+                                  FullWidth="true" />
+                }
+
+                @* Title — internal users only *@
+                @if (_profile.Config.ShowTitle)
+                {
+                    <MudTextField T="string"
+                                  @bind-Value="_title"
+                                  Label="@Localization.GetText("Title")"
+                                  MaxLength="100"
+                                  Immediate="true"
+                                  Required="@_profile.Config.TitleRequired"
+                                  RequiredError="@Localization.GetText("FieldRequired")"
+                                  Variant="Variant.Outlined"
+                                  Margin="Margin.Dense"
+                                  Class="mb-4"
+                                  FullWidth="true" />
+                }
+
+                @* OfficePhone — all users *@
+                <MudTextField T="string"
+                              @bind-Value="_officePhone"
+                              Label="@Localization.GetText("OfficePhone")"
+                              MaxLength="49"
+                              Immediate="true"
+                              Required="@_profile.Config.OfficePhoneRequired"
+                              RequiredError="@Localization.GetText("FieldRequired")"
+                              Validation="@(new Func<string?, IEnumerable<string>>(ValidatePhone))"
+                              InputType="InputType.Telephone"
+                              Variant="Variant.Outlined"
+                              Margin="Margin.Dense"
+                              Class="mb-4"
+                              FullWidth="true" />
+
+                @* CellPhone — all users *@
+                <MudTextField T="string"
+                              @bind-Value="_cellPhone"
+                              Label="@Localization.GetText("CellPhone")"
+                              MaxLength="49"
+                              Immediate="true"
+                              Required="@_profile.Config.CellPhoneRequired"
+                              RequiredError="@Localization.GetText("FieldRequired")"
+                              Validation="@(new Func<string?, IEnumerable<string>>(ValidatePhone))"
+                              InputType="InputType.Telephone"
+                              Variant="Variant.Outlined"
+                              Margin="Margin.Dense"
+                              Class="mb-4"
+                              FullWidth="true" />
+
+                @* Email — disabled when UserCanEditEmail is false *@
+                <MudTextField T="string"
+                              @bind-Value="_email"
+                              Label="@Localization.GetText("Email")"
+                              MaxLength="250"
+                              Immediate="true"
+                              Required="@_profile.Config.EmailRequired"
+                              RequiredError="@Localization.GetText("FieldRequired")"
+                              Disabled="@_profile.Config.EmailDisabled"
+                              Validation="@(new Func<string?, IEnumerable<string>>(ValidateEmail))"
+                              InputType="InputType.Email"
+                              Variant="Variant.Outlined"
+                              Margin="Margin.Dense"
+                              Class="mb-2"
+                              FullWidth="true" />
+
+            </MudForm>
+        }
+    </DialogContent>
+
+    <DialogActions>
+        @if (!_loading && _profile is not null)
+        {
+            @if (!ForcedUpdate)
+            {
+                <MudButton Variant="Variant.Text"
+                           OnClick="Cancel"
+                           Disabled="_saving">
+                    @Localization.GetText("Cancel")
+                </MudButton>
+            }
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       OnClick="SaveAsync"
+                       Disabled="_saving">
+                @if (_saving)
+                {
+                    <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" />
+                }
+                @Localization.GetText("Save")
+            </MudButton>
+        }
+    </DialogActions>
+</MudDialog>

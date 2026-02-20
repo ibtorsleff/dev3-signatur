@@ -118,6 +118,18 @@
     background-color: var(--portal-grid-header-bg) !important;
 }
 
+/* === Dialog title — matches grid header background across portals and dark mode === */
+.mud-dialog .mud-dialog-title {
+    background-color: var(--portal-grid-header-bg);
+    border-bottom: 1px solid var(--portal-grid-cell-border);
+}
+
+/* === Dialog actions — right padding matches dialog content so buttons align with fields === */
+.mud-dialog .mud-dialog-actions {
+    padding-right: 24px !important;
+    padding-bottom: 20px !important;
+}
+
 /* === Remove MudBlazor elevation shadow -- legacy has no shadow === */
 .portal-data-grid.mud-table {
     box-shadow: none;

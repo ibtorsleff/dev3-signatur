@@ -53,6 +53,7 @@ public static class DependencyInjection
         // Application services
         services.AddScoped<IErActivityService, ErActivityService>();
         services.AddScoped<IClientService, ClientService>();
+        services.AddScoped<IUserProfileService, UserProfileService>();
 
         // Localization: in-memory cache + scoped service + startup warmup
         services.AddMemoryCache();

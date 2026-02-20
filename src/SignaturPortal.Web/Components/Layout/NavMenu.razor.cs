@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Routing;
+using MudBlazor;
 using SignaturPortal.Application.Interfaces;
 using SignaturPortal.Web.Components.Services;
+using SignaturPortal.Web.Components.Shared;
 
 namespace SignaturPortal.Web.Components.Layout;
 
@@ -24,6 +26,9 @@ public partial class NavMenu : IDisposable
 
     [Inject]
     private ICurrentUserService CurrentUserService { get; set; } = default!;
+
+    [Inject]
+    private IDialogService DialogService { get; set; } = default!;
 
     private NavMenuConfig _config = new();
     private bool _isInternal;
@@ -54,6 +59,20 @@ public partial class NavMenu : IDisposable
         var uri = new Uri(Navigation.Uri);
         var path = uri.AbsolutePath;
         _config = NavConfigService.GetConfigForRoute(path);
+    }
+
+    private async Task OpenProfileDialogAsync()
+    {
+        var options = new DialogOptions
+        {
+            MaxWidth = MaxWidth.Small,
+            FullWidth = true,
+            CloseButton = true,
+            CloseOnEscapeKey = true,
+            BackdropClick = false,
+        };
+        await DialogService.ShowAsync<UserProfileDialog>(
+            Localization.GetText("Profile"), options);
     }
 
     private void ToggleDarkMode()

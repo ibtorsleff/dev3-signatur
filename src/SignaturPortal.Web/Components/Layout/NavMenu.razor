@@ -52,8 +52,8 @@
                         </div>
                     </ActivatorContent>
                     <ChildContent>
-                        @* Profile — will be a Blazor dialog in a future phase *@
-                        <MudMenuItem Icon="@Icons.Material.Filled.Person">
+                        <MudMenuItem Icon="@Icons.Material.Filled.Person"
+                                     OnClick="OpenProfileDialogAsync">
                             @Localization.GetText("Profile")
                         </MudMenuItem>
                         @* Change Password — will be a Blazor dialog in a future phase *@
