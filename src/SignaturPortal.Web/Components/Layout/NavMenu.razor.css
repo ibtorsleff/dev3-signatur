@@ -162,6 +162,105 @@
     background-image: url(/Responsive/images/responsive/top-menu/recruitment-ad-portal_80x80.png);
 }
 
+.icon-portals {
+    background-image: url(/Responsive/images/responsive/top-menu/recruitment-portals_80x80.png);
+}
+
+/* ============================================================
+   Row 1: Overflow — "More" button and hidden items
+   ============================================================ */
+
+/* Items beyond the overflow index are removed from layout. */
+.nav-item-overflow {
+    display: none !important;
+}
+
+/* "More" <li> — same base style as regular Row 1 left items. */
+.nav-more-item {
+    font-size: 14px;
+    font-weight: bold;
+    text-align: center;
+    opacity: 0.7;
+    cursor: pointer;
+    flex-shrink: 0;
+    margin: 6px 0 0 4px;
+}
+
+.nav-more-item:hover {
+    opacity: 1;
+}
+
+/* Pierce MudMenu's activator wrapper so it fills the item height. */
+.nav-more-item ::deep .mud-menu-activator {
+    display: flex !important;
+    align-items: flex-end !important;
+    height: 76px;
+    cursor: pointer;
+}
+
+/* Activator content — mirrors the layout of regular Row 1 icon divs.
+   Icon (SVG) is positioned near the top; label sits at the bottom. */
+.nav-more-activator {
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    min-width: 77px;
+    height: 76px;
+    padding: 0 4px 3px 4px;
+    color: var(--portal-nav-row1-color);
+}
+
+/* Position the MudIcon at the same vertical offset as the background
+   icons on regular items (background-position: center 10px). */
+.nav-more-activator ::deep .mud-icon-root {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40px;
+    height: 40px;
+    font-size: 40px;
+}
+
+.nav-more-activator > span {
+    font-size: 14px;
+    font-weight: bold;
+    line-height: 1;
+}
+
+/* ============================================================
+   Row 1: "Portals" dropdown button (right side, all portals collapsed)
+   ============================================================ */
+
+/* nav-portals-item is a <li> in menu-items-right.  The base Row 1 rules
+   (.top-menu > .row-1 .menu-items > li) give it font-size, opacity, cursor.
+   We only need to override flex-shrink and add the MudMenu pierce rule. */
+.nav-portals-item {
+    flex-shrink: 0;
+}
+
+/* Pierce MudMenu's activator wrapper so it fills the item height. */
+.nav-portals-item ::deep .mud-menu-activator {
+    display: flex !important;
+    align-items: flex-end !important;
+    height: 76px;
+    cursor: pointer;
+}
+
+/* The portals activator uses the same icon div pattern as regular Row 1 items
+   (<div class="icon icon-portals">label</div>), but it lives inside a MudMenu
+   activator rather than an <a> tag, so we need to apply the layout explicitly. */
+.nav-portals-item .icon {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    min-width: 77px;
+    height: 76px;
+    padding: 0 4px 3px 4px;
+}
+
 /* ============================================================
    Row 2: Secondary tabs (teal background)
    ============================================================ */

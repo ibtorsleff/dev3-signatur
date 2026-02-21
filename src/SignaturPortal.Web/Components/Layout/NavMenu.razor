@@ -6,24 +6,73 @@
                 <div>@ResolvePortalName()</div>
             </a>
         </div>
-        <ul class="menu-items menu-items-left">
-            @foreach (var item in _config.Row1Items)
+        <ul class="menu-items menu-items-left" id="nav-row1-left">
+            @for (var i = 0; i < _config.Row1Items.Count; i++)
             {
-                <li class="@(item.IsSelected ? "selected" : "")">
+                var item = _config.Row1Items[i];
+                <li class="@(item.IsSelected ? "selected" : "") @(i >= _overflowStartIndex ? "nav-item-overflow" : "")"
+                    data-nav-index="@i">
                     <a href="@item.Url">
                         <div class="icon @item.IconClass">@ResolveLabel(item)</div>
                     </a>
                 </li>
             }
+            @if (HasOverflow)
+            {
+                <li class="nav-more-item">
+                    <MudMenu ActivationEvent="@MouseEvent.LeftClick"
+                             AnchorOrigin="Origin.BottomLeft"
+                             TransformOrigin="Origin.TopLeft"
+                             Dense="true">
+                        <ActivatorContent>
+                            <div class="nav-more-activator">
+                                <MudIcon Icon="@Icons.Material.Filled.MoreHoriz" />
+                                <span>Mere</span>
+                            </div>
+                        </ActivatorContent>
+                        <ChildContent>
+                            @foreach (var item in _config.Row1Items.Skip(_overflowStartIndex))
+                            {
+                                <MudMenuItem Href="@item.Url">@ResolveLabel(item)</MudMenuItem>
+                            }
+                        </ChildContent>
+                    </MudMenu>
+                </li>
+            }
         </ul>
         <ul class="menu-items menu-items-right">
-            @foreach (var item in _config.Row1RightItems)
+            @if (_portalsCollapsed)
             {
-                <li>
-                    <a href="@item.Url">
-                        <div class="icon @item.IconClass">@ResolveLabel(item)</div>
-                    </a>
+                @* All portal items have dropped off — show a single "Portals" dropdown *@
+                <li class="nav-portals-item">
+                    <MudMenu ActivationEvent="@MouseEvent.LeftClick"
+                             AnchorOrigin="Origin.BottomRight"
+                             TransformOrigin="Origin.TopRight"
+                             Dense="true">
+                        <ActivatorContent>
+                            <div class="icon icon-portals">@Localization.GetText("Portals")</div>
+                        </ActivatorContent>
+                        <ChildContent>
+                            @foreach (var item in _config.Row1RightItems)
+                            {
+                                <MudMenuItem Href="@item.Url">@ResolveLabel(item)</MudMenuItem>
+                            }
+                        </ChildContent>
+                    </MudMenu>
                 </li>
+            }
+            else
+            {
+                @* Portals shown individually — each gets a data-portal-index for measurement *@
+                @for (var i = 0; i < _config.Row1RightItems.Count; i++)
+                {
+                    var item = _config.Row1RightItems[i];
+                    <li data-portal-index="@i">
+                        <a href="@item.Url">
+                            <div class="icon @item.IconClass">@ResolveLabel(item)</div>
+                        </a>
+                    </li>
+                }
             }
         </ul>
     </div>
