@@ -56,8 +56,8 @@ public class NavigationConfigService : INavigationConfigService
             new() { LabelKey = "Search", Label = "S\u00f8g", Url = "/Responsive/Recruiting/Search.aspx", IconClass = "icon-search" },
             new() { LabelKey = "JobBank", Label = "Jobbank", Url = "/Responsive/Recruiting/JobBank.aspx", IconClass = "icon-jobbank" },
             new() { LabelKey = "Help", Label = "Hj\u00e6lp", Url = "/Responsive/Recruiting/Help.aspx", IconClass = "icon-help" },
-            new() { LabelKey = "Admin", Label = "Admin", Url = "/Responsive/Recruiting/Admin.aspx", IconClass = "icon-admin" },
-            new() { LabelKey = "Statistics", Label = "Statistik", Url = "/Responsive/Recruiting/StatisticsQuestionnaire.aspx", IconClass = "icon-statistics" },
+            new() { LabelKey = "Admin", Label = "Admin", Url = "/Responsive/Recruiting/Admin.aspx", IconClass = "icon-admin", RequiresInternal = true, RequiresAdminAccess = true },
+            new() { LabelKey = "Statistics", Label = "Statistik", Url = "/Responsive/Recruiting/StatisticsQuestionnaire.aspx", IconClass = "icon-statistics", RequiresInternal = true, RequiresStatisticsAccess = true },
         ];
     }
 
@@ -65,8 +65,8 @@ public class NavigationConfigService : INavigationConfigService
     {
         return
         [
-            new() { LabelKey = "OBEmployeePortal", Label = "Medarbejderportal", Url = "/Responsive/OnBoarding/Default.aspx", IconClass = "icon-employee-portal" },
-            new() { LabelKey = "AdPortal", Label = "Annonceportal", Url = "/Responsive/AdPortal/ActivityList.aspx", IconClass = "icon-ad-portal" },
+            new() { LabelKey = "OBEmployeePortal", Label = "Medarbejderportal", Url = "/Responsive/OnBoarding/Default.aspx", IconClass = "icon-employee-portal", IsPortalSwitcher = true },
+            new() { LabelKey = "AdPortal", Label = "Annonceportal", Url = "/Responsive/AdPortal/ActivityList.aspx", IconClass = "icon-ad-portal", IsPortalSwitcher = true },
         ];
     }
 
@@ -86,7 +86,7 @@ public class NavigationConfigService : INavigationConfigService
 
         return
         [
-            new() { LabelKey = "ERecruitmentDraftActivities", Label = "Kladdesager", Url = "/recruiting/activities/draft", IsSelected = isDraft },
+            new() { LabelKey = "ERecruitmentDraftActivities", Label = "Kladdesager", Url = "/recruiting/activities/draft", IsSelected = isDraft, RequiresDraftAccess = true },
             new() { LabelKey = "ERecruitmentOngoingActivities", Label = "Igangv\u00e6rende sager", Url = "/recruiting/activities", IsSelected = isOngoing },
             new() { LabelKey = "ERecruitmentClosedActivities", Label = "Afsluttede sager", Url = "/recruiting/activities/closed", IsSelected = isClosed },
         ];

@@ -14,6 +14,7 @@ public interface IPermissionHelper
     // Recruitment Portal
     Task<bool> UserCanAccessRecruitmentAsync(CancellationToken ct = default);
     Task<bool> UserCanAccessRecruitmentAdminAsync(CancellationToken ct = default);
+    Task<bool> UserCanAccessRecruitmentStatisticsAsync(CancellationToken ct = default);
     Task<bool> UserCanAccessRecruitmentDraftActivitiesAsync(CancellationToken ct = default);
     Task<bool> UserCanAccessCandidateDetailsAsync(CancellationToken ct = default);
     Task<bool> UserCanAccessCandidateNotesAsync(CancellationToken ct = default);

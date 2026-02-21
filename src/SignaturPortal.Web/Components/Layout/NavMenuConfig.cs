@@ -9,6 +9,21 @@ public class NavMenuItem
     public string Url { get; set; } = "";
     public string? IconClass { get; set; }
     public bool IsSelected { get; set; }
+
+    /// <summary>Hidden for external/client users; only shown to internal staff.</summary>
+    public bool RequiresInternal { get; set; }
+
+    /// <summary>Marks a portal-switcher item (right-side). Used by Phase 2 overflow to keep these grouped separately in the "More" dropdown.</summary>
+    public bool IsPortalSwitcher { get; set; }
+
+    /// <summary>Hidden unless the user has recruitment draft access.</summary>
+    public bool RequiresDraftAccess { get; set; }
+
+    /// <summary>Hidden unless the user has recruitment admin access (matches legacy UserCanAccessRecruitmentAdmin).</summary>
+    public bool RequiresAdminAccess { get; set; }
+
+    /// <summary>Hidden unless the user has at least one statistics permission (recruitment, questionnaire, or media).</summary>
+    public bool RequiresStatisticsAccess { get; set; }
 }
 
 public class NavMenuConfig
