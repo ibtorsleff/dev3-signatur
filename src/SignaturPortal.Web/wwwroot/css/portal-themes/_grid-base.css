@@ -118,6 +118,29 @@
     background-color: var(--portal-grid-header-bg) !important;
 }
 
+/* === Impersonate dialog search toolbar — single horizontal row === */
+.impersonate-search-toolbar {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: nowrap;
+}
+
+.impersonate-search-field {
+    flex: 1 1 auto;
+    min-width: 140px;
+}
+
+.impersonate-client-select {
+    flex: 0 0 220px;
+}
+
+.impersonate-toolbar-btn {
+    flex: 0 0 auto;
+    white-space: nowrap;
+}
+
 /* === Dialog title — matches grid header background across portals and dark mode === */
 .mud-dialog .mud-dialog-title {
     background-color: var(--portal-grid-header-bg);

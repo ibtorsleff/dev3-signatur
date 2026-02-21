@@ -43,8 +43,10 @@ public partial class ImpersonateDialog
     private string _searchText = string.Empty;
     private int? _selectedClientId;
     private bool _loading;
+    private bool _hasSearched;
     private bool _tooManyResults;
-    private IReadOnlyList<ImpersonateUserDto>? _users;
+    private int _tooManyCount;
+    private IReadOnlyList<ImpersonateUserDto> _users = [];
     private IReadOnlyList<ClientDropdownDto> _clients = [];
 
     // -------------------------------------------------------------------------
@@ -70,20 +72,33 @@ public partial class ImpersonateDialog
             return;
 
         _loading = true;
+        _hasSearched = true;
         _tooManyResults = false;
-        _users = null;
+        _tooManyCount = 0;
+        _users = [];
         StateHasChanged();
 
         try
         {
             var results = await ImpersonateService.SearchUsersAsync(_searchText, _selectedClientId);
             _tooManyResults = results.Count > 50;
+            _tooManyCount = results.Count;
             _users = _tooManyResults ? [] : results;
         }
         finally
         {
             _loading = false;
         }
+    }
+
+    private void ClearFilter()
+    {
+        _searchText = string.Empty;
+        _selectedClientId = null;
+        _hasSearched = false;
+        _tooManyResults = false;
+        _tooManyCount = 0;
+        _users = [];
     }
 
     private async Task OnSearchKeyUp(KeyboardEventArgs args)

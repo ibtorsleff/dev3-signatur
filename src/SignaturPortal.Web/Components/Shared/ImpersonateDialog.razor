@@ -40,8 +40,16 @@
                        Variant="Variant.Filled"
                        Color="Color.Primary"
                        Disabled="_loading"
-                       Class="impersonate-search-btn">
+                       Class="impersonate-toolbar-btn">
                 @Localization.GetText("Search")
+            </MudButton>
+
+            <MudButton OnClick="ClearFilter"
+                       Variant="Variant.Outlined"
+                       Color="Color.Default"
+                       Disabled="_loading"
+                       Class="impersonate-toolbar-btn">
+                @Localization.GetText("Clear")
             </MudButton>
         </div>
 
@@ -51,14 +59,15 @@
                 <MudProgressCircular Indeterminate="true" Color="Color.Primary" />
             </div>
         }
-        else if (_tooManyResults)
+        else
         {
-            <MudAlert Severity="Severity.Warning" Class="mt-3">
-                @Localization.GetText("UserSearchResultedInXUsersNarrowDownSearchCriteriasWithArgs", "50+")
-            </MudAlert>
-        }
-        else if (_users is not null)
-        {
+            @if (_tooManyResults)
+            {
+                <MudAlert Severity="Severity.Warning" Class="mt-3">
+                    @Localization.GetText("UserSearchResultedInXUsersNarrowDownSearchCriteriasWithArgs", _tooManyCount.ToString())
+                </MudAlert>
+            }
+
             <MudDataGrid T="ImpersonateUserDto"
                          Items="_users"
                          Hover="true"
@@ -87,7 +96,7 @@
                                     Hidden="@Session.IsClientUser" />
                 </Columns>
                 <NoRecordsContent>
-                    <MudText>@Localization.GetText("NoUsers")</MudText>
+                    <MudText>@(_hasSearched ? Localization.GetText("NoUsers") : Localization.GetText("NoActiveSearch"))</MudText>
                 </NoRecordsContent>
             </MudDataGrid>
         }
