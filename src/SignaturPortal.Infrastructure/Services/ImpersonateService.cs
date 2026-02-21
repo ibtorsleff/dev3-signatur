@@ -79,4 +79,44 @@ ORDER BY u.FullName";
             .SqlQueryRaw<ImpersonateUserDto>(sql, parameters.ToArray())
             .ToListAsync(ct);
     }
+
+    public async Task<int> CountUsersAsync(
+        string searchText,
+        int? clientId,
+        CancellationToken ct = default)
+    {
+        var siteId = _session.SiteId ?? 0;
+        var currentUserId = _session.UserId ?? Guid.Empty;
+        var searchPattern = $"%{searchText}%";
+
+        bool callerCanManageSignaturUsers = await _permissionService.HasPermissionAsync(
+            _session.UserName, (int)PortalPermission.AdPortalCreateEditSignaturUsers, ct);
+
+        var parameters = new List<object> { siteId, currentUserId, searchPattern };
+
+        string clientFilter = string.Empty;
+        if (clientId.HasValue)
+        {
+            clientFilter = $"AND u.ClientId = {{{parameters.Count}}}";
+            parameters.Add(clientId.Value);
+        }
+
+        string permissionFilter = callerCanManageSignaturUsers
+            ? string.Empty
+            : "AND u.UserId NOT IN (SELECT UserId FROM UserPermission WHERE PermissionId = 9020)";
+
+        var sql = $@"SELECT COUNT(*) AS Value
+FROM [User] u
+WHERE u.SiteId = {{0}}
+  AND u.Enabled = 1
+  AND u.UserId != {{1}}
+  AND (u.FullName LIKE {{2}} OR u.Email LIKE {{2}} OR u.UserName LIKE {{2}})
+  {clientFilter}
+  {permissionFilter}";
+
+        await using var context = await _contextFactory.CreateDbContextAsync(ct);
+        return await context.Database
+            .SqlQueryRaw<int>(sql, parameters.ToArray())
+            .SingleAsync(ct);
+    }
 }

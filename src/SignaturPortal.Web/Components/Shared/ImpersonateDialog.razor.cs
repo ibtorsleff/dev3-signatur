@@ -82,7 +82,8 @@ public partial class ImpersonateDialog
         {
             var results = await ImpersonateService.SearchUsersAsync(_searchText, _selectedClientId);
             _tooManyResults = results.Count > 50;
-            _tooManyCount = results.Count;
+            if (_tooManyResults)
+                _tooManyCount = await ImpersonateService.CountUsersAsync(_searchText, _selectedClientId);
             _users = _tooManyResults ? [] : results;
         }
         finally
