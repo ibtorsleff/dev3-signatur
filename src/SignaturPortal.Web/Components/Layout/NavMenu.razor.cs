@@ -49,8 +49,9 @@ public partial class NavMenu : IAsyncDisposable
     private const double MoreButtonWidth = 85.0;
     private const double PortalsButtonWidth = 85.0;
 
-    // Index of the first Row1Item that does not fit. int.MaxValue = all items fit.
-    private int _overflowStartIndex = int.MaxValue;
+    // Indices of Row1Items currently in the overflow "More" menu.
+    // Items drop in OverflowPriority order (lowest first); ties broken rightmost-first.
+    private HashSet<int> _overflowedIndices = [];
     // True when portal items are too wide to show individually and have been
     // collapsed into the "Portals" dropdown button.
     private bool _portalsCollapsed;
@@ -69,7 +70,7 @@ public partial class NavMenu : IAsyncDisposable
     private DotNetObjectReference<NavMenu>? _dotNetRef;
     private IJSObjectReference? _navOverflowModule;
 
-    private bool HasOverflow => _overflowStartIndex < _config.Row1Items.Count;
+    private bool HasOverflow => _overflowedIndices.Count > 0;
 
     protected override async Task OnInitializedAsync()
     {
@@ -117,7 +118,7 @@ public partial class NavMenu : IAsyncDisposable
         UpdateNavConfig();
         ApplyUserVisibility();
         // Reset overflow state so all items are visible for re-measurement.
-        _overflowStartIndex = int.MaxValue;
+        _overflowedIndices = [];
         _portalsCollapsed = false;
         _itemsNeedRemeasure = true;
         InvokeAsync(StateHasChanged);
@@ -191,20 +192,22 @@ public partial class NavMenu : IAsyncDisposable
     }
 
     /// <summary>
-    /// Determines _portalsCollapsed and _overflowStartIndex from _availWidth
+    /// Determines _portalsCollapsed and _overflowedIndices from _availWidth
     /// and the cached item widths.
     ///
     /// Three cases (in priority order):
     ///   1. Everything fits  → portals expanded, no More button
     ///   2. Portals collapse → portals button shown, all left items fit
-    ///   3. Portals collapse + left items overflow → both More and Portals buttons shown
+    ///   3. Portals collapse + left items overflow → both More and Portals buttons shown;
+    ///      items are dropped in OverflowPriority order (lowest first), with rightmost-first
+    ///      tie-breaking so the visual row order is preserved for items of equal priority.
     /// </summary>
     private void CalculateLayout()
     {
         if (_itemWidths.Length == 0)
         {
             _portalsCollapsed = false;
-            _overflowStartIndex = int.MaxValue;
+            _overflowedIndices = [];
             return;
         }
 
@@ -216,7 +219,7 @@ public partial class NavMenu : IAsyncDisposable
         if (leftTotal + portalTotal <= _availWidth)
         {
             _portalsCollapsed = false;
-            _overflowStartIndex = int.MaxValue;
+            _overflowedIndices = [];
             return;
         }
 
@@ -224,27 +227,45 @@ public partial class NavMenu : IAsyncDisposable
         if (hasPortals && leftTotal + PortalsButtonWidth <= _availWidth)
         {
             _portalsCollapsed = true;
-            _overflowStartIndex = int.MaxValue;
+            _overflowedIndices = [];
             return;
         }
 
         // Case 3: Even with portals collapsed, left items need to overflow.
-        // Both the More button and the Portals button occupy the right side.
         _portalsCollapsed = hasPortals;
         var rightButtonsWidth = (hasPortals ? PortalsButtonWidth : 0.0) + MoreButtonWidth;
+        _overflowedIndices = CalculatePriorityOverflow(rightButtonsWidth);
+    }
 
-        double running = 0;
-        for (var i = 0; i < _itemWidths.Length; i++)
+    /// <summary>
+    /// Greedily moves items into overflow in OverflowPriority order (lowest value first)
+    /// until the remaining visible items fit alongside the right-side buttons.
+    /// Items with equal priority drop rightmost-first, preserving visual row order.
+    /// The returned set contains the indices of items to move into the More menu.
+    /// Items in the More menu are always rendered in their original visual order.
+    /// </summary>
+    private HashSet<int> CalculatePriorityOverflow(double rightButtonsWidth)
+    {
+        var dropOrder = _config.Row1Items
+            .Select((item, index) => (item, index))
+            .OrderBy(x => x.item.OverflowPriority)
+            .ThenByDescending(x => x.index)
+            .Select(x => x.index)
+            .ToList();
+
+        var overflowed = new HashSet<int>();
+        var visibleWidth = _itemWidths.Sum();
+
+        foreach (var index in dropOrder)
         {
-            running += _itemWidths[i];
-            if (running + rightButtonsWidth > _availWidth)
-            {
-                _overflowStartIndex = i;
-                return;
-            }
+            if (visibleWidth + rightButtonsWidth <= _availWidth)
+                break;
+
+            overflowed.Add(index);
+            visibleWidth -= _itemWidths[index];
         }
 
-        _overflowStartIndex = int.MaxValue;
+        return overflowed;
     }
 
     private async Task OpenProfileDialogAsync()

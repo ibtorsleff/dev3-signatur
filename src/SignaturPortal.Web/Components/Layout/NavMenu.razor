@@ -10,7 +10,7 @@
             @for (var i = 0; i < _config.Row1Items.Count; i++)
             {
                 var item = _config.Row1Items[i];
-                <li class="@(item.IsSelected ? "selected" : "") @(i >= _overflowStartIndex ? "nav-item-overflow" : "")"
+                <li class="@(item.IsSelected ? "selected" : "") @(_overflowedIndices.Contains(i) ? "nav-item-overflow" : "")"
                     data-nav-index="@i">
                     <a href="@item.Url">
                         <div class="icon @item.IconClass">@ResolveLabel(item)</div>
@@ -31,7 +31,8 @@
                             </div>
                         </ActivatorContent>
                         <ChildContent>
-                            @foreach (var item in _config.Row1Items.Skip(_overflowStartIndex))
+                            @* Items rendered in their original visual order, regardless of drop priority. *@
+                            @foreach (var (item, index) in _config.Row1Items.Select((item, i) => (item, i)).Where(x => _overflowedIndices.Contains(x.i)))
                             {
                                 <MudMenuItem Href="@item.Url">@ResolveLabel(item)</MudMenuItem>
                             }

@@ -55,7 +55,7 @@ public class NavigationConfigService : INavigationConfigService
             new() { LabelKey = "ActivityList", Label = "Sagsliste", Url = "/recruiting/activities", IconClass = "icon-activity-list", IsSelected = isRecruiting },
             new() { LabelKey = "Search", Label = "S\u00f8g", Url = "/Responsive/Recruiting/Search.aspx", IconClass = "icon-search" },
             new() { LabelKey = "JobBank", Label = "Jobbank", Url = "/Responsive/Recruiting/JobBank.aspx", IconClass = "icon-jobbank" },
-            new() { LabelKey = "Help", Label = "Hj\u00e6lp", Url = "/Responsive/Recruiting/Help.aspx", IconClass = "icon-help" },
+            new() { LabelKey = "Help", Label = "Hj\u00e6lp", Url = "/Responsive/Recruiting/Help.aspx", IconClass = "icon-help", OverflowPriority = 1 },
             new() { LabelKey = "Admin", Label = "Admin", Url = "/Responsive/Recruiting/Admin.aspx", IconClass = "icon-admin", RequiresInternal = true, RequiresAdminAccess = true },
             new() { LabelKey = "Statistics", Label = "Statistik", Url = "/Responsive/Recruiting/StatisticsQuestionnaire.aspx", IconClass = "icon-statistics", RequiresInternal = true, RequiresStatisticsAccess = true },
         ];

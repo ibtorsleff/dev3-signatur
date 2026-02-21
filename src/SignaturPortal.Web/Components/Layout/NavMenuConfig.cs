@@ -24,6 +24,14 @@ public class NavMenuItem
 
     /// <summary>Hidden unless the user has at least one statistics permission (recruitment, questionnaire, or media).</summary>
     public bool RequiresStatisticsAccess { get; set; }
+
+    /// <summary>
+    /// Controls the order in which items are moved into the overflow "More" menu
+    /// when Row 1 is too narrow to show all items. Lower value = drops sooner.
+    /// Items with equal priority drop in reverse visual order (rightmost first).
+    /// Default is 10.
+    /// </summary>
+    public int OverflowPriority { get; set; } = 10;
 }
 
 public class NavMenuConfig
