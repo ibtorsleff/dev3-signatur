@@ -14,3 +14,215 @@
 ::deep .activity-date-picker input {
     font-size: 0.875rem !important;
 }
+
+/* ── Toolbar — responsive ─────────────────────────────────────────────── */
+@media (max-width: 767px) {
+    .toolbar-row {
+        display: flex !important;
+        width: 100%;
+        flex-direction: column !important;
+        align-items: stretch !important;
+    }
+
+    ::deep .activity-client-autocomplete,
+    ::deep .activity-date-picker {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    /* Override inline min/max-width on the outer mud-select wrapper */
+    ::deep .mud-select:has(.activity-client-autocomplete) {
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+    }
+
+    ::deep .btn-create-activity,
+    ::deep .btn-more-filters,
+    ::deep .btn-export-activity-members {
+        width: 100% !important;
+    }
+
+    /* margin-top only for the main client dropdown, not more-filters ones */
+    ::deep .mud-select:has(.main-client-filter) {
+        margin-top: 20px;
+    }
+}
+
+/* ── Show/hide desktop vs mobile ──────────────────────────────────────── */
+.list-desktop { display: block; }
+.list-mobile  { display: none; }
+.list-mobile-header { display: none; }
+.list-mobile-pager { display: none; }
+
+@media (max-width: 767px) {
+    .list-desktop { display: none; }
+    .list-mobile  { display: block; }
+    .list-mobile-header { display: flex; }
+    .list-mobile-pager { display: flex; }
+}
+
+/* ── Mobile list header ───────────────────────────────────────────────── */
+.list-mobile-header {
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 10px;
+    padding: var(--portal-grid-headline-padding);
+    background-color: var(--portal-grid-headline-bg);
+    border-radius: var(--portal-grid-headline-border-radius);
+    font-size: var(--portal-grid-headline-font-size);
+}
+
+.list-mobile-title {
+    font-weight: bold;
+}
+
+.list-mobile-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #e0e0e0;
+    color: #333;
+    font-weight: bold;
+    font-size: 12px;
+    border-radius: 10px;
+    padding: 1px 8px;
+    min-width: 24px;
+}
+
+.list-mobile-badge-filter {
+    color: darkorange;
+}
+
+/* ── Mobile card ──────────────────────────────────────────────────────── */
+.list-item-mobile {
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin: 0 0 9px 0;
+    font-size: 14px;
+}
+
+.list-item-mobile > .headline {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    font-weight: bold;
+    padding: 10px 40px 10px 12px;
+    position: relative;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.list-item-mobile > .headline.item-closed,
+.list-item-mobile > .headline.item-cleaned {
+    color: #b0a0a0;
+    font-style: italic;
+}
+
+.list-item-headline-text {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    margin-right: 4px;
+}
+
+/* ── Expand/collapse button ───────────────────────────────────────────── */
+.list-item-expand-btn {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 24px;
+    height: 24px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    padding: 0;
+}
+
+.list-item-expand-btn::after {
+    content: '▾';
+    font-size: 18px;
+    color: #555;
+    display: block;
+    transition: transform 0.2s ease;
+}
+
+.list-item-expand-btn.expanded::after {
+    transform: rotate(180deg);
+}
+
+/* MudTooltip root wrapper — keep it as a proper flex item */
+::deep .mud-tooltip-root:has(.list-item-tooltip-trigger) {
+    display: inline-flex;
+    flex-shrink: 0;
+}
+
+/* Tooltip trigger — positioned to the left of the expand button */
+.list-item-tooltip-trigger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background-color: #aaa;
+    color: #fff;
+    font-size: 11px;
+    font-weight: bold;
+    font-style: italic;
+    font-family: serif;
+    cursor: pointer;
+}
+
+.list-item-tooltip-trigger::after {
+    content: 'i';
+}
+
+/* ── Expandable content ───────────────────────────────────────────────── */
+.list-item-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out;
+}
+
+.list-item-content.expanded {
+    max-height: 600px;
+    border-top: 1px solid #eee;
+}
+
+/* ── Field rows inside expanded content ──────────────────────────────── */
+.list-item-field {
+    display: flex;
+    padding: 6px 12px;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 13px;
+}
+
+.list-item-field:last-child { border-bottom: none; }
+
+.list-item-label {
+    width: 40%;
+    color: #888;
+    flex-shrink: 0;
+}
+
+.list-item-value { color: #333; font-weight: bold; }
+
+.list-mobile-empty { padding: 16px 0; color: #888; }
+
+/* ── Mobile pager ─────────────────────────────────────────────────────── */
+.list-mobile-pager {
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.mobile-pager-info {
+    font-size: 14px;
+    color: #555;
+}

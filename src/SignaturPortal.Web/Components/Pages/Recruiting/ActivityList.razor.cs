@@ -161,6 +161,13 @@ public partial class ActivityList
         ? $"« {Localization.GetText("Less")}"
         : $"{Localization.GetText("More")} »";
 
+    // Mobile list state
+    private List<ActivityListDto> _mobileItems = [];
+    private int _mobileCurrentPage;
+    private int _mobilePageSize = 25;
+    private bool _mobileDataLoaded;
+    private HashSet<int> _expandedActivityIds = [];
+
     protected override async Task OnInitializedAsync()
     {
         _isClientUser = Session.IsClientUser;
@@ -584,10 +591,15 @@ public partial class ActivityList
                 includeWebAdStatus: _showWebAdStatus,
                 includeWebAdChanges: _includeWebAdChanges);
             _totalCount = response.TotalCount;
+            var items = response.Items.ToList();
+            _mobileItems = items;
+            _mobileCurrentPage = state.Page;
+            _mobilePageSize = state.PageSize;
+            _mobileDataLoaded = true;
 
             return new GridData<ActivityListDto>
             {
-                Items = response.Items,
+                Items = items,
                 TotalItems = response.TotalCount
             };
         }
@@ -598,6 +610,8 @@ public partial class ActivityList
             if (ex.InnerException != null)
                 System.Diagnostics.Debug.WriteLine($"[ERROR] Inner: {ex.InnerException.GetType().Name}: {ex.InnerException.Message}");
             Snackbar.Add(Localization.GetText("ErrorLoadingActivities"), Severity.Error);
+            _mobileItems = [];
+            _mobileDataLoaded = true;
             return new GridData<ActivityListDto>
             {
                 Items = Array.Empty<ActivityListDto>(),
@@ -985,5 +999,77 @@ public partial class ActivityList
             await ErActivityService.LogExternalUserForceLogoutAsync(Session.UserId.Value);
 
         Navigation.NavigateTo("/Login.aspx", forceLoad: true);
+    }
+
+    // ── Mobile card helpers ─────────────────────────────────────────────────
+
+    private int TotalMobilePages =>
+        _mobilePageSize > 0 ? (int)Math.Ceiling((double)_totalCount / _mobilePageSize) : 1;
+
+    private void MobilePrevPage() => _dataGrid.NavigateTo(MudBlazor.Page.Previous);
+    private void MobileNextPage() => _dataGrid.NavigateTo(MudBlazor.Page.Next);
+
+    private void ToggleMobileCard(int activityId)
+    {
+        if (!_expandedActivityIds.Remove(activityId))
+            _expandedActivityIds.Add(activityId);
+    }
+
+    private void OnMobileCardClick(ActivityListDto item)
+    {
+        NavigateToDetail(item.EractivityId);
+    }
+
+    private string GetMobileCardHeadlineClass(ActivityListDto item)
+    {
+        var classes = new List<string> { "headline" };
+        if (item.EractivityStatusId == (int)ERActivityStatus.Closed)
+            classes.Add("item-closed");
+        if (item.IsCleaned)
+            classes.Add("item-cleaned");
+        return string.Join(" ", classes);
+    }
+
+    private string GetMobileHeadlineText(ActivityListDto item)
+        => _showCandidateCount && item.CandidateCount > 0
+            ? $"{item.Headline} ({item.CandidateCount})"
+            : item.Headline;
+
+    private string GetDeadlineDisplay(ActivityListDto item)
+        => item.ContinuousPosting ? "-" : item.ApplicationDeadline.ToString("dd-MM-yyyy");
+
+    private string GetStatusDisplayText(ActivityListDto item)
+        => item.EractivityStatusId switch
+        {
+            (int)ERActivityStatus.OnGoing => Localization.GetText("OnGoing"),
+            (int)ERActivityStatus.Closed  => Localization.GetText("Closed"),
+            (int)ERActivityStatus.Draft   => Localization.GetText("Draft"),
+            _                             => item.EractivityStatusId.ToString()
+        };
+
+    /// <summary>
+    /// Mobile tooltip — mirrors legacy ActivityList.ascx.cs mobile card tooltip logic:
+    /// Members: detailed unread/evaluation tooltip (same as desktop ID cell).
+    /// All users: falls back to simple total count using XCandidateWithArgs / XCandidatesWithArgs.
+    /// </summary>
+    private string GetMobileCardTooltip(ActivityListDto item)
+    {
+        if (item.EractivityStatusId != (int)ERActivityStatus.OnGoing)
+            return string.Empty;
+
+        // Member-specific detailed tooltip (same as desktop ID cell)
+        if (item.IsUserMember)
+        {
+            var memberTooltip = GetIdCellTooltip(item);
+            if (!string.IsNullOrEmpty(memberTooltip))
+                return memberTooltip;
+        }
+
+        // Fallback for all users: simple total count
+        if (item.CandidateCount <= 0)
+            return string.Empty;
+
+        var key = item.CandidateCount == 1 ? "XCandidateWithArgs" : "XCandidatesWithArgs";
+        return string.Format(Localization.GetText(key), item.CandidateCount);
     }
 }

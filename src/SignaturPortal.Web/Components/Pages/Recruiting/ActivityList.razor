@@ -8,7 +8,7 @@
 
 @if (!_isClientUser || _canCreateActivityInCurrentMode)
 {
-    <div style="display: inline-flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: @(_showMoreFilters ? "8px" : "20px");">
+    <div class="toolbar-row" style="display: inline-flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: @(_showMoreFilters ? "8px" : "20px");">
         @if (!_isClientUser)
         {
             <MudAutocomplete T="ClientDropdownDto"
@@ -21,8 +21,7 @@
                              Label="@Localization.GetText("Client")"
                              Required="true"
                              Dense="true" Margin="Margin.Dense" Variant="Variant.Outlined"
-                             Class="activity-client-autocomplete"
-                             Style="width: 300px;"
+                             Class="activity-client-autocomplete main-client-filter"
                              PopoverClass="activity-filter-popover"
                              MinCharacters="0"
                              MaxItems="null"
@@ -37,7 +36,6 @@
                            DateFormat="dd-MM-yyyy"
                            Margin="Margin.Dense" Variant="Variant.Outlined"
                            Class="activity-date-picker"
-                           Style="width: 310px;"
                            Clearable="true" />
             <MudDatePicker Date="_closedDateTo"
                            DateChanged="OnClosedDateToChanged"
@@ -45,7 +43,6 @@
                            DateFormat="dd-MM-yyyy"
                            Margin="Margin.Dense" Variant="Variant.Outlined"
                            Class="activity-date-picker"
-                           Style="width: 310px;"
                            Clearable="true" />
         }
         @if (_canCreateActivityInCurrentMode)
@@ -74,7 +71,7 @@
 @if (!_isClientUser)
 {
     <MudCollapse Expanded="_showMoreFilters">
-        <div style="display: inline-flex; gap: 12px; flex-wrap: wrap; margin-bottom:8px; padding: 4px 0 12px 0; align-items: flex-end;">
+        <div class="toolbar-row" style="display: inline-flex; gap: 12px; flex-wrap: wrap; margin-bottom:8px; padding: 4px 0 12px 0; align-items: flex-end;">
             <MudAutocomplete T="UserDropdownDto" 
                              @ref="_createdByAutocomplete"
                              Value="_createdByFilterUser"
@@ -183,6 +180,7 @@
     </MudCollapse>
 }
 
+<div class="list-desktop">
 <MudDataGrid T="ActivityListDto"
              @ref="_dataGrid"
              ServerData="LoadServerData"
@@ -323,6 +321,114 @@
         <MudText>@Localization.GetText("NoActivities")</MudText>
     </NoRecordsContent>
 </MudDataGrid>
+</div>
+
+@* ── MOBILE CARD LIST ──────────────────────────────────────────────────── *@
+<div class="list-mobile-header">
+    <span class="list-mobile-title">@_headlineText</span>
+    <span class="list-mobile-badge">@_totalCount</span>
+    @if (_hasActiveMoreFilters)
+    {
+        <span class="list-mobile-badge list-mobile-badge-filter">@Localization.GetText("Filter")</span>
+    }
+</div>
+<div class="list-mobile">
+    @if (_mobileDataLoaded && _mobileItems.Count == 0)
+    {
+        <MudText Class="list-mobile-empty">@Localization.GetText("NoActivities")</MudText>
+    }
+    @foreach (var item in _mobileItems)
+    {
+        var isExpanded = _expandedActivityIds.Contains(item.EractivityId);
+        <div class="list-item-mobile">
+            <div class="@GetMobileCardHeadlineClass(item)"
+                 @onclick="() => OnMobileCardClick(item)">
+                @if (!_hideEmailWarningIconColumn
+                     && item.EractivityStatusId == (int)ERActivityStatus.OnGoing
+                     && item.MembersMissingNotificationEmail > 0)
+                {
+                    <img src="/Responsive/images/responsive/list/email-warning-gray_36x32.png"
+                         style="width:18px; height:16px; opacity:0.85; margin-right:4px; vertical-align:middle;" />
+                }
+                @if (!_hideWebAdStatusIconColumn
+                     && item.EractivityStatusId == (int)ERActivityStatus.OnGoing)
+                {
+                    var webAdIconSrc = GetWebAdStatusIconSrc(item);
+                    if (!string.IsNullOrEmpty(webAdIconSrc))
+                    {
+                        <img src="@webAdIconSrc"
+                             style="width:18px; height:18px; opacity:0.85; margin-right:4px; vertical-align:middle;" />
+                    }
+                }
+                @if (!_hideWebAdChangesIconColumn
+                     && item.HasWebAdChanges
+                     && !string.IsNullOrEmpty(item.WebAdChangeSummary))
+                {
+                    <img src="/Responsive/images/responsive/list/insertion-is-new_28x36.png"
+                         style="width:14px; height:18px; opacity:0.85; margin-right:4px; vertical-align:middle;" />
+                }
+                <span class="list-item-headline-text">@GetMobileHeadlineText(item)</span>
+                @{ var mobileTooltip = GetMobileCardTooltip(item); }
+                @if (!string.IsNullOrEmpty(mobileTooltip))
+                {
+                    <MudTooltip Text="@mobileTooltip" Placement="Placement.Left">
+                        <span class="list-item-tooltip-trigger"
+                              @onclick:stopPropagation="true"
+                              @onclick="() => Snackbar.Add(mobileTooltip, Severity.Info)">
+                        </span>
+                    </MudTooltip>
+                }
+                <button class="list-item-expand-btn @(isExpanded ? "expanded" : "")"
+                        @onclick:stopPropagation="true"
+                        @onclick="() => ToggleMobileCard(item.EractivityId)">
+                </button>
+            </div>
+            <div class="list-item-content @(isExpanded ? "expanded" : "")">
+                <div class="list-item-field">
+                    <span class="list-item-label">@Localization.GetText("Status")</span>
+                    <span class="list-item-value">@GetStatusDisplayText(item)</span>
+                </div>
+                <div class="list-item-field">
+                    <span class="list-item-label">@Localization.GetText("ApplicationDeadline")</span>
+                    <span class="list-item-value">@GetDeadlineDisplay(item)</span>
+                </div>
+                @if (!_hideClientSectionColumn && !string.IsNullOrEmpty(item.ClientSectionName))
+                {
+                    <div class="list-item-field">
+                        <span class="list-item-label">@Localization.GetText("ClientSection")</span>
+                        <span class="list-item-value">@item.ClientSectionName</span>
+                    </div>
+                }
+                <div class="list-item-field">
+                    <span class="list-item-label">@Localization.GetText(_recruitingResponsableKey)</span>
+                    <span class="list-item-value">@item.RecruitingResponsibleName</span>
+                </div>
+                <div class="list-item-field">
+                    <span class="list-item-label">@Localization.GetText("CreateDate")</span>
+                    <span class="list-item-value">@item.CreateDate.ToString("dd-MM-yyyy")</span>
+                </div>
+                @if (!_hideCreatedByColumn && !string.IsNullOrEmpty(item.CreatedByName))
+                {
+                    <div class="list-item-field">
+                        <span class="list-item-label">@Localization.GetText("CreatedBy")</span>
+                        <span class="list-item-value">@item.CreatedByName</span>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+@* ── MOBILE PAGER ──────────────────────────────────────────────────────── *@
+<div class="list-mobile-pager">
+    <MudIconButton Icon="@Icons.Material.Filled.ChevronLeft"
+                   Disabled="@(_mobileCurrentPage == 0)"
+                   OnClick="MobilePrevPage" />
+    <span class="mobile-pager-info">@(_mobileCurrentPage + 1) / @TotalMobilePages</span>
+    <MudIconButton Icon="@Icons.Material.Filled.ChevronRight"
+                   Disabled="@(_mobileCurrentPage >= TotalMobilePages - 1)"
+                   OnClick="MobileNextPage" />
+</div>
 
 <MudMessageBox @ref="_noActivitiesDialog"
                Title="@Localization.GetText("ActivityList")">
