@@ -98,11 +98,10 @@ public partial class ActivityList
     // Matches legacy ActivityList.aspx.cs:362 + ExternalUserNoActiveActivtiesTmr_OnTick.
     private bool _externalUserHasNoActiveActivities;
 
-    // Flag set at the END of OnInitializedAsync to signal the grid should load.
-    // OnAfterRenderAsync(firstRender: true) fires BEFORE OnInitializedAsync completes
-    // for async lifecycle methods, so _activeClientId would be null at that point.
-    // Setting this flag at the end of init and reloading on the next AfterRender
-    // ensures the grid loads only after all client/session data is ready.
+    // Set at the END of OnInitializedAsync so OnAfterRenderAsync can detect when all state
+    // (including _activeClientId) is ready. The first OnAfterRenderAsync(firstRender: true)
+    // fires after the first await in OnInitializedAsync — before _activeClientId is set —
+    // so we can't rely on firstRender alone.
     private bool _gridNeedsLoad;
 
     // Whether the active client uses Fund applications (switches label to "RecruitingResponsableFund")
@@ -171,6 +170,24 @@ public partial class ActivityList
     protected override async Task OnInitializedAsync()
     {
         _isClientUser = Session.IsClientUser;
+
+        // Set status and headline before the first await so the first intermediate render
+        // (which fires when OnInitializedAsync yields) shows the correct headline text
+        // instead of the empty default. OnParametersSetAsync will run later and set them
+        // again, but this prevents the blank-headline flash.
+        _currentStatus = Mode?.ToLowerInvariant() switch
+        {
+            "draft" => ERActivityStatus.Draft,
+            "closed" => ERActivityStatus.Closed,
+            _ => ERActivityStatus.OnGoing
+        };
+        _headlineText = _currentStatus switch
+        {
+            ERActivityStatus.Draft => Localization.GetText("ERecruitmentDraftActivities"),
+            ERActivityStatus.Closed => Localization.GetText("ERecruitmentClosedActivities"),
+            _ => Localization.GetText("ERecruitmentOngoingActivities")
+        };
+
         var currentUser = await CurrentUserService.GetCurrentUserAsync();
         _isInternalUser = currentUser?.IsInternal ?? false;
         _canCreateActivity = await PermHelper.UserCanCreateActivityAsync();
@@ -250,7 +267,6 @@ public partial class ActivityList
             }
         }
 
-        // Signal that all state is ready; OnAfterRenderAsync will trigger the initial grid load.
         _gridNeedsLoad = true;
     }
 
@@ -258,10 +274,14 @@ public partial class ActivityList
     {
         if (_gridNeedsLoad)
         {
-            // _gridNeedsLoad is set at the end of OnInitializedAsync, so _activeClientId
-            // is guaranteed to be populated before this fires.
             _gridNeedsLoad = false;
-            await _dataGrid.ReloadServerData();
+
+            // Internal users: the MudDataGrid auto-load fired before _activeClientId was set
+            // (OnAfterRenderAsync firstRender fires at the first await in OnInitializedAsync),
+            // so the auto-load returned empty. Reload now that _activeClientId is populated.
+            // Client users: the auto-load already ran with correct data — skip the reload.
+            if (!_isClientUser)
+                await _dataGrid.ReloadServerData();
 
             if (!_isClientUser)
             {
