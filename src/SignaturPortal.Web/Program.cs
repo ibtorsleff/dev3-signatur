@@ -131,10 +131,10 @@ if (app.Configuration.GetValue<bool>("ERActivityListUseLegacyUrls"))
         var modeParam = context.Request.Query["Mode"].ToString();
         var blazorRoute = modeParam switch
         {
-            "2" => "/activities/closed",
-            "3" => "/activities/draft",
-            "1" or "" => "/activities/ongoing",
-            _ => "/activities/ongoing" // Default to ongoing
+            "2" => "/recruiting/activities/closed",
+            "3" => "/recruiting/activities/draft",
+            "1" or "" => "/recruiting/activities/ongoing",
+            _ => "/recruiting/activities/ongoing" // Default to ongoing
         };
 
         return Results.Redirect(blazorRoute, permanent: false);
