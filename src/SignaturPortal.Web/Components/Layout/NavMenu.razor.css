@@ -507,7 +507,7 @@
 .top-menu-mobile > .row-1 {
     display: flex;
     height: 66px;
-    background-color: var(--mud-palette-surface);
+    background-color: #1a9b89;
     overflow: hidden;
 }
 
@@ -533,10 +533,12 @@
     padding-left: 54px;
     font-size: 15px;
     font-weight: bold;
-    color: #1a9b89;
+    color: #fff;
     white-space: nowrap;
     background: transparent url(/Responsive/images/responsive/top-menu/recruitment-top-logo_120x120.png) no-repeat center left;
     background-size: 44px 44px;
+    /* Invert the dark logo image so it appears white on the teal header */
+    filter: brightness(0) invert(1);
 }
 
 /* Right panel: burger + page title + user icon — full width when closed, 28% when expanded */
@@ -564,6 +566,8 @@
     height: 46px;
     background: url(/Responsive/images/responsive/burger-menu/burger-menu_52x52.png) no-repeat center;
     background-size: 26px 26px;
+    /* Dark icon → white for visibility on teal header */
+    filter: brightness(0) invert(1);
 }
 
 /* Current page title — fades out while menu opens */
@@ -576,7 +580,7 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    color: var(--portal-nav-row1-color);
+    color: #fff;
     opacity: 1;
     transition: opacity 0.2s ease-out;
 }
@@ -617,6 +621,8 @@
 .top-menu-mobile .mobile-user-icon img {
     width: 26px;
     height: 26px;
+    /* Dark icon → white for visibility on teal header */
+    filter: brightness(0) invert(1);
 }
 
 /* --- Row 2: expandable menu panel --- */
