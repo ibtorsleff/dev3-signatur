@@ -100,4 +100,26 @@ public class PermissionHelperService : IPermissionHelper
 
     public async Task<bool> UserCanImpersonateAsync(CancellationToken ct = default)
         => await HasPermissionAsync(PortalPermission.AdPortalAllowImpersonate, ct);
+
+    public async Task<bool> UserCanAccessAdPortalMediaStatisticsAsync(CancellationToken ct = default)
+        => await HasPermissionAsync(PortalPermission.AdPortalMediaStatisticsAccess, ct)
+           || await HasPermissionAsync(PortalPermission.AdPortalEditActivityMediaStatistics, ct);
+
+    // --- Onboarding Portal ---
+
+    public async Task<bool> UserCanAccessOnboardingTemplatesAsync(CancellationToken ct = default)
+        => await HasPermissionAsync(PortalPermission.OnboardingPortalViewTemplates, ct)
+           || await HasPermissionAsync(PortalPermission.OnboardingPortalCreateEditTemplates, ct);
+
+    public async Task<bool> UserCanAccessOnboardingLetterTemplatesAsync(CancellationToken ct = default)
+        => await HasPermissionAsync(PortalPermission.OnboardingPortalViewLetterTemplates, ct)
+           || await HasPermissionAsync(PortalPermission.OnboardingPortalCreateEditLetterTemplates, ct);
+
+    public async Task<bool> UserCanAccessOnboardingUsersAsync(CancellationToken ct = default)
+        => await HasPermissionAsync(PortalPermission.OnboardingPortalViewUsers, ct)
+           || await HasPermissionAsync(PortalPermission.OnboardingPortalCreateEditUsers, ct);
+
+    public async Task<bool> UserCanAccessOnboardingQuestionnairesAsync(CancellationToken ct = default)
+        => await HasPermissionAsync(PortalPermission.OnboardingPortalViewQuestionnaires, ct)
+           || await HasPermissionAsync(PortalPermission.OnboardingPortalCreateEditQuestionnaires, ct);
 }

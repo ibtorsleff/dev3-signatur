@@ -18,9 +18,24 @@ public class NavigationConfigService : INavigationConfigService
         return new NavMenuConfig
         {
             PortalType = portal,
-            PortalName = "Rekruttering",
-            PortalNameKey = "ERecruitmentPortal",
-            PortalUrl = "/recruiting/activities",
+            PortalName = portal switch
+            {
+                PortalType.AdPortal   => "Annonceportal",
+                PortalType.Onboarding => "Medarbejderportal",
+                _                     => "Rekruttering",
+            },
+            PortalNameKey = portal switch
+            {
+                PortalType.AdPortal   => "AdPortal",
+                PortalType.Onboarding => "OBEmployeePortal",
+                _                     => "ERecruitmentPortal",
+            },
+            PortalUrl = portal switch
+            {
+                PortalType.AdPortal   => "/Responsive/AdPortal/ActivityList.aspx",
+                PortalType.Onboarding => "/Responsive/OnBoarding/Default.aspx",
+                _                     => "/recruiting/activities",
+            },
             ThemeCssClass = portal switch
             {
                 PortalType.AdPortal   => "theme-adportal",
@@ -72,10 +87,20 @@ public class NavigationConfigService : INavigationConfigService
 
     private static List<NavMenuItem> GetRow2Items(string path)
     {
-        if (!path.StartsWith("/recruiting", StringComparison.OrdinalIgnoreCase))
-            return [];
+        if (path.StartsWith("/recruiting", StringComparison.OrdinalIgnoreCase))
+            return GetRecruitingRow2Items(path);
 
-        // Normalize: remove trailing slash for consistent matching
+        if (path.StartsWith("/adportal", StringComparison.OrdinalIgnoreCase))
+            return GetAdPortalRow2Items(path);
+
+        if (path.StartsWith("/onboarding", StringComparison.OrdinalIgnoreCase))
+            return GetOnboardingRow2Items(path);
+
+        return [];
+    }
+
+    private static List<NavMenuItem> GetRecruitingRow2Items(string path)
+    {
         var normalizedPath = path.TrimEnd('/');
 
         var isDraft = normalizedPath.Equals("/recruiting/activities/draft", StringComparison.OrdinalIgnoreCase);
@@ -89,6 +114,46 @@ public class NavigationConfigService : INavigationConfigService
             new() { LabelKey = "ERecruitmentDraftActivities", Label = "Kladdesager", Url = "/recruiting/activities/draft", IsSelected = isDraft, RequiresDraftAccess = true },
             new() { LabelKey = "ERecruitmentOngoingActivities", Label = "Igangv\u00e6rende sager", Url = "/recruiting/activities", IsSelected = isOngoing },
             new() { LabelKey = "ERecruitmentClosedActivities", Label = "Afsluttede sager", Url = "/recruiting/activities/closed", IsSelected = isClosed },
+        ];
+    }
+
+    private static List<NavMenuItem> GetAdPortalRow2Items(string path)
+    {
+        var normalizedPath = path.TrimEnd('/');
+
+        // Future Blazor routes will refine this matching. For now the activity list
+        // is selected whenever we are anywhere under /adportal.
+        var isMediaStatistics = normalizedPath.Equals("/adportal/media-statistics", StringComparison.OrdinalIgnoreCase);
+        var isActivities = !isMediaStatistics;
+
+        return
+        [
+            new() { LabelKey = "Activities", Label = "Aktiviteter", Url = "/Responsive/AdPortal/ActivityList.aspx", IsSelected = isActivities },
+            new() { LabelKey = "MediaStatistics", Label = "Mediestatistik", Url = "/Responsive/AdPortal/MediaStatisticsActivityList.aspx", IsSelected = isMediaStatistics, RequiresAdPortalMediaStatisticsAccess = true },
+        ];
+    }
+
+    private static List<NavMenuItem> GetOnboardingRow2Items(string path)
+    {
+        var normalizedPath = path.TrimEnd('/');
+
+        // Future Blazor routes will refine this matching.
+        var isTasks = normalizedPath.Equals("/onboarding/tasks", StringComparison.OrdinalIgnoreCase);
+        var isTemplates = normalizedPath.Equals("/onboarding/templates", StringComparison.OrdinalIgnoreCase);
+        var isLetterTemplates = normalizedPath.Equals("/onboarding/letter-templates", StringComparison.OrdinalIgnoreCase);
+        var isUsers = normalizedPath.Equals("/onboarding/users", StringComparison.OrdinalIgnoreCase);
+        var isQuestionnaires = normalizedPath.Equals("/onboarding/questionnaires", StringComparison.OrdinalIgnoreCase);
+        // Employees is the default tab for any /onboarding/* path that isn't one of the above.
+        var isEmployees = !isTasks && !isTemplates && !isLetterTemplates && !isUsers && !isQuestionnaires;
+
+        return
+        [
+            new() { LabelKey = "OBEmployees", Label = "Medarbejdere", Url = "/Responsive/Onboarding/ProcessList.aspx", IsSelected = isEmployees },
+            new() { LabelKey = "OBTasks", Label = "Opgaver", Url = "/Responsive/Onboarding/ProcessTaskList.aspx", IsSelected = isTasks },
+            new() { LabelKey = "OBTemplates", Label = "Skabeloner", Url = "/Responsive/Onboarding/TemplateList.aspx", IsSelected = isTemplates, RequiresOnboardingTemplatesAccess = true },
+            new() { LabelKey = "OBLetterTemplates", Label = "Brevskabeloner", Url = "/Responsive/Onboarding/LetterTemplateList.aspx", IsSelected = isLetterTemplates, RequiresOnboardingLetterTemplatesAccess = true },
+            new() { LabelKey = "Users", Label = "Brugere", Url = "/Responsive/Onboarding/UserList.aspx", IsSelected = isUsers, RequiresOnboardingUsersAccess = true },
+            new() { LabelKey = "QNQuestionnaires", Label = "Sp\u00f8rgeskemaer", Url = "/Responsive/Onboarding/QuestionnaireList.aspx", IsSelected = isQuestionnaires, RequiresOnboardingQuestionnairesAccess = true },
         ];
     }
 

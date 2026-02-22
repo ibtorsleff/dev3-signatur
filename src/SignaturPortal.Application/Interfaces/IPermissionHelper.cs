@@ -10,6 +10,13 @@ public interface IPermissionHelper
     // Ad Portal
     Task<bool> UserCanAccessAdPortalAsync(CancellationToken ct = default);
     Task<bool> UserHasAdminAccessAsync(CancellationToken ct = default);
+    Task<bool> UserCanAccessAdPortalMediaStatisticsAsync(CancellationToken ct = default);
+
+    // Onboarding Portal
+    Task<bool> UserCanAccessOnboardingTemplatesAsync(CancellationToken ct = default);
+    Task<bool> UserCanAccessOnboardingLetterTemplatesAsync(CancellationToken ct = default);
+    Task<bool> UserCanAccessOnboardingUsersAsync(CancellationToken ct = default);
+    Task<bool> UserCanAccessOnboardingQuestionnairesAsync(CancellationToken ct = default);
 
     // Recruitment Portal
     Task<bool> UserCanAccessRecruitmentAsync(CancellationToken ct = default);

@@ -25,6 +25,21 @@ public class NavMenuItem
     /// <summary>Hidden unless the user has at least one statistics permission (recruitment, questionnaire, or media).</summary>
     public bool RequiresStatisticsAccess { get; set; }
 
+    /// <summary>Hidden unless the user has AdPortal media statistics access.</summary>
+    public bool RequiresAdPortalMediaStatisticsAccess { get; set; }
+
+    /// <summary>Hidden unless the user has Onboarding template access.</summary>
+    public bool RequiresOnboardingTemplatesAccess { get; set; }
+
+    /// <summary>Hidden unless the user has Onboarding letter template access.</summary>
+    public bool RequiresOnboardingLetterTemplatesAccess { get; set; }
+
+    /// <summary>Hidden unless the user has Onboarding user administration access.</summary>
+    public bool RequiresOnboardingUsersAccess { get; set; }
+
+    /// <summary>Hidden unless the user has Onboarding questionnaire access.</summary>
+    public bool RequiresOnboardingQuestionnairesAccess { get; set; }
+
     /// <summary>
     /// Controls the order in which items are moved into the overflow "More" menu
     /// when Row 1 is too narrow to show all items. Lower value = drops sooner.

@@ -315,6 +315,36 @@
     background-image: linear-gradient(to bottom, #054541 0%, #178a7a 100%);
 }
 
+/* ============================================================
+   Row 2: "Others" dropdown button
+   ============================================================ */
+
+/* Pierce MudMenu's activator wrapper so it fills the row height */
+.nav-row2-others-item ::deep .mud-menu-activator {
+    display: flex !important;
+    align-items: center !important;
+    height: 44px;
+    cursor: pointer;
+}
+
+/* Activator content — mirrors the layout of regular Row 2 tab divs (li > a > div) */
+.nav-row2-others-activator {
+    display: flex;
+    align-items: center;
+    height: 44px;
+    padding: 0 50px;
+    border-right: 1px solid #5bb9ad;
+    box-shadow: inset -1px 0 0 #178a79;
+    gap: 2px;
+}
+
+/* Shrink the dropdown arrow icon to fit inline with the text */
+.nav-row2-others-activator ::deep .mud-icon-root {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+}
+
 /* Impersonation chip inside the user-menu activator */
 .user-menu-activator ::deep .impersonate-chip {
     font-size: 12px;

@@ -42,6 +42,11 @@ public partial class NavMenu : IAsyncDisposable
     private bool _canAccessDraftActivities;
     private bool _canAccessRecruitmentAdmin;
     private bool _canAccessRecruitmentStatistics;
+    private bool _canAccessAdPortalMediaStatistics;
+    private bool _canAccessOnboardingTemplates;
+    private bool _canAccessOnboardingLetterTemplates;
+    private bool _canAccessOnboardingUsers;
+    private bool _canAccessOnboardingQuestionnaires;
 
     // --- Row 1 layout state ---
     // Estimated widths of the "More" and "Portals" dropdown buttons.
@@ -72,6 +77,12 @@ public partial class NavMenu : IAsyncDisposable
 
     private bool HasOverflow => _overflowedIndices.Count > 0;
 
+    // Row 2: up to 4 tabs shown directly; any beyond that go into "Others".
+    private const int Row2MaxVisible = 4;
+    private IEnumerable<NavMenuItem> Row2MainItems => _config.Row2Items.Take(Row2MaxVisible);
+    private IEnumerable<NavMenuItem> Row2OthersItems => _config.Row2Items.Skip(Row2MaxVisible);
+    private bool HasRow2Others => _config.Row2Items.Count > Row2MaxVisible;
+
     protected override async Task OnInitializedAsync()
     {
         Navigation.LocationChanged += OnLocationChanged;
@@ -88,6 +99,11 @@ public partial class NavMenu : IAsyncDisposable
         _canAccessDraftActivities = await PermissionHelper.UserCanAccessRecruitmentDraftActivitiesAsync();
         _canAccessRecruitmentAdmin = await PermissionHelper.UserCanAccessRecruitmentAdminAsync();
         _canAccessRecruitmentStatistics = await PermissionHelper.UserCanAccessRecruitmentStatisticsAsync();
+        _canAccessAdPortalMediaStatistics = await PermissionHelper.UserCanAccessAdPortalMediaStatisticsAsync();
+        _canAccessOnboardingTemplates = await PermissionHelper.UserCanAccessOnboardingTemplatesAsync();
+        _canAccessOnboardingLetterTemplates = await PermissionHelper.UserCanAccessOnboardingLetterTemplatesAsync();
+        _canAccessOnboardingUsers = await PermissionHelper.UserCanAccessOnboardingUsersAsync();
+        _canAccessOnboardingQuestionnaires = await PermissionHelper.UserCanAccessOnboardingQuestionnairesAsync();
 
         UpdateNavConfig();
         ApplyUserVisibility();
@@ -149,7 +165,12 @@ public partial class NavMenu : IAsyncDisposable
             .ToList();
 
         _config.Row2Items = _config.Row2Items
-            .Where(item => !item.RequiresDraftAccess || _canAccessDraftActivities)
+            .Where(item => (!item.RequiresDraftAccess || _canAccessDraftActivities)
+                        && (!item.RequiresAdPortalMediaStatisticsAccess || _canAccessAdPortalMediaStatistics)
+                        && (!item.RequiresOnboardingTemplatesAccess || _canAccessOnboardingTemplates)
+                        && (!item.RequiresOnboardingLetterTemplatesAccess || _canAccessOnboardingLetterTemplates)
+                        && (!item.RequiresOnboardingUsersAccess || _canAccessOnboardingUsers)
+                        && (!item.RequiresOnboardingQuestionnairesAccess || _canAccessOnboardingQuestionnaires))
             .ToList();
     }
 

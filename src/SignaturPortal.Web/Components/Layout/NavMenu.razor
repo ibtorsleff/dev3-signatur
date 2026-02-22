@@ -81,12 +81,34 @@
     @* Row 2: Secondary tabs *@
     <div class="row-2">
         <ul class="menu-items menu-items-left">
-            @foreach (var item in _config.Row2Items)
+            @foreach (var item in Row2MainItems)
             {
                 <li class="@(item.IsSelected ? "selected" : "")">
                     <a href="@item.Url">
                         <div>@ResolveLabel(item)</div>
                     </a>
+                </li>
+            }
+            @if (HasRow2Others)
+            {
+                <li class="nav-row2-others-item @(Row2OthersItems.Any(i => i.IsSelected) ? "selected" : "")">
+                    <MudMenu ActivationEvent="@MouseEvent.LeftClick"
+                             AnchorOrigin="Origin.BottomLeft"
+                             TransformOrigin="Origin.TopLeft"
+                             Dense="true">
+                        <ActivatorContent>
+                            <div class="nav-row2-others-activator">
+                                @Localization.GetText("Others")
+                                <MudIcon Icon="@Icons.Material.Filled.ArrowDropDown" />
+                            </div>
+                        </ActivatorContent>
+                        <ChildContent>
+                            @foreach (var item in Row2OthersItems)
+                            {
+                                <MudMenuItem Href="@item.Url">@ResolveLabel(item)</MudMenuItem>
+                            }
+                        </ChildContent>
+                    </MudMenu>
                 </li>
             }
         </ul>
