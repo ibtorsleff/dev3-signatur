@@ -103,10 +103,14 @@ public class NavigationConfigService : INavigationConfigService
     {
         var normalizedPath = path.TrimEnd('/');
 
+        // Activity detail/edit: /recruiting/activities/{numeric-id}
+        // Switch to activity-context tabs instead of the list-level Draft/Ongoing/Closed tabs.
+        var activityId = ExtractActivityId(normalizedPath);
+        if (activityId != null)
+            return GetActivityDetailRow2Items(activityId);
+
         var isDraft = normalizedPath.Equals("/recruiting/activities/draft", StringComparison.OrdinalIgnoreCase);
         var isClosed = normalizedPath.Equals("/recruiting/activities/closed", StringComparison.OrdinalIgnoreCase);
-        // "Ongoing" is the default for /recruiting/activities and any sub-path that isn't draft or closed
-        // This includes detail pages like /recruiting/activities/123
         var isOngoing = !isDraft && !isClosed;
 
         return
@@ -114,6 +118,39 @@ public class NavigationConfigService : INavigationConfigService
             new() { LabelKey = "ERecruitmentDraftActivities", Label = "Kladdesager", Url = "/recruiting/activities/draft", IsSelected = isDraft, RequiresDraftAccess = true },
             new() { LabelKey = "ERecruitmentOngoingActivities", Label = "Igangv\u00e6rende sager", Url = "/recruiting/activities", IsSelected = isOngoing },
             new() { LabelKey = "ERecruitmentClosedActivities", Label = "Afsluttede sager", Url = "/recruiting/activities/closed", IsSelected = isClosed },
+        ];
+    }
+
+    /// <summary>
+    /// Extracts the numeric activity ID from a path like /recruiting/activities/120581.
+    /// Returns null for list paths (/recruiting/activities, /recruiting/activities/draft, etc.).
+    /// </summary>
+    private static string? ExtractActivityId(string normalizedPath)
+    {
+        var segments = normalizedPath.Split('/', StringSplitOptions.RemoveEmptyEntries);
+        if (segments.Length == 3
+            && segments[0].Equals("recruiting", StringComparison.OrdinalIgnoreCase)
+            && segments[1].Equals("activities", StringComparison.OrdinalIgnoreCase)
+            && segments[2].All(char.IsDigit))
+        {
+            return segments[2];
+        }
+        return null;
+    }
+
+    /// <summary>
+    /// Row 2 tabs for an individual activity (master data, advertisement, notes, candidates).
+    /// Uses the same localization keys as the legacy RecruitingTabs control.
+    /// Non-Blazor tabs fall through to the legacy app via YARP.
+    /// </summary>
+    private static List<NavMenuItem> GetActivityDetailRow2Items(string activityId)
+    {
+        return
+        [
+            new() { LabelKey = "Activity",       Label = "Sag",       Url = $"/recruiting/activities/{activityId}",                              IsSelected = true },
+            new() { LabelKey = "CandidateList",  Label = "Kandidater", Url = $"/Responsive/Recruiting/CandidateList.aspx?ErId={activityId}" },
+            new() { LabelKey = "Advertisement",  Label = "Annonce",    Url = $"/Responsive/Recruiting/ActivityCreateEditAd.aspx?ErId={activityId}" },
+            new() { LabelKey = "ActivityNotes",  Label = "Sagsnoter",  Url = $"/Responsive/Recruiting/ActivityNotes.aspx?ErId={activityId}" },
         ];
     }
 
