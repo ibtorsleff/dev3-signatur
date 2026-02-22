@@ -192,3 +192,128 @@
         </div>
     }
 </nav>
+
+@* ============================================================
+   Mobile Navigation — shown at ≤767px, hidden on desktop
+   ============================================================ *@
+<nav class="top-menu-mobile @(_mobileMenuOpen ? "expanded" : "")">
+    @* Row 1: fixed header bar — always visible *@
+    <div class="row-1">
+        @* Left panel: portal name — animates open when menu expands *@
+        <div class="menu-items-left" @onclick="ToggleMobileMenu">
+            <div class="top-logo">
+                <div>@ResolvePortalName()</div>
+            </div>
+        </div>
+        @* Right panel: burger + page title + user icon *@
+        <div class="menu-items-right">
+            <div class="burger-menu-icon" @onclick="ToggleMobileMenu">
+                <div></div>
+            </div>
+            <div class="current-page">
+                <div>@ResolveMobilePageTitle()</div>
+            </div>
+            <div class="mobile-user-icon">
+                <MudMenu ActivationEvent="@MouseEvent.LeftClick"
+                         AnchorOrigin="Origin.BottomRight"
+                         TransformOrigin="Origin.TopRight"
+                         Dense="true">
+                    <ActivatorContent>
+                        <img src="/Responsive/images/responsive/burger-menu/user_34x34.png" alt="User" />
+                    </ActivatorContent>
+                    <ChildContent>
+                        @if (Session.IsImpersonating)
+                        {
+                            <MudMenuItem Disabled="true">
+                                <MudChip T="string" Color="Color.Warning" Size="Size.Small" Variant="Variant.Filled">
+                                    Optræder som @(Session.FullName ?? Session.UserName)
+                                </MudChip>
+                            </MudMenuItem>
+                            <MudDivider />
+                        }
+                        @* Portal links — cross-portal navigation (mobile only) *@
+                        @foreach (var item in _config.Row1RightItems)
+                        {
+                            <MudMenuItem Href="@item.Url"
+                                         Icon="@Icons.Material.Filled.OpenInNew">
+                                @ResolveLabel(item)
+                            </MudMenuItem>
+                        }
+                        <MudDivider />
+                        @if (!Session.IsImpersonating)
+                        {
+                            <MudMenuItem Icon="@Icons.Material.Filled.Person"
+                                         OnClick="OpenProfileDialogAsync">
+                                @Localization.GetText("Profile")
+                            </MudMenuItem>
+                            <MudMenuItem Icon="@Icons.Material.Filled.Key">
+                                @Localization.GetText("ChangePassword")
+                            </MudMenuItem>
+                            @if (_isInternal)
+                            {
+                                <MudMenuItem Icon="@Icons.Material.Filled.ManageAccounts"
+                                             OnClick="OpenImpersonateDialogAsync">
+                                    @Localization.GetText("Impersonate")
+                                </MudMenuItem>
+                            }
+                            <MudDivider />
+                        }
+                        else
+                        {
+                            <MudMenuItem Icon="@Icons.Material.Filled.SwitchAccount"
+                                         OnClick="() => OnImpersonateToggled(false)">
+                                Stop med at optræde som
+                            </MudMenuItem>
+                            <MudDivider />
+                        }
+                        <MudMenuItem Icon="@(_themeState.IsDarkMode ? Icons.Material.Filled.LightMode : Icons.Material.Filled.DarkMode)"
+                                     OnClick="ToggleDarkMode">
+                            @(_themeState.IsDarkMode ? "Light mode" : "Dark mode")
+                        </MudMenuItem>
+                        @if (!Session.IsImpersonating)
+                        {
+                            <MudDivider />
+                            <MudMenuItem Icon="@Icons.Material.Filled.Logout"
+                                         OnClick="NavigateToLogout">
+                                @Localization.GetText("Logout")
+                            </MudMenuItem>
+                        }
+                    </ChildContent>
+                </MudMenu>
+            </div>
+        </div>
+    </div>
+
+    @* Row 2: expandable item list *@
+    <div class="row-2">
+        @* Primary nav items (Row 1) — with icons *@
+        @foreach (var item in _config.Row1Items)
+        {
+            <div class="mobile-menu-item @item.IconClass @(item.IsSelected ? "selected" : "")">
+                <a href="@item.Url"><div>@ResolveLabel(item)</div></a>
+            </div>
+        }
+        @if (_config.Row2Items.Count > 0)
+        {
+            <div class="mobile-menu-separator"></div>
+            @* Sub-tab items (Row 2) — no icons, indented *@
+            @foreach (var item in _config.Row2Items)
+            {
+                <div class="mobile-menu-item mobile-menu-item-sub @(item.IsSelected ? "selected" : "")">
+                    <a href="@item.Url"><div>@ResolveLabel(item)</div></a>
+                </div>
+            }
+        }
+        @if (_config.Row1RightItems.Count > 0)
+        {
+            <div class="mobile-menu-separator"></div>
+            @* Portal switchers *@
+            @foreach (var item in _config.Row1RightItems)
+            {
+                <div class="mobile-menu-item @item.IconClass">
+                    <a href="@item.Url"><div>@ResolveLabel(item)</div></a>
+                </div>
+            }
+        }
+    </div>
+</nav>

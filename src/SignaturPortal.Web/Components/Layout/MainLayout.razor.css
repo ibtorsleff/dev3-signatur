@@ -8,3 +8,10 @@
     flex: 1;
     padding: 1.5rem;
 }
+
+/* Offset content below the fixed mobile nav bar */
+@media (max-width: 767px) {
+    .main-content {
+        padding-top: 66px;
+    }
+}

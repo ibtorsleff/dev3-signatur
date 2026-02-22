@@ -77,6 +77,25 @@ public partial class NavMenu : IAsyncDisposable
 
     private bool HasOverflow => _overflowedIndices.Count > 0;
 
+    // --- Mobile nav state ---
+    private bool _mobileMenuOpen;
+
+    private void ToggleMobileMenu()
+    {
+        _mobileMenuOpen = !_mobileMenuOpen;
+    }
+
+    /// <summary>
+    /// Returns the label of the currently active page for the mobile header.
+    /// Prefers the active Row 2 tab, falls back to the active Row 1 item, then portal name.
+    /// </summary>
+    private string ResolveMobilePageTitle()
+    {
+        var active = _config.Row2Items.FirstOrDefault(i => i.IsSelected)
+                  ?? _config.Row1Items.FirstOrDefault(i => i.IsSelected);
+        return active != null ? ResolveLabel(active) : ResolvePortalName();
+    }
+
     // Row 2: up to 4 tabs shown directly; any beyond that go into "Others".
     private const int Row2MaxVisible = 4;
     private IEnumerable<NavMenuItem> Row2MainItems => _config.Row2Items.Take(Row2MaxVisible);
@@ -133,6 +152,8 @@ public partial class NavMenu : IAsyncDisposable
         // User context is already loaded — just rebuild config and re-filter.
         UpdateNavConfig();
         ApplyUserVisibility();
+        // Close mobile menu on navigation.
+        _mobileMenuOpen = false;
         // Reset overflow state so all items are visible for re-measurement.
         _overflowedIndices = [];
         _portalsCollapsed = false;

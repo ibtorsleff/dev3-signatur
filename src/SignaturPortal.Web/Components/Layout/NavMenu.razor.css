@@ -465,3 +465,221 @@
     height: 2px;
     background-color: #69a79c;
 }
+
+/* ============================================================
+   Desktop nav: hide on mobile
+   ============================================================ */
+
+@media (max-width: 767px) {
+    .top-menu {
+        display: none;
+    }
+}
+
+/* ============================================================
+   Mobile Navigation (≤767px)
+   ============================================================ */
+
+/* Hidden on desktop; displayed as block on mobile */
+.top-menu-mobile {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 90;
+    font-family: Tahoma, "Times New Roman", Arial, sans-serif;
+    box-sizing: border-box;
+}
+
+.top-menu-mobile *, .top-menu-mobile *::before, .top-menu-mobile *::after {
+    box-sizing: border-box;
+}
+
+@media (max-width: 767px) {
+    .top-menu-mobile {
+        display: block;
+    }
+}
+
+/* --- Row 1: always-visible header bar (66px) --- */
+
+.top-menu-mobile > .row-1 {
+    display: flex;
+    height: 66px;
+    background-color: var(--mud-palette-surface);
+    overflow: hidden;
+}
+
+/* Left panel: portal name — zero-width when closed, 72% when expanded */
+.top-menu-mobile > .row-1 > .menu-items-left {
+    width: 0;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: width 0.3s ease-out;
+}
+
+.top-menu-mobile.expanded > .row-1 > .menu-items-left {
+    width: 72%;
+}
+
+.top-menu-mobile > .row-1 > .menu-items-left .top-logo > div {
+    display: flex;
+    align-items: center;
+    height: 44px;
+    padding-left: 54px;
+    font-size: 15px;
+    font-weight: bold;
+    color: #1a9b89;
+    white-space: nowrap;
+    background: transparent url(/Responsive/images/responsive/top-menu/recruitment-top-logo_120x120.png) no-repeat center left;
+    background-size: 44px 44px;
+}
+
+/* Right panel: burger + page title + user icon — full width when closed, 28% when expanded */
+.top-menu-mobile > .row-1 > .menu-items-right {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    transition: width 0.3s ease-out;
+}
+
+.top-menu-mobile.expanded > .row-1 > .menu-items-right {
+    width: 28%;
+}
+
+/* Burger icon */
+.top-menu-mobile .burger-menu-icon {
+    flex-shrink: 0;
+    cursor: pointer;
+    padding: 0 4px;
+}
+
+.top-menu-mobile .burger-menu-icon > div {
+    width: 46px;
+    height: 46px;
+    background: url(/Responsive/images/responsive/burger-menu/burger-menu_52x52.png) no-repeat center;
+    background-size: 26px 26px;
+}
+
+/* Current page title — fades out while menu opens */
+.top-menu-mobile .current-page {
+    flex: 1;
+    min-width: 0;
+    padding: 0 6px;
+    font-size: 14px;
+    font-weight: bold;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--portal-nav-row1-color);
+    opacity: 1;
+    transition: opacity 0.2s ease-out;
+}
+
+.top-menu-mobile.expanded .current-page {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* User icon — fades out while menu opens */
+.top-menu-mobile .mobile-user-icon {
+    flex-shrink: 0;
+    width: 46px;
+    height: 46px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    opacity: 1;
+    transition: opacity 0.2s ease-out;
+}
+
+.top-menu-mobile.expanded .mobile-user-icon {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Pierce MudMenu activator so user icon fills the 46×46 tap target */
+.top-menu-mobile .mobile-user-icon ::deep .mud-menu-activator {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 46px;
+    height: 46px;
+    cursor: pointer;
+}
+
+.top-menu-mobile .mobile-user-icon img {
+    width: 26px;
+    height: 26px;
+}
+
+/* --- Row 2: expandable menu panel --- */
+
+.top-menu-mobile > .row-2 {
+    background-color: #178a79;
+    overflow-y: auto;
+    max-height: 0;
+    overflow-x: hidden;
+    transition: max-height 0.35s ease-out;
+}
+
+.top-menu-mobile.expanded > .row-2 {
+    max-height: calc(100dvh - 66px);
+}
+
+/* Individual menu item */
+.top-menu-mobile .mobile-menu-item {
+    display: block;
+    height: 46px;
+    padding-left: 50px;
+    background-repeat: no-repeat;
+    background-position: 14px center;
+    /* Desktop icons (80×80) scaled to 17×17 — no separate mobile icon set needed */
+    background-size: 17px 17px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    cursor: pointer;
+}
+
+.top-menu-mobile .mobile-menu-item > a {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    color: #fff;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.top-menu-mobile .mobile-menu-item:hover {
+    background-color: #139381;
+}
+
+.top-menu-mobile .mobile-menu-item.selected {
+    font-weight: bold;
+    background-color: #054541;
+}
+
+/* Sub-tab items (Row 2 tabs) — indented, no icon */
+.top-menu-mobile .mobile-menu-item-sub {
+    height: 40px;
+    padding-left: 24px;
+    background-image: none !important;
+}
+
+.top-menu-mobile .mobile-menu-item-sub > a {
+    font-size: 13px;
+    opacity: 0.9;
+}
+
+/* Separator between item groups */
+.top-menu-mobile .mobile-menu-separator {
+    height: 1px;
+    background-color: rgba(255, 255, 255, 0.3);
+    margin: 4px 14px;
+}
