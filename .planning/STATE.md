@@ -180,7 +180,7 @@ Recent decisions affecting current work:
 
 ### Pending Todos
 
-None yet.
+1. ClientSection (Afdeling) autocomplete hierarchical display — `.planning/todos/pending/2026-02-23-clientsection-afdeling-autocomplete-hierarchical-display.md`
 
 ### Roadmap Evolution
 
