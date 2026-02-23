@@ -1551,11 +1551,13 @@ public class ErActivityService : IErActivityService
 
         // Application templates for this client (filtered by template group if provided)
         var appTemplatesQuery = currentTemplateGroupId.HasValue
-            ? @"SELECT ERApplicationTemplateId AS Id, Name
-                FROM ERApplicationTemplate
-                WHERE ClientId = {0} AND ERTemplateGroupId = {1}
-                  AND Active = 1 AND ERApplicationTemplateTypeId = 1
-                ORDER BY Name"
+            ? @"SELECT t.ERApplicationTemplateId AS Id, t.Name
+                FROM ERApplicationTemplate t
+                JOIN ERTemplateGroupERApplicationTemplate tg
+                  ON tg.ERApplicationTemplateId = t.ERApplicationTemplateId
+                WHERE t.ClientId = {0} AND tg.ERTemplateGroupId = {1}
+                  AND t.Active = 1 AND t.ERApplicationTemplateTypeId = 1
+                ORDER BY t.Name"
             : @"SELECT ERApplicationTemplateId AS Id, Name
                 FROM ERApplicationTemplate
                 WHERE ClientId = {0}
