@@ -78,6 +78,17 @@ Plans:
 - [x] 03-05-PLAN.md -- Gap closure: Fix nullable session context types for tenant query filter bypass
 - [x] 03-06-PLAN.md -- Gap closure: Add error handling to all Blazor page lifecycle methods
 
+### Phase 03.9: Redo ActivityCreateEdit UI migration with full fidelity (INSERTED)
+
+**Goal:** ActivityCreateEdit.razor, .razor.cs, and .razor.css are rewritten to fix all identified defects (wrong post-edit navigation, RecruitmentTypeId/LeadershipPosition/BlindRecruitment bidirectional translation, CalendarType checkbox state derivation, cascade loading disabled states, localized validation messages, wrong localization key for LockCandidateEvaluation)
+**Depends on:** Phase 03.8
+**Plans:** 3 plans
+
+Plans:
+- [ ] 03.9-01-PLAN.md -- Fix ActivityCreateEdit.razor.cs (navigation, field translations, cascade loading) and ActivityFormModel.Validate() (localized messages via ValidationContext)
+- [ ] 03.9-02-PLAN.md -- Fix ActivityCreateEdit.razor markup (localization key, cascade disabled states, remove duplicate Leadership/BlindRecruitment dropdowns)
+- [ ] 03.9-03-PLAN.md -- ActivityCreateEdit.razor.css polish and human verification of end-to-end form lifecycle
+
 ### Phase 03.8: Client selector dropdown and Create Activity button for non-client users on ActivityList (INSERTED)
 
 **Goal:** Non-client (staff/admin) users can filter the activity list by client via a dropdown and navigate to legacy activity creation pages via a Create Activity button -- matching the legacy toolbar behavior
@@ -265,10 +276,11 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 3.1 -> 3.2 -> 3.3 -> 3.4 -> 3.5 
 | 3.7 Authentication & User Context Migration | 1/1 | Complete | 2026-02-17 |
 | 3.7.1 ICurrentUserService DB-Backed User Context | 2/2 | Complete | 2026-02-18 |
 | 3.8 Client Selector Dropdown & Create Activity Button | 2/2 | Complete | 2026-02-18 |
+| 3.9 Redo ActivityCreateEdit UI Migration with Full Fidelity | 0/3 | Planned | - |
 | 4. Core Write Operations | 0/4 | Planned | - |
 | 5. Localization & UX Polish | 0/3 | Planned | - |
 | 6. Testing, Deployment & Monitoring | 0/3 | Not started | - |
 
 ---
 *Roadmap created: 2026-02-13*
-*Last updated: 2026-02-18 (Phase 03.8 complete)*
+*Last updated: 2026-02-23 (Phase 03.9 planned)*
