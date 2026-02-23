@@ -103,11 +103,11 @@ public class NavigationConfigService : INavigationConfigService
     {
         var normalizedPath = path.TrimEnd('/');
 
-        // Activity detail/edit: /recruiting/activities/{numeric-id}
+        // Activity detail/edit: /recruiting/activities/{numeric-id}[/...]
         // Switch to activity-context tabs instead of the list-level Draft/Ongoing/Closed tabs.
         var activityId = ExtractActivityId(normalizedPath);
         if (activityId != null)
-            return GetActivityDetailRow2Items(activityId);
+            return GetActivityDetailRow2Items(activityId, normalizedPath);
 
         var isDraft = normalizedPath.Equals("/recruiting/activities/draft", StringComparison.OrdinalIgnoreCase);
         var isClosed = normalizedPath.Equals("/recruiting/activities/closed", StringComparison.OrdinalIgnoreCase);
@@ -128,7 +128,7 @@ public class NavigationConfigService : INavigationConfigService
     private static string? ExtractActivityId(string normalizedPath)
     {
         var segments = normalizedPath.Split('/', StringSplitOptions.RemoveEmptyEntries);
-        if (segments.Length == 3
+        if (segments.Length >= 3
             && segments[0].Equals("recruiting", StringComparison.OrdinalIgnoreCase)
             && segments[1].Equals("activities", StringComparison.OrdinalIgnoreCase)
             && segments[2].All(char.IsDigit))
@@ -143,11 +143,15 @@ public class NavigationConfigService : INavigationConfigService
     /// Uses the same localization keys as the legacy RecruitingTabs control.
     /// Non-Blazor tabs fall through to the legacy app via YARP.
     /// </summary>
-    private static List<NavMenuItem> GetActivityDetailRow2Items(string activityId)
+    private static List<NavMenuItem> GetActivityDetailRow2Items(string activityId, string normalizedPath)
     {
+        // Activity tab is selected for both the detail view and the edit view (master data section).
+        var isActivityTab = normalizedPath.Equals($"/recruiting/activities/{activityId}", StringComparison.OrdinalIgnoreCase)
+            || normalizedPath.Equals($"/recruiting/activities/{activityId}/edit", StringComparison.OrdinalIgnoreCase);
+
         return
         [
-            new() { LabelKey = "Activity",       Label = "Sag",       Url = $"/recruiting/activities/{activityId}",                              IsSelected = true },
+            new() { LabelKey = "Activity",       Label = "Sag",       Url = $"/recruiting/activities/{activityId}",                              IsSelected = isActivityTab },
             new() { LabelKey = "CandidateList",  Label = "Kandidater", Url = $"/Responsive/Recruiting/CandidateList.aspx?ErId={activityId}" },
             new() { LabelKey = "Advertisement",  Label = "Annonce",    Url = $"/Responsive/Recruiting/ActivityCreateEditAd.aspx?ErId={activityId}" },
             new() { LabelKey = "ActivityNotes",  Label = "Sagsnoter",  Url = $"/Responsive/Recruiting/ActivityNotes.aspx?ErId={activityId}" },

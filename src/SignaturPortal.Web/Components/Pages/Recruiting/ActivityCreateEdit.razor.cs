@@ -46,6 +46,7 @@ public partial class ActivityCreateEdit
     private string? _saveError;
     private bool _isClientUser;
     private Guid _currentUserId;
+    private string? _currentUserDisplayName;
 
     // Sidebar display models (kept in sync with _form)
     private UserDropdownDto? _responsibleUser;
@@ -69,6 +70,20 @@ public partial class ActivityCreateEdit
 
     private bool IsEditMode => ActivityId.HasValue;
 
+    // RecruitmentType visibility helpers — derived from client config flags (match legacy truth table)
+    private bool ShowLeadershipPositionDropdown =>
+        _clientConfig.LeadershipPositionEnabled &&
+        (!_clientConfig.BlindRecruitmentEnabled || !_clientConfig.LeadershipPositionLimitedCandidateAccessEnabled);
+
+    private bool ShowBlindRecruitmentDropdown =>
+        _clientConfig.BlindRecruitmentEnabled &&
+        (!_clientConfig.LeadershipPositionEnabled || !_clientConfig.LeadershipPositionLimitedCandidateAccessEnabled);
+
+    private bool ShowCombinedRecruitmentTypeDropdown =>
+        _clientConfig.BlindRecruitmentEnabled &&
+        _clientConfig.LeadershipPositionEnabled &&
+        _clientConfig.LeadershipPositionLimitedCandidateAccessEnabled;
+
     // -------------------------------------------------------------------------
     // Lifecycle
     // -------------------------------------------------------------------------
@@ -79,6 +94,7 @@ public partial class ActivityCreateEdit
         {
             var currentUser = await CurrentUserService.GetCurrentUserAsync();
             _currentUserId = currentUser?.UserId ?? Guid.Empty;
+            _currentUserDisplayName = currentUser?.FullName ?? currentUser?.UserName;
             _isClientUser = !(currentUser?.IsInternal ?? true);
 
             // Write session variables (SSR only)
@@ -178,7 +194,10 @@ public partial class ActivityCreateEdit
         _form.ClientSectionGroupId = data.ClientSectionGroupId;
         _form.ClientSectionId = data.ClientSectionId;
         _form.Reposting = data.Reposting;
-        // Translate LeadershipPositionId/BlindRecruitmentId → single RecruitmentTypeId
+        // Populate raw LP/Blind fields for separate-dropdown cases
+        _form.LeadershipPositionId = data.LeadershipPositionId;
+        _form.BlindRecruitmentId = data.BlindRecruitmentId;
+        // Translate to combined RecruitmentTypeId for the combined-dropdown case
         // 1=Yes, 2=No for each. LeadershipPosition=Yes → type 2; BlindRecruitment=Yes → type 3; otherwise → type 1 (Normal)
         _form.RecruitmentTypeId = data.LeadershipPositionId == 1 ? 2 :
                                   data.BlindRecruitmentId == 1 ? 3 :
@@ -357,13 +376,14 @@ public partial class ActivityCreateEdit
         return Task.FromResult(filtered);
     }
 
-    private async Task<IEnumerable<SimpleOptionDto>> SearchOccupationsAsync(string search, CancellationToken ct)
+    private Task<IEnumerable<SimpleOptionDto>> SearchOccupationsAsync(string search, CancellationToken ct)
     {
         if (string.IsNullOrEmpty(search))
-            return _options.JobnetOccupations;
+            return Task.FromResult(Enumerable.Empty<SimpleOptionDto>());
 
-        return _options.JobnetOccupations
-            .Where(o => o.Name.Contains(search, StringComparison.OrdinalIgnoreCase));
+        return Task.FromResult(
+            _options.JobnetOccupations
+                .Where(o => o.Name.Contains(search, StringComparison.OrdinalIgnoreCase)));
     }
 
     private async Task<IEnumerable<ClientSectionDropdownDto>> SearchClientSectionsAsync(string search, CancellationToken ct)
@@ -533,21 +553,19 @@ public partial class ActivityCreateEdit
             ClientSectionGroupId = _form.ClientSectionGroupId,
             ClientSectionId = _form.ClientSectionId,
             Reposting = _form.Reposting,
-            // ERRecruitmentType: 1=Normal, 2=LeadershipPosition, 3=BlindRecruitment
-            // LeadershipPositionId/BlindRecruitmentId: 1=Yes, 2=No
-            RecruitmentTypeId = _form.RecruitmentTypeId,
-            LeadershipPositionId = _form.RecruitmentTypeId switch
-            {
-                2 => 1,           // LeadershipPosition → Yes
-                1 or 3 => 2,      // Normal or BlindRecruitment → No
-                _ => null
-            },
-            BlindRecruitmentId = _form.RecruitmentTypeId switch
-            {
-                3 => 1,           // BlindRecruitment → Yes
-                1 or 2 => 2,      // Normal or LeadershipPosition → No
-                _ => null
-            },
+            // RecruitmentType fields depend on which dropdown(s) are visible:
+            //   Combined → translate RecruitmentTypeId to LP/Blind flags
+            //   LP-only  → use LeadershipPositionId directly; BlindRecruitmentId null
+            //   Blind-only → use BlindRecruitmentId directly; LeadershipPositionId null
+            //   Both separate → use both directly; RecruitmentTypeId null
+            //   Neither → all null
+            RecruitmentTypeId = ShowCombinedRecruitmentTypeDropdown ? _form.RecruitmentTypeId : null,
+            LeadershipPositionId = ShowCombinedRecruitmentTypeDropdown
+                ? _form.RecruitmentTypeId switch { 2 => 1, 1 or 3 => 2, _ => null }
+                : ShowLeadershipPositionDropdown ? _form.LeadershipPositionId : null,
+            BlindRecruitmentId = ShowCombinedRecruitmentTypeDropdown
+                ? _form.RecruitmentTypeId switch { 3 => 1, 1 or 2 => 2, _ => null }
+                : ShowBlindRecruitmentDropdown ? _form.BlindRecruitmentId : null,
             LockCandidateEvaluation = _form.LockCandidateEvaluation,
             ViewCommitteeEvaluations = _form.ViewCommitteeEvaluations,
             SendEmailOnNewCandidate = _form.SendEmailOnNewCandidate,

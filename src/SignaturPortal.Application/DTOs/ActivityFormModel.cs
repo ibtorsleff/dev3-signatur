@@ -36,13 +36,11 @@ public class ActivityFormModel : IValidatableObject
 
     public bool Reposting { get; set; }
 
-    [Required]
+    // Conditionally required depending on client config flags — validated by UI visibility
     public int? LeadershipPositionId { get; set; }
 
-    [Required]
     public int? BlindRecruitmentId { get; set; }
 
-    [Required]
     public int? RecruitmentTypeId { get; set; }
 
     public bool LockCandidateEvaluation { get; set; }

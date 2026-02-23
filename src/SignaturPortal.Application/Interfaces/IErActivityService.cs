@@ -95,4 +95,63 @@ public interface IErActivityService
     /// Matches legacy ActivityList.aspx.cs:286.
     /// </summary>
     Task LogClientNoRecruitmentPortalForceLogoutAsync(Guid userId, CancellationToken ct = default);
+
+    // -------------------------------------------------------------------------
+    // Form load / save
+    // -------------------------------------------------------------------------
+
+    /// <summary>
+    /// Loads the full activity data for editing, including all field values needed
+    /// to pre-populate the ActivityCreateEdit form.
+    /// Returns null if not found or access denied.
+    /// </summary>
+    Task<ActivityEditDto?> GetActivityForEditAsync(int activityId, CancellationToken ct = default);
+
+    /// <summary>
+    /// Loads all dropdown option lists required for the ActivityCreateEdit form
+    /// for the given client. Includes statuses, occupations, sections, templates, etc.
+    /// </summary>
+    Task<ActivityFormOptionsDto> GetActivityFormOptionsAsync(
+        int clientId,
+        int? currentTemplateGroupId = null,
+        CancellationToken ct = default);
+
+    /// <summary>
+    /// Live-searches client sections for the MudAutocomplete on the create/edit form.
+    /// Returns sections matching the search term for the given client.
+    /// </summary>
+    Task<List<ClientSectionDropdownDto>> GetClientSectionsForFormAsync(
+        int clientId,
+        string? search,
+        CancellationToken ct = default);
+
+    /// <summary>
+    /// Live-searches users for the UserPickerDialog.
+    /// Returns users for the given client matching the search term.
+    /// </summary>
+    Task<List<UserDropdownDto>> GetUsersForPickerAsync(
+        int clientId,
+        string? search,
+        CancellationToken ct = default);
+
+    /// <summary>
+    /// Creates a new activity from the given command.
+    /// Returns the new activity's EractivityId.
+    /// </summary>
+    Task<int> CreateActivityAsync(ActivitySaveCommand command, CancellationToken ct = default);
+
+    /// <summary>
+    /// Updates an existing activity with the given command.
+    /// </summary>
+    Task UpdateActivityAsync(int activityId, ActivitySaveCommand command, CancellationToken ct = default);
+
+    /// <summary>
+    /// Soft-deletes an activity (sets status to Deleted).
+    /// </summary>
+    Task DeleteActivityAsync(int activityId, CancellationToken ct = default);
+
+    /// <summary>
+    /// Closes an activity (sets status to Closed).
+    /// </summary>
+    Task CloseActivityAsync(int activityId, CancellationToken ct = default);
 }

@@ -129,3 +129,17 @@ h1:focus {
 .user-menu-popover .mud-divider {
     border-color: rgba(255, 255, 255, 0.2) !important;
 }
+
+/* ============================================================
+   ActivityCreateEdit form — normalize label-to-input gap.
+   MudSelect outer wrapper uses display:flex, which blocks CSS margin
+   collapsing. The mud-input-control margin-top:4px stays inside the flex
+   container, adding to the label's margin-bottom:4px for an 8px gap.
+   MudAutocomplete / MudTextField use display:block, so the same margin
+   collapses with the label's margin-bottom → only 4px gap.
+   Removing margin-top from mud-input-control normalises all inputs to
+   exactly the label's 4px margin-bottom, regardless of component type.
+   ============================================================ */
+.activity-form .mud-input-control {
+    margin-top: 0 !important;
+}

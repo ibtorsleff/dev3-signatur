@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using SignaturPortal.Application.Authorization;
 using SignaturPortal.Application.DTOs;
 using SignaturPortal.Application.Interfaces;
@@ -21,19 +22,22 @@ public class ErActivityService : IErActivityService
     private readonly IPermissionService _permissionService;
     private readonly ICurrentUserService _currentUserService;
     private readonly ILocalizationService _localization;
+    private readonly IMemoryCache _cache;
 
     public ErActivityService(
         IDbContextFactory<SignaturDbContext> contextFactory,
         IUserSessionContext sessionContext,
         IPermissionService permissionService,
         ICurrentUserService currentUserService,
-        ILocalizationService localization)
+        ILocalizationService localization,
+        IMemoryCache cache)
     {
         _contextFactory = contextFactory;
         _sessionContext = sessionContext;
         _permissionService = permissionService;
         _currentUserService = currentUserService;
         _localization = localization;
+        _cache = cache;
     }
 
     /// <summary>
@@ -1441,93 +1445,37 @@ public class ErActivityService : IErActivityService
 
     /// <summary>
     /// Loads all dropdown option lists for the ActivityCreateEdit form for the given client.
-    /// Uses raw SQL for legacy lookup tables not yet mapped to EF entities.
+    /// All DB queries run in parallel (each with its own DbContext from the factory).
     /// </summary>
     public async Task<ActivityFormOptionsDto> GetActivityFormOptionsAsync(
         int clientId,
         int? currentTemplateGroupId = null,
         CancellationToken ct = default)
     {
-        await using var context = await _contextFactory.CreateDbContextAsync(ct);
-        context.CurrentSiteId = _sessionContext.SiteId;
-
-        // Statuses available on the form (not Draft since draft mode is out of scope)
+        // Hard-coded / in-memory lists — no DB needed
         var statuses = new List<ActivityStatusOptionDto>
         {
-            new(1, StatusMappings.GetActivityStatusName(1)), // Ongoing
-            new(2, StatusMappings.GetActivityStatusName(2)), // Closed
-            new(3, StatusMappings.GetActivityStatusName(3)), // Deleted
+            new(1, StatusMappings.GetActivityStatusName(1)),
+            new(2, StatusMappings.GetActivityStatusName(2)),
+            new(3, StatusMappings.GetActivityStatusName(3)),
         };
+        var leadershipPositions  = new List<SimpleOptionDto> { new(1, "Ja"), new(2, "Nej") };
+        var blindRecruitmentOptions = new List<SimpleOptionDto> { new(1, "Ja"), new(2, "Nej") };
+        var interviewRoundsOptions = Enumerable.Range(1, 5).Select(i => new SimpleOptionDto(i, i.ToString())).ToList();
 
-        // Leadership position options (maps to IsLeadershipPosition bool)
-        var leadershipPositions = new List<SimpleOptionDto>
-        {
-            new(1, "Ja"),
-            new(2, "Nej")
-        };
-
-        // Blind recruitment options (maps to IsBlindRecruitment bool)
-        var blindRecruitmentOptions = new List<SimpleOptionDto>
-        {
-            new(1, "Ja"),
-            new(2, "Nej")
-        };
-
-        // Interview rounds options (1-5)
-        var interviewRoundsOptions = Enumerable.Range(1, 5)
-            .Select(i => new SimpleOptionDto(i, i.ToString()))
-            .ToList();
-
-        // Template groups for this client (active only)
-        var templateGroups = await context.ErTemplateGroups
-            .Where(tg => context.Eractivities.Any(a =>
-                a.ClientId == clientId &&
-                a.ErtemplateGroupId == tg.ErtemplateGroupId))
-            .OrderBy(tg => tg.Name)
-            .Select(tg => new TemplateGroupDropdownDto
-            {
-                TemplateGroupId = tg.ErtemplateGroupId,
-                Name = tg.Name
-            })
-            .ToListAsync(ct);
-
-        // Client section groups for this client
-        var clientSectionGroups = await context.ClientSectionGroups
-            .Where(csg => csg.ClientId == clientId)
-            .OrderBy(csg => csg.Name)
-            .Select(csg => new ClientSectionGroupDropdownDto
-            {
-                ClientSectionGroupId = csg.ClientSectionGroupId,
-                Name = csg.Name
-            })
-            .ToListAsync(ct);
-
-        // Jobnet occupations
-        var jobnetOccupations = await context.JobnetOccupations
-            .Where(j => !j.Deleted)
-            .OrderBy(j => j.Name)
-            .Select(j => new SimpleOptionDto(j.Id, j.Name))
-            .ToListAsync(ct);
-
-        // Recruitment types — hardcoded enum (no DB table; mirrors legacy RecruitmentTypeEn)
         var langId = _sessionContext.UserLanguageId;
         var recruitmentTypes = new List<SimpleOptionDto>
         {
-            new((int)ERRecruitmentType.Normal,            _localization.GetText("Normal",            langId)),
+            new((int)ERRecruitmentType.Normal,             _localization.GetText("Normal",             langId)),
             new((int)ERRecruitmentType.LeadershipPosition, _localization.GetText("LeadershipPosition", langId)),
-            new((int)ERRecruitmentType.BlindRecruitment,  _localization.GetText("BlindRecruitment",  langId)),
+            new((int)ERRecruitmentType.BlindRecruitment,   _localization.GetText("BlindRecruitment",   langId)),
         };
-
-        // Calendar types — hardcoded enum (no DB table; mirrors legacy ERCalendarType)
         var calendarTypes = new List<SimpleOptionDto>
         {
             new((int)ERCalendarType.NoCalendarFunction, _localization.GetText("NoCalendarFunction", langId)),
             new((int)ERCalendarType.OpenCalendar,       _localization.GetText("OpenCalendar",       langId)),
             new((int)ERCalendarType.ClosedCalendar,     _localization.GetText("ClosedCalendar",     langId)),
         };
-
-        // Interview durations — hardcoded list (no DB table; mirrors legacy PopulateInterviewDurations)
-        // Id = duration in minutes; Name = localized display string
         var interviewDurations = new List<SimpleOptionDto>
         {
             new(30,  _localization.GetText("XMinutesWithArgs", langId, "30")),
@@ -1540,73 +1488,118 @@ public class ErActivityService : IErActivityService
             new(180, _localization.GetText("XHoursWithArgs",   langId, "3")),
         };
 
-        // Languages — raw SQL (Languages table; no per-client join table exists)
-        var languages = await context.Database
-            .SqlQueryRaw<SimpleOptionDto>(
-                @"SELECT LanguageID AS Id, RTRIM(LanguageName) AS Name
-                  FROM Languages
-                  ORDER BY LanguageID")
-            .ToListAsync(ct);
+        // DB queries — all independent, run in parallel (each helper opens its own DbContext)
+        const string jobnetCacheKey = "jobnet_occupations_active";
+        var jobnetTask         = _cache.TryGetValue(jobnetCacheKey, out List<SimpleOptionDto>? cached)
+                                     ? Task.FromResult(cached!)
+                                     : FormOptions_LoadOccupationsAsync(jobnetCacheKey, ct);
+        var templateGroupsTask = FormOptions_LoadTemplateGroupsAsync(clientId, ct);
+        var sectionGroupsTask  = FormOptions_LoadClientSectionGroupsAsync(clientId, ct);
+        var languagesTask      = FormOptions_LoadLanguagesAsync(ct);
+        var appTemplatesTask   = FormOptions_LoadAppTemplatesAsync(clientId, currentTemplateGroupId, ct);
+        var emailTask          = FormOptions_LoadEmailTemplatesAsync(clientId, ct);
+        var smsTask            = FormOptions_LoadSmsTemplatesAsync(clientId, ct);
 
-        // Application templates for this client (filtered by template group if provided)
-        var appTemplatesQueryable = context.ErApplicationTemplates
-            .Where(t => t.ClientId == clientId && t.Active && t.ErApplicationTemplateTypeId == 1);
+        await Task.WhenAll(jobnetTask, templateGroupsTask, sectionGroupsTask,
+                           languagesTask, appTemplatesTask, emailTask, smsTask);
 
-        if (currentTemplateGroupId.HasValue)
+        var allEmailTemplates = emailTask.Result;
+        return new ActivityFormOptionsDto
         {
-            appTemplatesQueryable = appTemplatesQueryable
-                .Where(t => context.ErTemplateGroupApplicationTemplates.Any(tg =>
-                    tg.ErTemplateGroupId == currentTemplateGroupId.Value &&
-                    tg.ErApplicationTemplateId == t.ErApplicationTemplateId));
-        }
+            Statuses                             = statuses,
+            JobnetOccupations                    = jobnetTask.Result,
+            ClientSectionGroups                  = sectionGroupsTask.Result,
+            LeadershipPositions                  = leadershipPositions,
+            BlindRecruitmentOptions              = blindRecruitmentOptions,
+            RecruitmentTypes                     = recruitmentTypes,
+            InterviewRoundsOptions               = interviewRoundsOptions,
+            CalendarTypes                        = calendarTypes,
+            InterviewDurations                   = interviewDurations,
+            Languages                            = languagesTask.Result,
+            TemplateGroups                       = templateGroupsTask.Result,
+            ApplicationTemplates                 = appTemplatesTask.Result,
+            EmailTemplatesReceived               = allEmailTemplates.Where(t => t.ErLetterTemplateTypeId == 1).Select(t => new SimpleOptionDto(t.ErLetterTemplateId, t.TemplateName)).ToList(),
+            EmailTemplatesInterview              = allEmailTemplates.Where(t => t.ErLetterTemplateTypeId == 2).Select(t => new SimpleOptionDto(t.ErLetterTemplateId, t.TemplateName)).ToList(),
+            EmailTemplatesInterview2Plus         = allEmailTemplates.Where(t => t.ErLetterTemplateTypeId == 2).Select(t => new SimpleOptionDto(t.ErLetterTemplateId, t.TemplateName)).ToList(),
+            EmailTemplatesRejected               = allEmailTemplates.Where(t => t.ErLetterTemplateTypeId == 3).Select(t => new SimpleOptionDto(t.ErLetterTemplateId, t.TemplateName)).ToList(),
+            EmailTemplatesRejectedAfterInterview = allEmailTemplates.Where(t => t.ErLetterTemplateTypeId == 4).Select(t => new SimpleOptionDto(t.ErLetterTemplateId, t.TemplateName)).ToList(),
+            EmailTemplatesNotifyCommittee        = allEmailTemplates.Where(t => t.ErLetterTemplateTypeId == 5).Select(t => new SimpleOptionDto(t.ErLetterTemplateId, t.TemplateName)).ToList(),
+            SmsTemplates                         = smsTask.Result
+        };
+    }
 
-        var applicationTemplates = await appTemplatesQueryable
+    private async Task<List<SimpleOptionDto>> FormOptions_LoadOccupationsAsync(string cacheKey, CancellationToken ct)
+    {
+        await using var context = await _contextFactory.CreateDbContextAsync(ct);
+        var result = await context.JobnetOccupations
+            .Where(j => !j.Deleted && j.Level >= 3)
+            .OrderBy(j => j.Name)
+            .Select(j => new SimpleOptionDto(j.Id, j.Name))
+            .ToListAsync(ct);
+        _cache.Set(cacheKey, result, TimeSpan.FromHours(1));
+        return result;
+    }
+
+    private async Task<List<TemplateGroupDropdownDto>> FormOptions_LoadTemplateGroupsAsync(int clientId, CancellationToken ct)
+    {
+        await using var context = await _contextFactory.CreateDbContextAsync(ct);
+        return await context.ErTemplateGroups
+            .Where(tg => context.Eractivities.Any(a =>
+                a.ClientId == clientId && a.ErtemplateGroupId == tg.ErtemplateGroupId))
+            .OrderBy(tg => tg.Name)
+            .Select(tg => new TemplateGroupDropdownDto { TemplateGroupId = tg.ErtemplateGroupId, Name = tg.Name })
+            .ToListAsync(ct);
+    }
+
+    private async Task<List<ClientSectionGroupDropdownDto>> FormOptions_LoadClientSectionGroupsAsync(int clientId, CancellationToken ct)
+    {
+        await using var context = await _contextFactory.CreateDbContextAsync(ct);
+        return await context.ClientSectionGroups
+            .Where(csg => csg.ClientId == clientId)
+            .OrderBy(csg => csg.Name)
+            .Select(csg => new ClientSectionGroupDropdownDto { ClientSectionGroupId = csg.ClientSectionGroupId, Name = csg.Name })
+            .ToListAsync(ct);
+    }
+
+    private async Task<List<SimpleOptionDto>> FormOptions_LoadLanguagesAsync(CancellationToken ct)
+    {
+        await using var context = await _contextFactory.CreateDbContextAsync(ct);
+        return await context.Database
+            .SqlQueryRaw<SimpleOptionDto>("SELECT LanguageID AS Id, RTRIM(LanguageName) AS Name FROM Languages ORDER BY LanguageID")
+            .ToListAsync(ct);
+    }
+
+    private async Task<List<SimpleOptionDto>> FormOptions_LoadAppTemplatesAsync(int clientId, int? templateGroupId, CancellationToken ct)
+    {
+        await using var context = await _contextFactory.CreateDbContextAsync(ct);
+        var query = context.ErApplicationTemplates
+            .Where(t => t.ClientId == clientId && t.Active && t.ErApplicationTemplateTypeId == 1);
+        if (templateGroupId.HasValue)
+            query = query.Where(t => context.ErTemplateGroupApplicationTemplates.Any(tg =>
+                tg.ErTemplateGroupId == templateGroupId.Value && tg.ErApplicationTemplateId == t.ErApplicationTemplateId));
+        return await query
             .OrderBy(t => t.Name)
             .Select(t => new SimpleOptionDto(t.ErApplicationTemplateId, t.Name))
             .ToListAsync(ct);
+    }
 
-        // Email templates for this client — load all at once, partition by TypeId in memory
-        // TypeId: 1 = Received, 2 = Interview, 3 = Rejected, 4 = RejectedAfterInterview, 5 = NotifyCommittee
-        var allEmailTemplates = await context.ErLetterTemplates
+    private async Task<List<ErLetterTemplate>> FormOptions_LoadEmailTemplatesAsync(int clientId, CancellationToken ct)
+    {
+        await using var context = await _contextFactory.CreateDbContextAsync(ct);
+        return await context.ErLetterTemplates
             .Where(t => t.ClientId == clientId && t.Active)
             .OrderBy(t => t.TemplateName)
             .ToListAsync(ct);
+    }
 
-        var emailTemplatesReceived               = allEmailTemplates.Where(t => t.ErLetterTemplateTypeId == 1).Select(t => new SimpleOptionDto(t.ErLetterTemplateId, t.TemplateName)).ToList();
-        var emailTemplatesInterview              = allEmailTemplates.Where(t => t.ErLetterTemplateTypeId == 2).Select(t => new SimpleOptionDto(t.ErLetterTemplateId, t.TemplateName)).ToList();
-        var emailTemplatesRejected               = allEmailTemplates.Where(t => t.ErLetterTemplateTypeId == 3).Select(t => new SimpleOptionDto(t.ErLetterTemplateId, t.TemplateName)).ToList();
-        var emailTemplatesRejectedAfterInterview = allEmailTemplates.Where(t => t.ErLetterTemplateTypeId == 4).Select(t => new SimpleOptionDto(t.ErLetterTemplateId, t.TemplateName)).ToList();
-        var emailTemplatesNotifyCommittee        = allEmailTemplates.Where(t => t.ErLetterTemplateTypeId == 5).Select(t => new SimpleOptionDto(t.ErLetterTemplateId, t.TemplateName)).ToList();
-
-        // SMS templates for this client
-        var smsTemplates = await context.ErSmsTemplates
+    private async Task<List<SimpleOptionDto>> FormOptions_LoadSmsTemplatesAsync(int clientId, CancellationToken ct)
+    {
+        await using var context = await _contextFactory.CreateDbContextAsync(ct);
+        return await context.ErSmsTemplates
             .Where(t => t.ClientId == clientId && t.Active)
             .OrderBy(t => t.TemplateName)
             .Select(t => new SimpleOptionDto(t.ErSmsTemplateId, t.TemplateName))
             .ToListAsync(ct);
-
-        return new ActivityFormOptionsDto
-        {
-            Statuses = statuses,
-            JobnetOccupations = jobnetOccupations,
-            ClientSectionGroups = clientSectionGroups,
-            LeadershipPositions = leadershipPositions,
-            BlindRecruitmentOptions = blindRecruitmentOptions,
-            RecruitmentTypes = recruitmentTypes,
-            InterviewRoundsOptions = interviewRoundsOptions,
-            CalendarTypes = calendarTypes,
-            InterviewDurations = interviewDurations,
-            Languages = languages,
-            TemplateGroups = templateGroups,
-            ApplicationTemplates = applicationTemplates,
-            EmailTemplatesReceived = emailTemplatesReceived,
-            EmailTemplatesInterview = emailTemplatesInterview,
-            EmailTemplatesInterview2Plus = emailTemplatesInterview, // same template pool
-            EmailTemplatesRejected = emailTemplatesRejected,
-            EmailTemplatesRejectedAfterInterview = emailTemplatesRejectedAfterInterview,
-            EmailTemplatesNotifyCommittee = emailTemplatesNotifyCommittee,
-            SmsTemplates = smsTemplates
-        };
     }
 
     /// <summary>

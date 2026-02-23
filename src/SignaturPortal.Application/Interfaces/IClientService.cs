@@ -84,4 +84,11 @@ public interface IClientService
     /// Matches legacy ClientHlp.ClientWebAdSendMailOnAdChanges.
     /// </summary>
     Task<bool> GetWebAdSendMailOnAdChangesAsync(int clientId, CancellationToken ct = default);
+
+    /// <summary>
+    /// Returns client-specific feature flags that control field visibility and requirements
+    /// on the ActivityCreateEdit form.
+    /// Reads from Sig_Client columns and CustomData XML.
+    /// </summary>
+    Task<ActivityClientConfigDto> GetActivityClientConfigAsync(int clientId, CancellationToken ct = default);
 }

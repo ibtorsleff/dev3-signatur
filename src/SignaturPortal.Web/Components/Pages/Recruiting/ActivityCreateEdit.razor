@@ -76,16 +76,15 @@ else
                 <MudPaper Class="pa-4 mb-4" Elevation="1">
                     <MudText Typo="Typo.h6" Class="mb-3">@Localization.GetText("MasterData")</MudText>
 
-                    @* Oprettet af (edit mode only) *@
-                    @if (IsEditMode && _editData != null)
-                    {
-                        <div class="form-row">
-                            <span class="form-label">@Localization.GetText("CreatedBy")</span>
-                            <div class="form-input">
-                                <MudText Typo="Typo.body2" Style="padding-top:6px">@_editData.CreatedByName</MudText>
-                            </div>
+                    @* Oprettet af *@
+                    <div class="form-row">
+                        <span class="form-label">@Localization.GetText("CreatedBy")</span>
+                        <div class="form-input">
+                            <MudText Typo="Typo.body2" Style="padding-top:6px">
+                                @(IsEditMode ? _editData?.CreatedByName : _currentUserDisplayName)
+                            </MudText>
                         </div>
-                    }
+                    </div>
 
                     @* Status *@
                     <div class="form-row">
@@ -142,7 +141,7 @@ else
 
                     @* Jobtitel *@
                     <div class="form-row">
-                        <label class="form-label">@Localization.GetText("Jobtitle")</label>
+                        <label class="form-label">@(_clientConfig.IsFundClient ? Localization.GetText("ERecruitmentJobtitleOnlyForCandidateEmailsFund") : Localization.GetText("ERecruitmentJobtitleOnlyForCandidateEmails"))</label>
                         <div class="form-input">
                             <MudTextField T="string"
                                           @bind-Value="_form.JobTitle"
@@ -164,8 +163,12 @@ else
                                              Variant="Variant.Outlined"
                                              Margin="Margin.Dense"
                                              MinCharacters="0"
-                                             MaxItems="null"
-                                             CoerceValue="true" />
+                                             MaxItems="50"
+                                             CoerceValue="true">
+                                <NoItemsTemplate>
+                                    <MudText Typo="Typo.body2" Class="px-4 py-2 mud-text-secondary">Skriv for at søge...</MudText>
+                                </NoItemsTemplate>
+                            </MudAutocomplete>
                         </div>
                     </div>
 
@@ -218,23 +221,58 @@ else
                         </div>
                     </div>
 
-                    @* Rekrutteringstype *@
-                    <div class="form-row">
-                        <label class="form-label">@Localization.GetText("RecruitmentType") <span class="required-mark">*</span></label>
-                        <div class="form-input">
-                            <MudSelect T="int?"
-                                       @bind-Value="_form.RecruitmentTypeId"
-                                       Variant="Variant.Outlined"
-                                       Margin="Margin.Dense">
-                                <MudSelectItem Value="@((int?)null)">—</MudSelectItem>
-                                @foreach (var opt in _options.RecruitmentTypes)
-                                {
-                                    <MudSelectItem Value="@((int?)opt.Id)">@opt.Name</MudSelectItem>
-                                }
-                            </MudSelect>
-                            <ValidationMessage For="@(() => _form.RecruitmentTypeId)" />
+                    @* Rekrutteringstype — conditional on client config flags *@
+                    @if (ShowCombinedRecruitmentTypeDropdown)
+                    {
+                        <div class="form-row">
+                            <label class="form-label">@Localization.GetText("RecruitmentType") <span class="required-mark">*</span></label>
+                            <div class="form-input">
+                                <MudSelect T="int?"
+                                           @bind-Value="_form.RecruitmentTypeId"
+                                           Variant="Variant.Outlined"
+                                           Margin="Margin.Dense">
+                                    <MudSelectItem Value="@((int?)null)">—</MudSelectItem>
+                                    @foreach (var opt in _options.RecruitmentTypes)
+                                    {
+                                        <MudSelectItem Value="@((int?)opt.Id)">@opt.Name</MudSelectItem>
+                                    }
+                                </MudSelect>
+                                <ValidationMessage For="@(() => _form.RecruitmentTypeId)" />
+                            </div>
                         </div>
-                    </div>
+                    }
+                    @if (ShowLeadershipPositionDropdown)
+                    {
+                        <div class="form-row">
+                            <label class="form-label">@Localization.GetText("LeadershipPosition") <span class="required-mark">*</span></label>
+                            <div class="form-input">
+                                <MudSelect T="int?"
+                                           @bind-Value="_form.LeadershipPositionId"
+                                           Variant="Variant.Outlined"
+                                           Margin="Margin.Dense">
+                                    <MudSelectItem Value="@((int?)null)">—</MudSelectItem>
+                                    <MudSelectItem Value="@((int?)1)">@Localization.GetText("Yes")</MudSelectItem>
+                                    <MudSelectItem Value="@((int?)2)">@Localization.GetText("No")</MudSelectItem>
+                                </MudSelect>
+                            </div>
+                        </div>
+                    }
+                    @if (ShowBlindRecruitmentDropdown)
+                    {
+                        <div class="form-row">
+                            <label class="form-label">@Localization.GetText("BlindRecruitment") <span class="required-mark">*</span></label>
+                            <div class="form-input">
+                                <MudSelect T="int?"
+                                           @bind-Value="_form.BlindRecruitmentId"
+                                           Variant="Variant.Outlined"
+                                           Margin="Margin.Dense">
+                                    <MudSelectItem Value="@((int?)null)">—</MudSelectItem>
+                                    <MudSelectItem Value="@((int?)1)">@Localization.GetText("Yes")</MudSelectItem>
+                                    <MudSelectItem Value="@((int?)2)">@Localization.GetText("No")</MudSelectItem>
+                                </MudSelect>
+                            </div>
+                        </div>
+                    }
 
                     @* Lock/View Evaluation (conditional) *@
                     @if (_clientConfig.LockEvaluationFeatureEnabled)
