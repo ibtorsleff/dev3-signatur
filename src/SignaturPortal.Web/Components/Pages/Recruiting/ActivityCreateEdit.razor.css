@@ -1,37 +1,38 @@
 /* ActivityCreateEdit scoped styles */
 
-/* ── Explicit label layout ── */
-.form-field {
-    margin-bottom: 12px;
+/* ── Form row: label-left / input-right (matches legacy layout) ── */
+.form-row {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 10px;
 }
 
-.field-label-text {
-    display: block;
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: rgba(0, 0, 0, 0.6);
-    margin-bottom: 4px;
-    line-height: 1.4;
+.form-label {
+    width: 185px;
+    min-width: 185px;
+    text-align: right;
+    padding-right: 12px;
+    padding-top: 7px;
+    font-size: 0.875rem;
+    line-height: 1.25;
+    color: rgba(0, 0, 0, 0.87);
 }
 
 .required-mark {
     color: var(--mud-palette-error);
 }
 
-.form-field-checkbox {
-    display: flex;
-    align-items: center;
-    min-height: 40px;
+.form-input {
+    flex: 1;
+    min-width: 0;
 }
 
-.checkbox-label-text {
-    font-size: 0.875rem;
-    color: rgba(0, 0, 0, 0.87);
+/* Checkbox rows align label with the checkbox centre, not the top */
+.form-row-checkbox .form-label {
+    padding-top: 4px;
 }
 
 /* ── Cascade loading state ── */
-/* MudBlazor's Disabled prop adds mud-input-disabled automatically.
-   This wrapper class provides optional visual grouping for cascade-loading sections. */
 .cascade-loading {
     opacity: 0.6;
     pointer-events: none;
@@ -43,13 +44,25 @@
     margin-bottom: 16px;
 }
 
-/* ── Mobile: single-column layout ── */
+/* ── Mobile: stack label above input ── */
 @media (max-width: 767px) {
-    .mud-paper {
-        padding: 12px !important;
+    .form-row {
+        flex-direction: column;
     }
 
-    .mud-button {
-        min-width: 0;
+    .form-label {
+        width: auto;
+        min-width: auto;
+        text-align: left;
+        padding-right: 0;
+        padding-top: 0;
+        padding-bottom: 2px;
+        font-weight: 600;
+        font-size: 0.75rem;
+        color: rgba(0, 0, 0, 0.6);
+    }
+
+    .mud-paper {
+        padding: 12px !important;
     }
 }
