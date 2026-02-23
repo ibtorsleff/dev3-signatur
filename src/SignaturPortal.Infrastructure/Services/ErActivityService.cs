@@ -1541,15 +1541,12 @@ public class ErActivityService : IErActivityService
             new(180, _localization.GetText("XHoursWithArgs",   langId, "3")),
         };
 
-        // Languages for this client — raw SQL (legacy Language + Sig_Client_Language tables)
+        // Languages — raw SQL (Languages table; no per-client join table exists)
         var languages = await context.Database
             .SqlQueryRaw<SimpleOptionDto>(
-                @"SELECT l.LanguageId AS Id, l.Name
-                  FROM Language l
-                  JOIN Sig_Client_Language scl ON scl.LanguageId = l.LanguageId
-                  WHERE scl.ClientId = {0} AND l.IsEnabled = 1
-                  ORDER BY l.SortOrder, l.Name",
-                clientId)
+                @"SELECT LanguageID AS Id, RTRIM(LanguageName) AS Name
+                  FROM Languages
+                  ORDER BY LanguageID")
             .ToListAsync(ct);
 
         // Application templates for this client (filtered by template group if provided)
