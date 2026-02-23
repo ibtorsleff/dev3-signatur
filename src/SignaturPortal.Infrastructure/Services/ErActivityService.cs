@@ -1578,11 +1578,11 @@ public class ErActivityService : IErActivityService
 
         // Email templates for this client — all types from ERLetterTemplate
         // Type 1 = Received, 2 = Interview, 3 = Rejected, 4 = RejectedAfterInterview, 5 = NotifyCommittee
-        var emailTemplatesSql = @"SELECT ERLetterTemplateId AS Id, Name
+        var emailTemplatesSql = @"SELECT ERLetterTemplateId AS Id, TemplateName AS Name
                   FROM ERLetterTemplate
                   WHERE ClientId = {0} AND ERLetterTemplateTypeId = {1}
                     AND Active = 1
-                  ORDER BY Name";
+                  ORDER BY TemplateName";
 
         var emailTemplatesReceived = await context.Database
             .SqlQueryRaw<SimpleOptionDto>(emailTemplatesSql, clientId, 1)
@@ -1607,10 +1607,10 @@ public class ErActivityService : IErActivityService
         // SMS templates for this client
         var smsTemplates = await context.Database
             .SqlQueryRaw<SimpleOptionDto>(
-                @"SELECT ERSmsTemplateId AS Id, Name
+                @"SELECT ERSmsTemplateId AS Id, TemplateName AS Name
                   FROM ERSmsTemplate
                   WHERE ClientId = {0} AND Active = 1
-                  ORDER BY Name",
+                  ORDER BY TemplateName",
                 clientId)
             .ToListAsync(ct);
 
