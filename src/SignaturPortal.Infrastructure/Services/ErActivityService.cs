@@ -1249,4 +1249,624 @@ public class ErActivityService : IErActivityService
         return await query.CountAsync(ct);
     }
 
+    // =========================================================================
+    // Form load / save
+    // =========================================================================
+
+    /// <summary>
+    /// Loads full activity data for pre-populating the ActivityCreateEdit form in edit mode.
+    /// </summary>
+    public async Task<ActivityEditDto?> GetActivityForEditAsync(int activityId, CancellationToken ct = default)
+    {
+        await using var context = await _contextFactory.CreateDbContextAsync(ct);
+        context.CurrentSiteId = _sessionContext.SiteId;
+        context.CurrentClientId = _sessionContext.ClientId;
+
+        var activity = await context.Eractivities
+            .Where(a => a.EractivityId == activityId && !a.IsCleaned)
+            .Select(a => new
+            {
+                a.EractivityId,
+                a.ClientId,
+                ClientName = a.Client != null ? a.Client.ObjectData : null,
+                a.Headline,
+                a.Jobtitle,
+                a.EractivityStatusId,
+                a.JobnetOccupationId,
+                a.ClientSectionId,
+                ClientSectionName = a.ClientSection != null ? a.ClientSection.Name : null,
+                ClientSectionGroupId = a.ClientSection != null ? a.ClientSection.ClientSectionGroupId : null,
+                a.IsReposting,
+                a.IsLeadershipPosition,
+                a.IsBlindRecruitment,
+                a.LockCandidateEvalutionAndNotesWhenUserHasNotEvaluated,
+                a.ViewRecruitmentCommitteeEvaluations,
+                a.EmailOnNewCandidate,
+                a.SendDailyStatusEmailEnabled,
+                a.ContinuousPosting,
+                a.ApplicationDeadline,
+                a.HireDate,
+                a.HireDateFreeText,
+                a.InterviewRounds,
+                a.CalendarTypeId,
+                a.InterviewDuration,
+                a.CandidateExtendedEvaluationEnabled,
+                a.SendSmsInterviewRemembrances,
+                a.ErtemplateGroupId,
+                a.ErapplicationTemplateId,
+                a.ErletterTemplateReceivedId,
+                a.ErletterTemplateInterviewId,
+                a.ErletterTemplateInterviewTwoPlusRoundsId,
+                a.ErletterTemplateRejectedId,
+                a.ErletterTemplateRejectedAfterInterviewId,
+                a.ErnotifyRecruitmentCommitteeId,
+                a.ErsmsTemplateInterviewId,
+                a.Responsible,
+                a.CreatedBy,
+                a.CreateDate,
+                HiringTeamMembers = a.Eractivitymembers
+                    .Select(m => new
+                    {
+                        m.EractivityMemberId,
+                        m.UserId,
+                        m.EractivityMemberTypeId,
+                        m.ExtUserAllowCandidateManagement,
+                        m.ExtUserAllowCandidateReview,
+                        m.ExtUserAllowViewEditNotes,
+                        m.NotificationMailSendToUser,
+                        m.User.FullName,
+                        m.User.Email,
+                        m.User.UserName
+                    })
+                    .ToList()
+            })
+            .AsSplitQuery()
+            .FirstOrDefaultAsync(ct);
+
+        if (activity == null) return null;
+
+        // Load alternative responsibles
+        var altResponsibles = await context.EractivityAlternativeResponsibles
+            .Where(ar => ar.EractivityId == activityId)
+            .Select(ar => new UserDropdownDto
+            {
+                UserId = ar.UserId,
+                DisplayName = ar.User.FullName ?? ar.User.UserName ?? ""
+            })
+            .ToListAsync(ct);
+
+        // Resolve responsible user name
+        string? responsibleName = null;
+        if (activity.Responsible.HasValue)
+        {
+            var responsible = await context.Users
+                .Where(u => u.UserId == activity.Responsible.Value)
+                .Select(u => new { u.FullName, u.UserName })
+                .FirstOrDefaultAsync(ct);
+            responsibleName = responsible?.FullName ?? responsible?.UserName;
+        }
+
+        // Resolve created-by name
+        string createdByName = "";
+        if (activity.CreatedBy.HasValue)
+        {
+            var creator = await context.Users
+                .Where(u => u.UserId == activity.CreatedBy.Value)
+                .Select(u => new { u.FullName, u.UserName })
+                .FirstOrDefaultAsync(ct);
+            createdByName = creator?.FullName ?? creator?.UserName ?? "";
+        }
+
+        // Determine HireDateType: 1=Date, 2=FreeText, 0=None
+        int hireDateType = 0;
+        if (activity.HireDate.HasValue) hireDateType = 1;
+        else if (!string.IsNullOrEmpty(activity.HireDateFreeText)) hireDateType = 2;
+
+        // Map IsLeadershipPosition bool? → int (1=Yes, 2=No, null=not set)
+        int? leadershipPositionId = activity.IsLeadershipPosition.HasValue
+            ? (activity.IsLeadershipPosition.Value ? 1 : 2)
+            : null;
+
+        // Map IsBlindRecruitment bool? → int (1=Yes, 2=No, null=not set)
+        int? blindRecruitmentId = activity.IsBlindRecruitment.HasValue
+            ? (activity.IsBlindRecruitment.Value ? 1 : 2)
+            : null;
+
+        var committeeMembers = activity.HiringTeamMembers
+            .Select(m => new HiringTeamMemberDto
+            {
+                EractivityMemberId = m.EractivityMemberId,
+                UserId = m.UserId,
+                FullName = m.FullName ?? "",
+                Email = m.Email ?? "",
+                UserName = m.UserName ?? "",
+                MemberTypeId = m.EractivityMemberTypeId,
+                MemberTypeName = StatusMappings.GetActivityMemberTypeName(m.EractivityMemberTypeId),
+                AllowCandidateManagement = m.ExtUserAllowCandidateManagement,
+                AllowCandidateReview = m.ExtUserAllowCandidateReview,
+                AllowViewEditNotes = m.ExtUserAllowViewEditNotes,
+                NotificationMailSendToUser = m.NotificationMailSendToUser
+            })
+            .ToList();
+
+        return new ActivityEditDto
+        {
+            EractivityId = activity.EractivityId,
+            ClientId = activity.ClientId,
+            CreateDate = activity.CreateDate,
+            CreatedByName = createdByName,
+            StatusId = activity.EractivityStatusId,
+            Headline = activity.Headline,
+            JobTitle = activity.Jobtitle,
+            JobnetOccupationId = activity.JobnetOccupationId,
+            ClientSectionGroupId = activity.ClientSectionGroupId,
+            ClientSectionId = activity.ClientSectionId,
+            ClientSectionName = activity.ClientSectionName,
+            Reposting = activity.IsReposting,
+            LeadershipPositionId = leadershipPositionId,
+            BlindRecruitmentId = blindRecruitmentId,
+            LockCandidateEvaluation = activity.LockCandidateEvalutionAndNotesWhenUserHasNotEvaluated,
+            ViewCommitteeEvaluations = activity.ViewRecruitmentCommitteeEvaluations,
+            SendEmailOnNewCandidate = activity.EmailOnNewCandidate,
+            SendDailyStatusMail = activity.SendDailyStatusEmailEnabled,
+            ContinuousPosting = activity.ContinuousPosting,
+            ApplicationDeadline = activity.ContinuousPosting ? null : activity.ApplicationDeadline,
+            HireDateType = hireDateType,
+            HireDate = activity.HireDate,
+            HireDateFreeText = activity.HireDateFreeText,
+            InterviewRounds = activity.InterviewRounds == 0 ? null : activity.InterviewRounds,
+            CalendarTypeId = activity.CalendarTypeId == 0 ? null : activity.CalendarTypeId,
+            InterviewDurationId = activity.InterviewDuration,
+            ExtendedEvaluationEnabled = activity.CandidateExtendedEvaluationEnabled,
+            SendSmsInterviewReminders = activity.SendSmsInterviewRemembrances,
+            TemplateGroupId = activity.ErtemplateGroupId,
+            ApplicationTemplateId = activity.ErapplicationTemplateId == 0 ? null : activity.ErapplicationTemplateId,
+            EmailTemplateReceivedId = activity.ErletterTemplateReceivedId == 0 ? null : activity.ErletterTemplateReceivedId,
+            EmailTemplateInterviewId = activity.ErletterTemplateInterviewId == 0 ? null : activity.ErletterTemplateInterviewId,
+            EmailTemplateInterview2PlusId = activity.ErletterTemplateInterviewTwoPlusRoundsId,
+            EmailTemplateRejectedId = activity.ErletterTemplateRejectedId == 0 ? null : activity.ErletterTemplateRejectedId,
+            EmailTemplateRejectedAfterInterviewId = activity.ErletterTemplateRejectedAfterInterviewId == 0 ? null : activity.ErletterTemplateRejectedAfterInterviewId,
+            EmailTemplateNotifyCommitteeId = activity.ErnotifyRecruitmentCommitteeId == 0 ? null : activity.ErnotifyRecruitmentCommitteeId,
+            SmsTemplateInterviewId = activity.ErsmsTemplateInterviewId,
+            RecruitmentResponsibleUserId = activity.Responsible,
+            RecruitmentResponsibleName = responsibleName,
+            AlternativeResponsibles = altResponsibles,
+            CommitteeMembers = committeeMembers
+        };
+    }
+
+    /// <summary>
+    /// Loads all dropdown option lists for the ActivityCreateEdit form for the given client.
+    /// Uses raw SQL for legacy lookup tables not yet mapped to EF entities.
+    /// </summary>
+    public async Task<ActivityFormOptionsDto> GetActivityFormOptionsAsync(
+        int clientId,
+        int? currentTemplateGroupId = null,
+        CancellationToken ct = default)
+    {
+        await using var context = await _contextFactory.CreateDbContextAsync(ct);
+        context.CurrentSiteId = _sessionContext.SiteId;
+
+        // Statuses available on the form (not Draft since draft mode is out of scope)
+        var statuses = new List<ActivityStatusOptionDto>
+        {
+            new(1, StatusMappings.GetActivityStatusName(1)), // Ongoing
+            new(2, StatusMappings.GetActivityStatusName(2)), // Closed
+            new(3, StatusMappings.GetActivityStatusName(3)), // Deleted
+        };
+
+        // Leadership position options (maps to IsLeadershipPosition bool)
+        var leadershipPositions = new List<SimpleOptionDto>
+        {
+            new(1, "Ja"),
+            new(2, "Nej")
+        };
+
+        // Blind recruitment options (maps to IsBlindRecruitment bool)
+        var blindRecruitmentOptions = new List<SimpleOptionDto>
+        {
+            new(1, "Ja"),
+            new(2, "Nej")
+        };
+
+        // Interview rounds options (1-5)
+        var interviewRoundsOptions = Enumerable.Range(1, 5)
+            .Select(i => new SimpleOptionDto(i, i.ToString()))
+            .ToList();
+
+        // Template groups for this client (active only)
+        var templateGroups = await context.ErTemplateGroups
+            .Where(tg => context.Eractivities.Any(a =>
+                a.ClientId == clientId &&
+                a.ErtemplateGroupId == tg.ErtemplateGroupId))
+            .OrderBy(tg => tg.Name)
+            .Select(tg => new TemplateGroupDropdownDto
+            {
+                TemplateGroupId = tg.ErtemplateGroupId,
+                Name = tg.Name
+            })
+            .ToListAsync(ct);
+
+        // Client section groups for this client
+        var clientSectionGroups = await context.ClientSectionGroups
+            .Where(csg => csg.ClientId == clientId)
+            .OrderBy(csg => csg.Name)
+            .Select(csg => new ClientSectionGroupDropdownDto
+            {
+                ClientSectionGroupId = csg.ClientSectionGroupId,
+                Name = csg.Name
+            })
+            .ToListAsync(ct);
+
+        // Jobnet occupations — raw SQL (JobnetOccupation table)
+        var jobnetOccupations = await context.Database
+            .SqlQueryRaw<SimpleOptionDto>(
+                @"SELECT Id, Name
+                  FROM JobnetOccupation
+                  WHERE Deleted = 0
+                  ORDER BY Name")
+            .ToListAsync(ct);
+
+        // Recruitment types — raw SQL (legacy ERRecruitmentType table)
+        var recruitmentTypes = await context.Database
+            .SqlQueryRaw<SimpleOptionDto>(
+                @"SELECT ERRecruitmentTypeId AS Id, Name
+                  FROM ERRecruitmentType
+                  ORDER BY SortOrder, Name")
+            .ToListAsync(ct);
+
+        // Calendar types — raw SQL (legacy ERCalendarType table)
+        var calendarTypes = await context.Database
+            .SqlQueryRaw<SimpleOptionDto>(
+                @"SELECT ERCalendarTypeId AS Id, Name
+                  FROM ERCalendarType
+                  ORDER BY SortOrder, Name")
+            .ToListAsync(ct);
+
+        // Interview durations — raw SQL (legacy ERInterviewDuration table)
+        var interviewDurations = await context.Database
+            .SqlQueryRaw<SimpleOptionDto>(
+                @"SELECT ERInterviewDurationId AS Id, Name
+                  FROM ERInterviewDuration
+                  ORDER BY SortOrder, DurationMinutes")
+            .ToListAsync(ct);
+
+        // Languages for this client — raw SQL (legacy Language + Sig_Client_Language tables)
+        var languages = await context.Database
+            .SqlQueryRaw<SimpleOptionDto>(
+                @"SELECT l.LanguageId AS Id, l.Name
+                  FROM Language l
+                  JOIN Sig_Client_Language scl ON scl.LanguageId = l.LanguageId
+                  WHERE scl.ClientId = {0} AND l.IsEnabled = 1
+                  ORDER BY l.SortOrder, l.Name",
+                clientId)
+            .ToListAsync(ct);
+
+        // Application templates for this client (filtered by template group if provided)
+        var appTemplatesQuery = currentTemplateGroupId.HasValue
+            ? @"SELECT ERApplicationTemplateId AS Id, Name
+                FROM ERApplicationTemplate
+                WHERE ClientId = {0} AND ERTemplateGroupId = {1}
+                  AND IsEnabled = 1 AND ERApplicationTemplateTypeId = 1
+                ORDER BY Name"
+            : @"SELECT ERApplicationTemplateId AS Id, Name
+                FROM ERApplicationTemplate
+                WHERE ClientId = {0}
+                  AND IsEnabled = 1 AND ERApplicationTemplateTypeId = 1
+                ORDER BY Name";
+
+        List<SimpleOptionDto> applicationTemplates;
+        if (currentTemplateGroupId.HasValue)
+        {
+            applicationTemplates = await context.Database
+                .SqlQueryRaw<SimpleOptionDto>(appTemplatesQuery, clientId, currentTemplateGroupId.Value)
+                .ToListAsync(ct);
+        }
+        else
+        {
+            applicationTemplates = await context.Database
+                .SqlQueryRaw<SimpleOptionDto>(appTemplatesQuery, clientId)
+                .ToListAsync(ct);
+        }
+
+        // Email templates for this client — all types from ERLetterTemplate
+        // Type 1 = Received, 2 = Interview, 3 = Rejected, 4 = RejectedAfterInterview, 5 = NotifyCommittee
+        var emailTemplatesSql = @"SELECT ERLetterTemplateId AS Id, Name
+                  FROM ERLetterTemplate
+                  WHERE ClientId = {0} AND ERLetterTemplateTypeId = {1}
+                    AND IsEnabled = 1
+                  ORDER BY Name";
+
+        var emailTemplatesReceived = await context.Database
+            .SqlQueryRaw<SimpleOptionDto>(emailTemplatesSql, clientId, 1)
+            .ToListAsync(ct);
+
+        var emailTemplatesInterview = await context.Database
+            .SqlQueryRaw<SimpleOptionDto>(emailTemplatesSql, clientId, 2)
+            .ToListAsync(ct);
+
+        var emailTemplatesRejected = await context.Database
+            .SqlQueryRaw<SimpleOptionDto>(emailTemplatesSql, clientId, 3)
+            .ToListAsync(ct);
+
+        var emailTemplatesRejectedAfterInterview = await context.Database
+            .SqlQueryRaw<SimpleOptionDto>(emailTemplatesSql, clientId, 4)
+            .ToListAsync(ct);
+
+        var emailTemplatesNotifyCommittee = await context.Database
+            .SqlQueryRaw<SimpleOptionDto>(emailTemplatesSql, clientId, 5)
+            .ToListAsync(ct);
+
+        // SMS templates for this client
+        var smsTemplates = await context.Database
+            .SqlQueryRaw<SimpleOptionDto>(
+                @"SELECT ERSmsTemplateId AS Id, Name
+                  FROM ERSmsTemplate
+                  WHERE ClientId = {0} AND IsEnabled = 1
+                  ORDER BY Name",
+                clientId)
+            .ToListAsync(ct);
+
+        return new ActivityFormOptionsDto
+        {
+            Statuses = statuses,
+            JobnetOccupations = jobnetOccupations,
+            ClientSectionGroups = clientSectionGroups,
+            LeadershipPositions = leadershipPositions,
+            BlindRecruitmentOptions = blindRecruitmentOptions,
+            RecruitmentTypes = recruitmentTypes,
+            InterviewRoundsOptions = interviewRoundsOptions,
+            CalendarTypes = calendarTypes,
+            InterviewDurations = interviewDurations,
+            Languages = languages,
+            TemplateGroups = templateGroups,
+            ApplicationTemplates = applicationTemplates,
+            EmailTemplatesReceived = emailTemplatesReceived,
+            EmailTemplatesInterview = emailTemplatesInterview,
+            EmailTemplatesInterview2Plus = emailTemplatesInterview, // same template pool
+            EmailTemplatesRejected = emailTemplatesRejected,
+            EmailTemplatesRejectedAfterInterview = emailTemplatesRejectedAfterInterview,
+            EmailTemplatesNotifyCommittee = emailTemplatesNotifyCommittee,
+            SmsTemplates = smsTemplates
+        };
+    }
+
+    /// <summary>
+    /// Live-searches client sections for the MudAutocomplete on the create/edit form.
+    /// </summary>
+    public async Task<List<ClientSectionDropdownDto>> GetClientSectionsForFormAsync(
+        int clientId,
+        string? search,
+        CancellationToken ct = default)
+    {
+        await using var context = await _contextFactory.CreateDbContextAsync(ct);
+
+        var query = context.ClientSections.AsQueryable();
+
+        // Filter by client via ClientSectionGroup (sections belong to a client via their group,
+        // or directly if ClientId column exists). Use raw SQL for accurate client filtering.
+        // ClientSection does not have a ClientId FK — filter via the activity history for this client,
+        // or rely on ClientSectionGroup.ClientId.
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            query = query.Where(cs => cs.Name.Contains(search));
+        }
+
+        // Filter sections belonging to this client's section groups
+        var clientGroupIds = await context.ClientSectionGroups
+            .Where(csg => csg.ClientId == clientId)
+            .Select(csg => csg.ClientSectionGroupId)
+            .ToListAsync(ct);
+
+        // Include sections from this client's groups OR sections with no group used by this client
+        var sections = await context.ClientSections
+            .Where(cs => cs.ClientSectionGroupId.HasValue
+                ? clientGroupIds.Contains(cs.ClientSectionGroupId.Value)
+                : context.Eractivities.Any(a => a.ClientId == clientId && a.ClientSectionId == cs.ClientSectionId))
+            .Where(cs => string.IsNullOrWhiteSpace(search) || cs.Name.Contains(search))
+            .OrderBy(cs => cs.Name)
+            .Take(50)
+            .Select(cs => new ClientSectionDropdownDto
+            {
+                ClientSectionId = cs.ClientSectionId,
+                Name = cs.Name
+            })
+            .ToListAsync(ct);
+
+        return sections;
+    }
+
+    /// <summary>
+    /// Live-searches users for the UserPickerDialog.
+    /// Returns internal users for the site and external users for the given client.
+    /// </summary>
+    public async Task<List<UserDropdownDto>> GetUsersForPickerAsync(
+        int clientId,
+        string? search,
+        CancellationToken ct = default)
+    {
+        await using var context = await _contextFactory.CreateDbContextAsync(ct);
+
+        var query = context.Users
+            .Where(u => u.SiteId == _sessionContext.SiteId
+                && u.Enabled == true
+                && (u.IsInternal || u.ClientId == clientId));
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            query = query.Where(u =>
+                (u.FullName != null && u.FullName.Contains(search)) ||
+                (u.Email != null && u.Email.Contains(search)) ||
+                (u.UserName != null && u.UserName.Contains(search)));
+        }
+
+        return await query
+            .OrderBy(u => u.FullName ?? u.UserName)
+            .Take(50)
+            .Select(u => new UserDropdownDto
+            {
+                UserId = u.UserId,
+                DisplayName = u.FullName ?? u.UserName ?? ""
+            })
+            .ToListAsync(ct);
+    }
+
+    /// <summary>
+    /// Creates a new activity from the given command.
+    /// Returns the new activity's EractivityId.
+    /// </summary>
+    public async Task<int> CreateActivityAsync(ActivitySaveCommand command, CancellationToken ct = default)
+    {
+        await using var context = await _contextFactory.CreateDbContextAsync(ct);
+        context.CurrentSiteId = _sessionContext.SiteId;
+        context.CurrentClientId = command.ClientId;
+
+        var entity = MapCommandToEntity(command, new Data.Entities.Eractivity());
+        entity.CreateDate = DateTime.Now;
+        entity.StatusChangedTimeStamp = DateTime.Now;
+        entity.EditedId = Guid.NewGuid();
+        entity.CreatedBy = command.SavedByUserId;
+        entity.JournalNo = "";
+        entity.ApplicationTemplateLanguage = "DK";
+
+        context.Eractivities.Add(entity);
+        await context.SaveChangesAsync(ct);
+
+        // Save alternative responsibles
+        await SaveAlternativeResponsiblesAsync(context, entity.EractivityId, command.AlternativeResponsibleUserIds, ct);
+        await context.SaveChangesAsync(ct);
+
+        return entity.EractivityId;
+    }
+
+    /// <summary>
+    /// Updates an existing activity with the given command.
+    /// </summary>
+    public async Task UpdateActivityAsync(int activityId, ActivitySaveCommand command, CancellationToken ct = default)
+    {
+        await using var context = await _contextFactory.CreateDbContextAsync(ct);
+        context.CurrentSiteId = _sessionContext.SiteId;
+        context.CurrentClientId = command.ClientId;
+
+        var entity = await context.Eractivities
+            .Where(a => a.EractivityId == activityId)
+            .FirstOrDefaultAsync(ct)
+            ?? throw new InvalidOperationException($"Activity {activityId} not found.");
+
+        MapCommandToEntity(command, entity);
+        entity.EditedId = Guid.NewGuid();
+        entity.StatusChangedTimeStamp = DateTime.Now;
+
+        await SaveAlternativeResponsiblesAsync(context, activityId, command.AlternativeResponsibleUserIds, ct);
+        await context.SaveChangesAsync(ct);
+    }
+
+    /// <summary>
+    /// Soft-deletes an activity (sets status to Deleted = 3).
+    /// </summary>
+    public async Task DeleteActivityAsync(int activityId, CancellationToken ct = default)
+    {
+        await using var context = await _contextFactory.CreateDbContextAsync(ct);
+        context.CurrentSiteId = _sessionContext.SiteId;
+
+        var entity = await context.Eractivities
+            .Where(a => a.EractivityId == activityId)
+            .FirstOrDefaultAsync(ct)
+            ?? throw new InvalidOperationException($"Activity {activityId} not found.");
+
+        entity.EractivityStatusId = 3; // Deleted
+        entity.StatusChangedTimeStamp = DateTime.Now;
+        entity.EditedId = Guid.NewGuid();
+        await context.SaveChangesAsync(ct);
+    }
+
+    /// <summary>
+    /// Closes an activity (sets status to Closed = 2).
+    /// </summary>
+    public async Task CloseActivityAsync(int activityId, CancellationToken ct = default)
+    {
+        await using var context = await _contextFactory.CreateDbContextAsync(ct);
+        context.CurrentSiteId = _sessionContext.SiteId;
+
+        var entity = await context.Eractivities
+            .Where(a => a.EractivityId == activityId)
+            .FirstOrDefaultAsync(ct)
+            ?? throw new InvalidOperationException($"Activity {activityId} not found.");
+
+        entity.EractivityStatusId = 2; // Closed
+        entity.StatusChangedTimeStamp = DateTime.Now;
+        entity.EditedId = Guid.NewGuid();
+        await context.SaveChangesAsync(ct);
+    }
+
+    // -------------------------------------------------------------------------
+    // Private helpers
+    // -------------------------------------------------------------------------
+
+    private static Data.Entities.Eractivity MapCommandToEntity(
+        ActivitySaveCommand command,
+        Data.Entities.Eractivity entity)
+    {
+        entity.ClientId = command.ClientId;
+        entity.EractivityStatusId = command.StatusId;
+        entity.Headline = command.Headline;
+        entity.Jobtitle = command.JobTitle ?? "";
+        entity.JobnetOccupationId = command.JobnetOccupationId;
+        entity.ClientSectionId = command.ClientSectionId;
+        entity.IsReposting = command.Reposting;
+        entity.IsLeadershipPosition = command.LeadershipPositionId.HasValue
+            ? command.LeadershipPositionId == 1
+            : null;
+        entity.IsBlindRecruitment = command.BlindRecruitmentId.HasValue
+            ? command.BlindRecruitmentId == 1
+            : null;
+        entity.LockCandidateEvalutionAndNotesWhenUserHasNotEvaluated = command.LockCandidateEvaluation;
+        entity.ViewRecruitmentCommitteeEvaluations = command.ViewCommitteeEvaluations;
+        entity.EmailOnNewCandidate = command.SendEmailOnNewCandidate;
+        entity.SendDailyStatusEmailEnabled = command.SendDailyStatusMail;
+        entity.ContinuousPosting = command.ContinuousPosting;
+        entity.ApplicationDeadline = command.ApplicationDeadline ?? DateTime.MaxValue;
+        entity.HireDate = command.HireDateType == 1 ? command.HireDate : null;
+        entity.HireDateFreeText = command.HireDateType == 2 ? command.HireDateFreeText : null;
+        entity.InterviewRounds = command.InterviewRounds ?? 1;
+        entity.CalendarTypeId = command.CalendarTypeId ?? 0;
+        entity.InterviewDuration = command.InterviewDurationId;
+        entity.CandidateExtendedEvaluationEnabled = command.ExtendedEvaluationEnabled;
+        entity.SendSmsInterviewRemembrances = command.SendSmsInterviewReminders;
+        entity.ErtemplateGroupId = command.TemplateGroupId;
+        entity.ErapplicationTemplateId = command.ApplicationTemplateId ?? 0;
+        entity.ErletterTemplateReceivedId = command.EmailTemplateReceivedId ?? 0;
+        entity.ErletterTemplateInterviewId = command.EmailTemplateInterviewId ?? 0;
+        entity.ErletterTemplateInterviewTwoPlusRoundsId = command.EmailTemplateInterview2PlusId;
+        entity.ErletterTemplateRejectedId = command.EmailTemplateRejectedId ?? 0;
+        entity.ErletterTemplateRejectedAfterInterviewId = command.EmailTemplateRejectedAfterInterviewId ?? 0;
+        entity.ErnotifyRecruitmentCommitteeId = command.EmailTemplateNotifyCommitteeId ?? 0;
+        entity.ErsmsTemplateInterviewId = command.SmsTemplateInterviewId;
+        entity.Responsible = command.RecruitmentResponsibleUserId;
+        return entity;
+    }
+
+    private static async Task SaveAlternativeResponsiblesAsync(
+        Data.SignaturDbContext context,
+        int activityId,
+        List<Guid> userIds,
+        CancellationToken ct)
+    {
+        // Remove existing
+        var existing = await context.EractivityAlternativeResponsibles
+            .Where(ar => ar.EractivityId == activityId)
+            .ToListAsync(ct);
+        context.EractivityAlternativeResponsibles.RemoveRange(existing);
+
+        // Add new
+        foreach (var userId in userIds)
+        {
+            context.EractivityAlternativeResponsibles.Add(new Data.Entities.EractivityAlternativeResponsible
+            {
+                EractivityId = activityId,
+                UserId = userId
+            });
+        }
+    }
+
 }
