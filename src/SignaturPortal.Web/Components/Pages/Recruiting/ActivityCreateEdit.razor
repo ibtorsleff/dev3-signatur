@@ -191,7 +191,7 @@ else
                                            ValueChanged="OnSectionGroupChangedAsync"
                                            Variant="Variant.Outlined"
                                            Margin="Margin.Dense"
-                                           Disabled="@(_cascadeLoading || !_form.ClientId.HasValue)">
+                                           Disabled="@TemplateInputsDisabled">
                                     <MudSelectItem Value="@((int?)null)">—</MudSelectItem>
                                     @foreach (var group in _options.ClientSectionGroups)
                                     {
@@ -216,7 +216,7 @@ else
                                              Margin="Margin.Dense"
                                              MinCharacters="0"
                                              CoerceValue="true"
-                                             Disabled="@(_cascadeLoading || !_form.ClientId.HasValue)" />
+                                             Disabled="@TemplateInputsDisabled" />
                             <ValidationMessage For="@(() => _form.ClientSectionId)" />
                         </div>
                     </div>
@@ -535,7 +535,7 @@ else
                     @if (_clientConfig.UseTemplateGroups)
                     {
                         <div class="form-row">
-                            <label class="form-label">@Localization.GetText("TemplateGroup")</label>
+                            <label class="form-label">@Localization.GetText("WorkArea") / @Localization.GetText("TemplateGroup")</label>
                             <div class="form-input">
                                 <MudSelect T="int?"
                                            Value="_form.TemplateGroupId"
@@ -561,7 +561,7 @@ else
                                        @bind-Value="_form.ApplicationTemplateId"
                                        Variant="Variant.Outlined"
                                        Margin="Margin.Dense"
-                                       Disabled="@(_cascadeLoading || !_form.ClientId.HasValue)">
+                                       Disabled="@TemplateInputsDisabled">
                                 <MudSelectItem Value="@((int?)null)">—</MudSelectItem>
                                 @foreach (var tmpl in _options.ApplicationTemplates)
                                 {
@@ -580,7 +580,7 @@ else
                                        @bind-Value="_form.EmailTemplateReceivedId"
                                        Variant="Variant.Outlined"
                                        Margin="Margin.Dense"
-                                       Disabled="@(_cascadeLoading || !_form.ClientId.HasValue)">
+                                       Disabled="@TemplateInputsDisabled">
                                 <MudSelectItem Value="@((int?)null)">—</MudSelectItem>
                                 @foreach (var tmpl in _options.EmailTemplatesReceived)
                                 {
@@ -593,13 +593,13 @@ else
 
                     @* Samtalemail, første runde *@
                     <div class="form-row">
-                        <label class="form-label">@Localization.GetText("InterviewEmailForSelected") <span class="required-mark">*</span></label>
+                        <label class="form-label">@Localization.GetText(_clientConfig.MultipleInterviewRoundsEnabled ? "InterviewEmailFirstRoundForSelected" : "InterviewEmailForSelected") <span class="required-mark">*</span></label>
                         <div class="form-input">
                             <MudSelect T="int?"
                                        @bind-Value="_form.EmailTemplateInterviewId"
                                        Variant="Variant.Outlined"
                                        Margin="Margin.Dense"
-                                       Disabled="@(_cascadeLoading || !_form.ClientId.HasValue)">
+                                       Disabled="@TemplateInputsDisabled">
                                 <MudSelectItem Value="@((int?)null)">—</MudSelectItem>
                                 @foreach (var tmpl in _options.EmailTemplatesInterview)
                                 {
@@ -620,7 +620,7 @@ else
                                            @bind-Value="_form.EmailTemplateInterview2PlusId"
                                            Variant="Variant.Outlined"
                                            Margin="Margin.Dense"
-                                           Disabled="@(_cascadeLoading || !_form.ClientId.HasValue)">
+                                           Disabled="@TemplateInputsDisabled">
                                     <MudSelectItem Value="@((int?)null)">—</MudSelectItem>
                                     @foreach (var tmpl in _options.EmailTemplatesInterview2Plus)
                                     {
@@ -639,7 +639,7 @@ else
                                        @bind-Value="_form.EmailTemplateRejectedId"
                                        Variant="Variant.Outlined"
                                        Margin="Margin.Dense"
-                                       Disabled="@(_cascadeLoading || !_form.ClientId.HasValue)">
+                                       Disabled="@TemplateInputsDisabled">
                                 <MudSelectItem Value="@((int?)null)">—</MudSelectItem>
                                 @foreach (var tmpl in _options.EmailTemplatesRejected)
                                 {
@@ -658,7 +658,7 @@ else
                                        @bind-Value="_form.EmailTemplateRejectedAfterInterviewId"
                                        Variant="Variant.Outlined"
                                        Margin="Margin.Dense"
-                                       Disabled="@(_cascadeLoading || !_form.ClientId.HasValue)">
+                                       Disabled="@TemplateInputsDisabled">
                                 <MudSelectItem Value="@((int?)null)">—</MudSelectItem>
                                 @foreach (var tmpl in _options.EmailTemplatesRejectedAfterInterview)
                                 {
@@ -671,13 +671,13 @@ else
 
                     @* Notifikationsmail til ansættelsesudvalg *@
                     <div class="form-row">
-                        <label class="form-label">@Localization.GetText("NotifyRecruitmentCommitteeEmail") <span class="required-mark">*</span></label>
+                        <label class="form-label">@Localization.GetText(_clientConfig.IsFundClient ? "NotifyRecruitmentCommitteeEmailFund" : "NotifyRecruitmentCommitteeEmail") <span class="required-mark">*</span></label>
                         <div class="form-input">
                             <MudSelect T="int?"
                                        @bind-Value="_form.EmailTemplateNotifyCommitteeId"
                                        Variant="Variant.Outlined"
                                        Margin="Margin.Dense"
-                                       Disabled="@(_cascadeLoading || !_form.ClientId.HasValue)">
+                                       Disabled="@TemplateInputsDisabled">
                                 <MudSelectItem Value="@((int?)null)">—</MudSelectItem>
                                 @foreach (var tmpl in _options.EmailTemplatesNotifyCommittee)
                                 {
@@ -698,7 +698,7 @@ else
                                            @bind-Value="_form.SmsTemplateInterviewId"
                                            Variant="Variant.Outlined"
                                            Margin="Margin.Dense"
-                                           Disabled="@(_cascadeLoading || !_form.ClientId.HasValue)">
+                                           Disabled="@TemplateInputsDisabled">
                                     <MudSelectItem Value="@((int?)null)">—</MudSelectItem>
                                     @foreach (var tmpl in _options.SmsTemplates)
                                     {

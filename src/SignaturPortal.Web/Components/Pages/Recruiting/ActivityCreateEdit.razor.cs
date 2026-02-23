@@ -73,6 +73,12 @@ public partial class ActivityCreateEdit
     private bool IsDeletedActivity => IsEditMode && _editData?.StatusId == 3;
     private bool IsDraftActivity   => IsEditMode && _editData?.StatusId == 4;
 
+    // Template inputs disabled when: cascade loading, no client, or template groups enabled but none selected yet
+    private bool TemplateInputsDisabled =>
+        _cascadeLoading ||
+        !_form.ClientId.HasValue ||
+        (_clientConfig.UseTemplateGroups && !_form.TemplateGroupId.HasValue);
+
     // InterviewRounds: show if client has the flag, or in edit mode if activity already has rounds set
     private bool ShowInterviewRoundsDropdown =>
         _clientConfig.MultipleInterviewRoundsEnabled ||
