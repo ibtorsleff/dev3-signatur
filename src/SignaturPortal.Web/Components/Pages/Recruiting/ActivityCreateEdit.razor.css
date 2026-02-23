@@ -25,6 +25,7 @@
 .form-input {
     flex: 1;
     min-width: 0;
+    max-width: 488px;
 }
 
 /* Checkbox rows align label with the checkbox centre, not the top */

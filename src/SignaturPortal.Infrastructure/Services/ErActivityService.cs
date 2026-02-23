@@ -4,6 +4,7 @@ using SignaturPortal.Application.DTOs;
 using SignaturPortal.Application.Interfaces;
 using SignaturPortal.Domain.Helpers;
 using SignaturPortal.Infrastructure.Data;
+using SignaturPortal.Infrastructure.Data.Entities;
 using SignaturPortal.Domain.Enums;
 using SignaturPortal.Infrastructure.Extensions;
 
@@ -1501,13 +1502,11 @@ public class ErActivityService : IErActivityService
             })
             .ToListAsync(ct);
 
-        // Jobnet occupations — raw SQL (JobnetOccupation table)
-        var jobnetOccupations = await context.Database
-            .SqlQueryRaw<SimpleOptionDto>(
-                @"SELECT Id, Name
-                  FROM JobnetOccupation
-                  WHERE Deleted = 0
-                  ORDER BY Name")
+        // Jobnet occupations
+        var jobnetOccupations = await context.JobnetOccupations
+            .Where(j => !j.Deleted)
+            .OrderBy(j => j.Name)
+            .Select(j => new SimpleOptionDto(j.Id, j.Name))
             .ToListAsync(ct);
 
         // Recruitment types — hardcoded enum (no DB table; mirrors legacy RecruitmentTypeEn)
@@ -1550,70 +1549,40 @@ public class ErActivityService : IErActivityService
             .ToListAsync(ct);
 
         // Application templates for this client (filtered by template group if provided)
-        var appTemplatesQuery = currentTemplateGroupId.HasValue
-            ? @"SELECT t.ERApplicationTemplateId AS Id, t.Name
-                FROM ERApplicationTemplate t
-                JOIN ERTemplateGroupERApplicationTemplate tg
-                  ON tg.ERApplicationTemplateId = t.ERApplicationTemplateId
-                WHERE t.ClientId = {0} AND tg.ERTemplateGroupId = {1}
-                  AND t.Active = 1 AND t.ERApplicationTemplateTypeId = 1
-                ORDER BY t.Name"
-            : @"SELECT ERApplicationTemplateId AS Id, Name
-                FROM ERApplicationTemplate
-                WHERE ClientId = {0}
-                  AND Active = 1 AND ERApplicationTemplateTypeId = 1
-                ORDER BY Name";
+        var appTemplatesQueryable = context.ErApplicationTemplates
+            .Where(t => t.ClientId == clientId && t.Active && t.TemplateTypeId == 1);
 
-        List<SimpleOptionDto> applicationTemplates;
         if (currentTemplateGroupId.HasValue)
         {
-            applicationTemplates = await context.Database
-                .SqlQueryRaw<SimpleOptionDto>(appTemplatesQuery, clientId, currentTemplateGroupId.Value)
-                .ToListAsync(ct);
-        }
-        else
-        {
-            applicationTemplates = await context.Database
-                .SqlQueryRaw<SimpleOptionDto>(appTemplatesQuery, clientId)
-                .ToListAsync(ct);
+            appTemplatesQueryable = appTemplatesQueryable
+                .Where(t => context.ErTemplateGroupApplicationTemplates.Any(tg =>
+                    tg.ErTemplateGroupId == currentTemplateGroupId.Value &&
+                    tg.ErApplicationTemplateId == t.ErApplicationTemplateId));
         }
 
-        // Email templates for this client — all types from ERLetterTemplate
-        // Type 1 = Received, 2 = Interview, 3 = Rejected, 4 = RejectedAfterInterview, 5 = NotifyCommittee
-        var emailTemplatesSql = @"SELECT ERLetterTemplateId AS Id, TemplateName AS Name
-                  FROM ERLetterTemplate
-                  WHERE ClientId = {0} AND ERLetterTemplateTypeId = {1}
-                    AND Active = 1
-                  ORDER BY TemplateName";
-
-        var emailTemplatesReceived = await context.Database
-            .SqlQueryRaw<SimpleOptionDto>(emailTemplatesSql, clientId, 1)
+        var applicationTemplates = await appTemplatesQueryable
+            .OrderBy(t => t.Name)
+            .Select(t => new SimpleOptionDto(t.ErApplicationTemplateId, t.Name))
             .ToListAsync(ct);
 
-        var emailTemplatesInterview = await context.Database
-            .SqlQueryRaw<SimpleOptionDto>(emailTemplatesSql, clientId, 2)
+        // Email templates for this client — load all at once, partition by TypeId in memory
+        // TypeId: 1 = Received, 2 = Interview, 3 = Rejected, 4 = RejectedAfterInterview, 5 = NotifyCommittee
+        var allEmailTemplates = await context.ErLetterTemplates
+            .Where(t => t.ClientId == clientId && t.Active)
+            .OrderBy(t => t.TemplateName)
             .ToListAsync(ct);
 
-        var emailTemplatesRejected = await context.Database
-            .SqlQueryRaw<SimpleOptionDto>(emailTemplatesSql, clientId, 3)
-            .ToListAsync(ct);
-
-        var emailTemplatesRejectedAfterInterview = await context.Database
-            .SqlQueryRaw<SimpleOptionDto>(emailTemplatesSql, clientId, 4)
-            .ToListAsync(ct);
-
-        var emailTemplatesNotifyCommittee = await context.Database
-            .SqlQueryRaw<SimpleOptionDto>(emailTemplatesSql, clientId, 5)
-            .ToListAsync(ct);
+        var emailTemplatesReceived               = allEmailTemplates.Where(t => t.TypeId == 1).Select(t => new SimpleOptionDto(t.ErLetterTemplateId, t.TemplateName)).ToList();
+        var emailTemplatesInterview              = allEmailTemplates.Where(t => t.TypeId == 2).Select(t => new SimpleOptionDto(t.ErLetterTemplateId, t.TemplateName)).ToList();
+        var emailTemplatesRejected               = allEmailTemplates.Where(t => t.TypeId == 3).Select(t => new SimpleOptionDto(t.ErLetterTemplateId, t.TemplateName)).ToList();
+        var emailTemplatesRejectedAfterInterview = allEmailTemplates.Where(t => t.TypeId == 4).Select(t => new SimpleOptionDto(t.ErLetterTemplateId, t.TemplateName)).ToList();
+        var emailTemplatesNotifyCommittee        = allEmailTemplates.Where(t => t.TypeId == 5).Select(t => new SimpleOptionDto(t.ErLetterTemplateId, t.TemplateName)).ToList();
 
         // SMS templates for this client
-        var smsTemplates = await context.Database
-            .SqlQueryRaw<SimpleOptionDto>(
-                @"SELECT ERSmsTemplateId AS Id, TemplateName AS Name
-                  FROM ERSmsTemplate
-                  WHERE ClientId = {0} AND Active = 1
-                  ORDER BY TemplateName",
-                clientId)
+        var smsTemplates = await context.ErSmsTemplates
+            .Where(t => t.ClientId == clientId && t.Active)
+            .OrderBy(t => t.TemplateName)
+            .Select(t => new SimpleOptionDto(t.ErSmsTemplateId, t.TemplateName))
             .ToListAsync(ct);
 
         return new ActivityFormOptionsDto

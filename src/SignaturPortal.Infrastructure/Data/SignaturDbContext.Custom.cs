@@ -86,5 +86,46 @@ public partial class SignaturDbContext
         // User data is accessed only through ERActivityMember joins (already tenant-filtered).
         // Adding a ClientId filter would break external hiring team member name resolution
         // (external members may belong to a different client).
+
+        // --- Template / lookup table mappings ---
+
+        modelBuilder.Entity<JobnetOccupation>(entity =>
+        {
+            entity.ToTable("JobnetOccupation");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Name).HasMaxLength(255);
+        });
+
+        modelBuilder.Entity<ErApplicationTemplate>(entity =>
+        {
+            entity.ToTable("ERApplicationTemplate");
+            entity.HasKey(e => e.ErApplicationTemplateId);
+            entity.Property(e => e.ErApplicationTemplateId).HasColumnName("ERApplicationTemplateId");
+            entity.Property(e => e.Name).HasMaxLength(255);
+        });
+
+        modelBuilder.Entity<ErLetterTemplate>(entity =>
+        {
+            entity.ToTable("ERLetterTemplate");
+            entity.HasKey(e => e.ErLetterTemplateId);
+            entity.Property(e => e.ErLetterTemplateId).HasColumnName("ERLetterTemplateId");
+            entity.Property(e => e.TemplateName).HasMaxLength(255);
+        });
+
+        modelBuilder.Entity<ErSmsTemplate>(entity =>
+        {
+            entity.ToTable("ERSmsTemplate");
+            entity.HasKey(e => e.ErSmsTemplateId);
+            entity.Property(e => e.ErSmsTemplateId).HasColumnName("ERSmsTemplateId");
+            entity.Property(e => e.TemplateName).HasMaxLength(255);
+        });
+
+        modelBuilder.Entity<ErTemplateGroupApplicationTemplate>(entity =>
+        {
+            entity.ToTable("ERTemplateGroupERApplicationTemplate");
+            entity.HasKey(e => new { e.ErTemplateGroupId, e.ErApplicationTemplateId });
+            entity.Property(e => e.ErTemplateGroupId).HasColumnName("ERTemplateGroupId");
+            entity.Property(e => e.ErApplicationTemplateId).HasColumnName("ERApplicationTemplateId");
+        });
     }
 }

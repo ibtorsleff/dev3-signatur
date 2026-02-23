@@ -52,6 +52,16 @@ public partial class SignaturDbContext : DbContext
 
     public virtual DbSet<EractivityAlternativeResponsible> EractivityAlternativeResponsibles { get; set; }
 
+    public virtual DbSet<JobnetOccupation> JobnetOccupations { get; set; }
+
+    public virtual DbSet<ErApplicationTemplate> ErApplicationTemplates { get; set; }
+
+    public virtual DbSet<ErLetterTemplate> ErLetterTemplates { get; set; }
+
+    public virtual DbSet<ErSmsTemplate> ErSmsTemplates { get; set; }
+
+    public virtual DbSet<ErTemplateGroupApplicationTemplate> ErTemplateGroupApplicationTemplates { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.UseCollation("Latin1_General_CI_AS");
