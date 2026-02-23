@@ -71,6 +71,7 @@ public partial class ActivityCreateEdit
     private bool IsEditMode => ActivityId.HasValue;
 
     private bool IsDeletedActivity => IsEditMode && _editData?.StatusId == 3;
+    private bool IsDraftActivity   => IsEditMode && _editData?.StatusId == 4;
 
     // InterviewRounds: show if client has the flag, or in edit mode if activity already has rounds set
     private bool ShowInterviewRoundsDropdown =>

@@ -90,16 +90,24 @@ else
                     <div class="form-row">
                         <label class="form-label">@Localization.GetText("Status") <span class="required-mark">*</span></label>
                         <div class="form-input">
-                            <MudSelect T="int?"
-                                       @bind-Value="_form.StatusId"
-                                       Variant="Variant.Outlined"
-                                       Margin="Margin.Dense">
-                                @foreach (var status in _options.Statuses.Where(s => s.Id != 3 || IsDeletedActivity))
-                                {
-                                    <MudSelectItem Value="@((int?)status.Id)">@status.Name</MudSelectItem>
-                                }
-                            </MudSelect>
-                            <ValidationMessage For="@(() => _form.StatusId)" />
+                            @if (IsDraftActivity)
+                            {
+                                <MudText Typo="Typo.body2" Style="padding-top:6px">@Localization.GetText("Draft")</MudText>
+                            }
+                            else
+                            {
+                                <MudSelect T="int?"
+                                           @bind-Value="_form.StatusId"
+                                           Variant="Variant.Outlined"
+                                           Margin="Margin.Dense">
+                                    @foreach (var status in _options.Statuses.Where(s => s.Id != 3 || IsDeletedActivity)
+                                                                              .Where(s => s.Id != 4))
+                                    {
+                                        <MudSelectItem Value="@((int?)status.Id)">@status.Name</MudSelectItem>
+                                    }
+                                </MudSelect>
+                                <ValidationMessage For="@(() => _form.StatusId)" />
+                            }
                         </div>
                     </div>
 
