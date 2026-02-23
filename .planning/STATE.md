@@ -5,14 +5,14 @@
 See: .planning/PROJECT.md (updated 2026-02-13)
 
 **Core value:** The activity list view must work perfectly. Users must be able to see and navigate their recruitment activities with correct status.
-**Current focus:** Phase 03.9 IN PROGRESS -- Redo ActivityCreateEdit UI Migration with Full Fidelity
+**Current focus:** Phase 03.9 COMPLETE -- Redo ActivityCreateEdit UI Migration with Full Fidelity
 
 ## Current Position
 
 Phase: 3.9 of 8 (Redo ActivityCreateEdit UI Migration with Full Fidelity)
-Plan: 1 of N in current phase
-Status: Plan 03.9-01 COMPLETE
-Last activity: 2026-02-23 -- Plan 03.9-01 complete
+Plan: 2 of 2 in current phase
+Status: Plan 03.9-02 COMPLETE -- Phase 03.9 COMPLETE
+Last activity: 2026-02-23 -- Plan 03.9-02 complete
 
 Progress: [##########] 100%
 
@@ -75,6 +75,7 @@ Progress: [##########] 100%
 | 03.8-01 | 3 min | 2 | 6 |
 | 03.8-02 | 2 min | 1 | 2 |
 | 03.9-01 | 8 min | 2 | 2 |
+| 03.9-02 | 3 min | 1 | 1 |
 
 ## Accumulated Context
 
@@ -174,6 +175,8 @@ Recent decisions affecting current work:
 - [Phase 03.9-01]: RecruitmentTypeId ternary derivation in MapEditDataToForm: LeadershipPositionId==1 -> type 2, BlindRecruitmentId==1 -> type 3, else type 1 or null
 - [Phase 03.9-01]: CalendarTypeId derived from checkbox state in BuildSaveCommand: ClosedCalendar=2, OpenCalendar=1, both=use dropdown, neither=0
 - [Phase 03.9-01]: _cascadeLoading field added to ActivityCreateEdit -- toggled true/false around LoadClientDependentDataAsync in OnClientChangedAsync
+- [Phase 03.9-02]: LeadershipPosition and BlindRecruitment not shown as standalone UI dropdowns -- only RecruitmentTypeId dropdown shown; bidirectional translation to binary DB flags handled in code-behind
+- [Phase 03.9-02]: Client autocomplete excluded from cascade disabled state -- it is the trigger for cascade reload, not a dependent field
 
 ### Pending Todos
 
@@ -200,7 +203,7 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-23
-Stopped at: Completed 03.9-01-PLAN.md (ActivityCreateEdit code-behind logic defect fixes)
+Stopped at: Completed 03.9-02-PLAN.md (ActivityCreateEdit razor markup defect fixes)
 Resume file: None
 
-**Phase 03.9-01 COMPLETE**: Fixed 6 code-behind logic defects in ActivityCreateEdit.razor.cs and added localized validation messages to ActivityFormModel.Validate() via ValidationContext.
+**Phase 03.9 COMPLETE**: All markup defects fixed — correct localization keys, LeadershipPosition/BlindRecruitment dropdowns removed, cascade disabled states applied to all client-dependent template inputs.
