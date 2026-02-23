@@ -102,7 +102,6 @@ public partial class SignaturDbContext
             entity.HasKey(e => e.ErApplicationTemplateId);
             entity.Property(e => e.ErApplicationTemplateId).HasColumnName("ERApplicationTemplateId");
             entity.Property(e => e.Name).HasMaxLength(255);
-            entity.Property(e => e.TemplateTypeId).HasColumnName("ERApplicationTemplateTypeId");
         });
 
         modelBuilder.Entity<ErLetterTemplate>(entity =>

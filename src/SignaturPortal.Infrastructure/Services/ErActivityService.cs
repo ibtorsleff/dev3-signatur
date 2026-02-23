@@ -1550,7 +1550,7 @@ public class ErActivityService : IErActivityService
 
         // Application templates for this client (filtered by template group if provided)
         var appTemplatesQueryable = context.ErApplicationTemplates
-            .Where(t => t.ClientId == clientId && t.Active && t.TemplateTypeId == 1);
+            .Where(t => t.ClientId == clientId && t.Active && t.ErApplicationTemplateTypeId == 1);
 
         if (currentTemplateGroupId.HasValue)
         {
