@@ -218,13 +218,14 @@ public class ClientService : IClientService
                 @"SELECT
                     CAST(ISNULL(sc.ERecruitmentUseTemplateGroups, 0) AS BIT) AS UseTemplateGroups,
                     CAST(ISNULL(sc.CustomData.value('(/ClientCustomData/ClientSection/@SectionHierarchyEnabled)[1]','NVARCHAR(5)'), 'false') AS NVARCHAR(5)) AS UseClientSectionGroupsRaw,
-                    CAST(ISNULL(sc.CustomData.value('(/ClientCustomData/Recruitment/@MultipleInterviewRoundsEnabled)[1]','NVARCHAR(5)'), 'false') AS NVARCHAR(5)) AS MultipleInterviewRoundsEnabledRaw,
+                    CAST(ISNULL(sc.ERecruitmentMultipleInterviewRoundsEnabled, 0) AS BIT) AS MultipleInterviewRoundsEnabled,
                     CAST(ISNULL(sc.CustomData.value('(/ClientCustomData/Recruitment/@CalendarEnabled)[1]','NVARCHAR(5)'), 'false') AS NVARCHAR(5)) AS CalendarEnabledRaw,
                     CAST(ISNULL(sc.CustomData.value('(/ClientCustomData/Recruitment/@AllowSendingSms)[1]','NVARCHAR(5)'), 'false') AS NVARCHAR(5)) AS AllowSendingSmsRaw,
-                    CAST(ISNULL(sc.CustomData.value('(/ClientCustomData/Recruitment/@SendDailyStatusMailEnabled)[1]','NVARCHAR(5)'), 'false') AS NVARCHAR(5)) AS SendDailyStatusMailEnabledRaw,
+                    CAST(ISNULL(sc.ERecruitmentSendDailyStatusMailToRecruitmentCommitteeEnabled, 0) AS BIT) AS SendDailyStatusMailEnabled,
                     CAST(ISNULL(sc.CustomData.value('(/ClientCustomData/Recruitment/@ContinuousPostingEnabled)[1]','NVARCHAR(5)'), 'false') AS NVARCHAR(5)) AS ContinuousPostingEnabledRaw,
                     CAST(ISNULL(sc.CustomData.value('(/ClientCustomData/Recruitment/@MultipleLanguagesEnabled)[1]','NVARCHAR(5)'), 'false') AS NVARCHAR(5)) AS MultipleLanguagesEnabledRaw,
-                    CAST(ISNULL(sc.CustomData.value('(/ClientCustomData/Recruitment/@ExtendedEvaluationEnabled)[1]','NVARCHAR(5)'), 'false') AS NVARCHAR(5)) AS ExtendedEvaluationEnabledRaw,
+                    CAST(ISNULL(sc.ERecruitmentCandidateEvaluationEnabled, 0) AS BIT) AS CandidateEvaluationEnabled,
+                    CAST(ISNULL(sc.ERecruitmentCandidateExtendedEvaluationEnabled, 0) AS BIT) AS ExtendedEvaluationEnabled,
                     CAST(ISNULL(sc.CustomData.value('(/ClientCustomData/Recruitment/@LockEvaluationEnabled)[1]','NVARCHAR(5)'), 'false') AS NVARCHAR(5)) AS LockEvaluationFeatureEnabledRaw,
                     CAST(ISNULL(sc.CustomData.value('(/ClientCustomData/DefaultHosting/@GeneralDefaultHostingApplicationType)[1]','NVARCHAR(50)'), '') AS NVARCHAR(50)) AS DefaultHostingTypeRaw,
                     CAST(ISNULL(sc.CustomData.value('(/ClientCustomData/Recruitment/@LeadershipPositionMarkOnActivityEnabled)[1]','NVARCHAR(5)'), 'false') AS NVARCHAR(5)) AS LeadershipPositionEnabledRaw,
@@ -245,13 +246,14 @@ public class ClientService : IClientService
         {
             UseTemplateGroups = row.UseTemplateGroups,
             UseClientSectionGroups = string.Equals(row.UseClientSectionGroupsRaw, "true", StringComparison.OrdinalIgnoreCase),
-            MultipleInterviewRoundsEnabled = string.Equals(row.MultipleInterviewRoundsEnabledRaw, "true", StringComparison.OrdinalIgnoreCase),
+            MultipleInterviewRoundsEnabled = row.MultipleInterviewRoundsEnabled,
             CalendarEnabled = string.Equals(row.CalendarEnabledRaw, "true", StringComparison.OrdinalIgnoreCase),
             AllowSendingSms = string.Equals(row.AllowSendingSmsRaw, "true", StringComparison.OrdinalIgnoreCase),
-            SendDailyStatusMailEnabled = string.Equals(row.SendDailyStatusMailEnabledRaw, "true", StringComparison.OrdinalIgnoreCase),
+            SendDailyStatusMailEnabled = row.SendDailyStatusMailEnabled,
             ContinuousPostingEnabled = string.Equals(row.ContinuousPostingEnabledRaw, "true", StringComparison.OrdinalIgnoreCase),
             MultipleLanguagesEnabled = string.Equals(row.MultipleLanguagesEnabledRaw, "true", StringComparison.OrdinalIgnoreCase),
-            ExtendedEvaluationEnabled = string.Equals(row.ExtendedEvaluationEnabledRaw, "true", StringComparison.OrdinalIgnoreCase),
+            CandidateEvaluationEnabled = row.CandidateEvaluationEnabled,
+            ExtendedEvaluationEnabled = row.ExtendedEvaluationEnabled,
             LockEvaluationFeatureEnabled = string.Equals(row.LockEvaluationFeatureEnabledRaw, "true", StringComparison.OrdinalIgnoreCase),
             IsFundClient = string.Equals(row.DefaultHostingTypeRaw, "FundApplication", StringComparison.OrdinalIgnoreCase),
             LeadershipPositionEnabled = string.Equals(row.LeadershipPositionEnabledRaw, "true", StringComparison.OrdinalIgnoreCase),
@@ -272,13 +274,14 @@ public class ClientService : IClientService
     {
         public bool UseTemplateGroups { get; set; }
         public string? UseClientSectionGroupsRaw { get; set; }
-        public string? MultipleInterviewRoundsEnabledRaw { get; set; }
+        public bool MultipleInterviewRoundsEnabled { get; set; }
         public string? CalendarEnabledRaw { get; set; }
         public string? AllowSendingSmsRaw { get; set; }
-        public string? SendDailyStatusMailEnabledRaw { get; set; }
+        public bool SendDailyStatusMailEnabled { get; set; }
         public string? ContinuousPostingEnabledRaw { get; set; }
         public string? MultipleLanguagesEnabledRaw { get; set; }
-        public string? ExtendedEvaluationEnabledRaw { get; set; }
+        public bool CandidateEvaluationEnabled { get; set; }
+        public bool ExtendedEvaluationEnabled { get; set; }
         public string? LockEvaluationFeatureEnabledRaw { get; set; }
         public string? DefaultHostingTypeRaw { get; set; }
         public string? LeadershipPositionEnabledRaw { get; set; }

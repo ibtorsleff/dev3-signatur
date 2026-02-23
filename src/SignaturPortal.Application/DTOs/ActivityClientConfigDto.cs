@@ -31,7 +31,18 @@ public record ActivityClientConfigDto
     /// <summary>Client supports multiple languages on an activity.</summary>
     public bool MultipleLanguagesEnabled { get; init; }
 
-    /// <summary>Extended evaluation is available for this client.</summary>
+    /// <summary>
+    /// Basic candidate evaluation is available for this client.
+    /// Maps to Sig_Client.ERecruitmentCandidateEvaluationEnabled.
+    /// Required prerequisite for ExtendedEvaluationEnabled visibility.
+    /// </summary>
+    public bool CandidateEvaluationEnabled { get; init; }
+
+    /// <summary>
+    /// Extended candidate evaluation is available for this client.
+    /// Maps to Sig_Client.ERecruitmentCandidateExtendedEvaluationEnabled.
+    /// Only shown when CandidateEvaluationEnabled is also true.
+    /// </summary>
     public bool ExtendedEvaluationEnabled { get; init; }
 
     /// <summary>Lock candidate evaluation feature is available.</summary>

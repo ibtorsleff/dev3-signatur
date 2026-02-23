@@ -70,6 +70,16 @@ public partial class ActivityCreateEdit
 
     private bool IsEditMode => ActivityId.HasValue;
 
+    // InterviewRounds: show if client has the flag, or in edit mode if activity already has rounds set
+    private bool ShowInterviewRoundsDropdown =>
+        _clientConfig.MultipleInterviewRoundsEnabled ||
+        (IsEditMode && (_editData?.InterviewRounds ?? 0) > 1);
+
+    // ExtendedEvaluation: both client evaluation flags required; in edit mode also show if already enabled on activity
+    private bool ShowExtendedEvaluation =>
+        _clientConfig.CandidateEvaluationEnabled &&
+        (_clientConfig.ExtendedEvaluationEnabled || (IsEditMode && _form.ExtendedEvaluationEnabled));
+
     // RecruitmentType visibility helpers — derived from client config flags (match legacy truth table)
     private bool ShowLeadershipPositionDropdown =>
         _clientConfig.LeadershipPositionEnabled &&
@@ -154,8 +164,9 @@ public partial class ActivityCreateEdit
             await LoadClientDependentDataAsync(preselectedClientId.Value);
         }
 
-        // Default status = Ongoing
+        // Default status = Ongoing; HireDate default = Date (legacy has no NoHireDate option)
         _form.StatusId = 1;
+        _form.HireDateType = 1;
     }
 
     private async Task LoadEditModeAsync(int activityId)

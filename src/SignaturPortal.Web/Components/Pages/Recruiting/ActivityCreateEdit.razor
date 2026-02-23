@@ -349,7 +349,6 @@ else
                         <label class="form-label">@Localization.GetText("HireDate")</label>
                         <div class="form-input">
                             <MudRadioGroup T="int" @bind-Value="_form.HireDateType" Class="mt-1">
-                                <MudRadio Value="0" Dense="true">@Localization.GetText("NoHireDate")</MudRadio>
                                 <MudRadio Value="1" Dense="true">@Localization.GetText("Date")</MudRadio>
                                 <MudRadio Value="2" Dense="true">@Localization.GetText("Freetext")</MudRadio>
                             </MudRadioGroup>
@@ -376,7 +375,7 @@ else
                     </div>
 
                     @* Samtalerunder (conditional) *@
-                    @if (_clientConfig.MultipleInterviewRoundsEnabled)
+                    @if (ShowInterviewRoundsDropdown)
                     {
                         <div class="form-row">
                             <label class="form-label">@Localization.GetText("InterviewRounds") <span class="required-mark">*</span></label>
@@ -477,7 +476,7 @@ else
                     }
 
                     @* Extended Evaluation (conditional) *@
-                    @if (_clientConfig.ExtendedEvaluationEnabled)
+                    @if (ShowExtendedEvaluation)
                     {
                         <div class="form-row form-row-checkbox">
                             <span class="form-label">@Localization.GetText("ExtendedEvaluationEnabled")</span>
