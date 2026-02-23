@@ -16,6 +16,15 @@
     </style>
 </HeadContent>
 
+@* DEBUG PANEL — remove when redraw is resolved *@
+<div style="background:#fffbe6;border:1px solid #f0c040;padding:8px;margin-bottom:8px;font-size:11px;font-family:monospace">
+    <strong>Renders: @_renderCount</strong>
+    @foreach (var entry in _renderLog)
+    {
+        <div>@entry</div>
+    }
+</div>
+
 @if (_loading)
 {
     <MudProgressLinear Indeterminate="true" Color="Color.Primary" Class="mb-4" />
