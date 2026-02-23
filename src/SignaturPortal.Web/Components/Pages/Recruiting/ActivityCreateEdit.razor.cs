@@ -315,6 +315,10 @@ public partial class ActivityCreateEdit
 
     private async Task OnClientChangedAsync(ClientDropdownDto? client)
     {
+        // MudAutocomplete fires ValueChanged on first render when Value is already set.
+        // Ignore the spurious callback if the client hasn't actually changed.
+        if (client?.ClientId == _form.ClientId) return;
+
         _selectedClient = client;
         _form.ClientId = client?.ClientId;
 
