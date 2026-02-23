@@ -19,17 +19,20 @@ public class ErActivityService : IErActivityService
     private readonly IUserSessionContext _sessionContext;
     private readonly IPermissionService _permissionService;
     private readonly ICurrentUserService _currentUserService;
+    private readonly ILocalizationService _localization;
 
     public ErActivityService(
         IDbContextFactory<SignaturDbContext> contextFactory,
         IUserSessionContext sessionContext,
         IPermissionService permissionService,
-        ICurrentUserService currentUserService)
+        ICurrentUserService currentUserService,
+        ILocalizationService localization)
     {
         _contextFactory = contextFactory;
         _sessionContext = sessionContext;
         _permissionService = permissionService;
         _currentUserService = currentUserService;
+        _localization = localization;
     }
 
     /// <summary>
@@ -1507,29 +1510,36 @@ public class ErActivityService : IErActivityService
                   ORDER BY Name")
             .ToListAsync(ct);
 
-        // Recruitment types — raw SQL (legacy ERRecruitmentType table)
-        var recruitmentTypes = await context.Database
-            .SqlQueryRaw<SimpleOptionDto>(
-                @"SELECT ERRecruitmentTypeId AS Id, Name
-                  FROM ERRecruitmentType
-                  ORDER BY SortOrder, Name")
-            .ToListAsync(ct);
+        // Recruitment types — hardcoded enum (no DB table; mirrors legacy RecruitmentTypeEn)
+        var langId = _sessionContext.UserLanguageId;
+        var recruitmentTypes = new List<SimpleOptionDto>
+        {
+            new((int)ERRecruitmentType.Normal,            _localization.GetText("Normal",            langId)),
+            new((int)ERRecruitmentType.LeadershipPosition, _localization.GetText("LeadershipPosition", langId)),
+            new((int)ERRecruitmentType.BlindRecruitment,  _localization.GetText("BlindRecruitment",  langId)),
+        };
 
-        // Calendar types — raw SQL (legacy ERCalendarType table)
-        var calendarTypes = await context.Database
-            .SqlQueryRaw<SimpleOptionDto>(
-                @"SELECT ERCalendarTypeId AS Id, Name
-                  FROM ERCalendarType
-                  ORDER BY SortOrder, Name")
-            .ToListAsync(ct);
+        // Calendar types — hardcoded enum (no DB table; mirrors legacy ERCalendarType)
+        var calendarTypes = new List<SimpleOptionDto>
+        {
+            new((int)ERCalendarType.NoCalendarFunction, _localization.GetText("NoCalendarFunction", langId)),
+            new((int)ERCalendarType.OpenCalendar,       _localization.GetText("OpenCalendar",       langId)),
+            new((int)ERCalendarType.ClosedCalendar,     _localization.GetText("ClosedCalendar",     langId)),
+        };
 
-        // Interview durations — raw SQL (legacy ERInterviewDuration table)
-        var interviewDurations = await context.Database
-            .SqlQueryRaw<SimpleOptionDto>(
-                @"SELECT ERInterviewDurationId AS Id, Name
-                  FROM ERInterviewDuration
-                  ORDER BY SortOrder, DurationMinutes")
-            .ToListAsync(ct);
+        // Interview durations — hardcoded list (no DB table; mirrors legacy PopulateInterviewDurations)
+        // Id = duration in minutes; Name = localized display string
+        var interviewDurations = new List<SimpleOptionDto>
+        {
+            new(30,  _localization.GetText("XMinutesWithArgs", langId, "30")),
+            new(45,  _localization.GetText("XMinutesWithArgs", langId, "45")),
+            new(60,  _localization.GetText("XHourWithArgs",    langId, "1")),
+            new(75,  _localization.GetText("XHourWithArgs",    langId, "1¼")),
+            new(90,  _localization.GetText("XHourWithArgs",    langId, "1½")),
+            new(120, _localization.GetText("XHoursWithArgs",   langId, "2")),
+            new(150, _localization.GetText("XHoursWithArgs",   langId, "2½")),
+            new(180, _localization.GetText("XHoursWithArgs",   langId, "3")),
+        };
 
         // Languages for this client — raw SQL (legacy Language + Sig_Client_Language tables)
         var languages = await context.Database
