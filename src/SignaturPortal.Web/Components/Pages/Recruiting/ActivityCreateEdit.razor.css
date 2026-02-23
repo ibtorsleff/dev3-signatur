@@ -1,0 +1,55 @@
+/* ActivityCreateEdit scoped styles */
+
+/* ── Explicit label layout ── */
+.form-field {
+    margin-bottom: 12px;
+}
+
+.field-label-text {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: rgba(0, 0, 0, 0.6);
+    margin-bottom: 4px;
+    line-height: 1.4;
+}
+
+.required-mark {
+    color: var(--mud-palette-error);
+}
+
+.form-field-checkbox {
+    display: flex;
+    align-items: center;
+    min-height: 40px;
+}
+
+.checkbox-label-text {
+    font-size: 0.875rem;
+    color: rgba(0, 0, 0, 0.87);
+}
+
+/* ── Cascade loading state ── */
+/* MudBlazor's Disabled prop adds mud-input-disabled automatically.
+   This wrapper class provides optional visual grouping for cascade-loading sections. */
+.cascade-loading {
+    opacity: 0.6;
+    pointer-events: none;
+    transition: opacity 0.15s ease;
+}
+
+/* ── Sidebar spacing ── */
+.sidebar-card {
+    margin-bottom: 16px;
+}
+
+/* ── Mobile: single-column layout ── */
+@media (max-width: 767px) {
+    .mud-paper {
+        padding: 12px !important;
+    }
+
+    .mud-button {
+        min-width: 0;
+    }
+}
