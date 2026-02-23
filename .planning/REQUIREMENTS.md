@@ -57,12 +57,12 @@ Requirements for E-recruitment portal core workflow migration (Phase 1-6).
 
 ### Activity CRUD (Core Write Operations)
 
-- [ ] **CRUD-01**: Activity creation form displays with all required fields
+- [x] **CRUD-01**: Activity creation form displays with all required fields
 - [ ] **CRUD-02**: Activity creation validates input using FluentValidation
-- [ ] **CRUD-03**: Activity creation saves to database with correct tenant scoping
-- [ ] **CRUD-04**: Activity editing loads existing activity data
-- [ ] **CRUD-05**: Activity editing saves changes with optimistic concurrency handling
-- [ ] **CRUD-06**: Activity deletion requires confirmation dialog
+- [x] **CRUD-03**: Activity creation saves to database with correct tenant scoping
+- [x] **CRUD-04**: Activity editing loads existing activity data
+- [x] **CRUD-05**: Activity editing saves changes with optimistic concurrency handling
+- [x] **CRUD-06**: Activity deletion requires confirmation dialog
 - [ ] **CRUD-07**: Activity deletion checks permissions before allowing delete
 - [ ] **CRUD-08**: Activity deletion handles cascade deletes correctly
 - [ ] **CRUD-09**: All write operations audit log to UserActivityLog table
@@ -183,12 +183,12 @@ Which phases cover which requirements. Updated during roadmap creation.
 | APP-03 | Phase 3 | Pending |
 | APP-04 | Phase 3 | Pending |
 | APP-05 | Phase 3 | Pending |
-| CRUD-01 | Phase 4 | Pending |
+| CRUD-01 | Phase 4 | Complete |
 | CRUD-02 | Phase 4 | Pending |
-| CRUD-03 | Phase 4 | Pending |
-| CRUD-04 | Phase 4 | Pending |
-| CRUD-05 | Phase 4 | Pending |
-| CRUD-06 | Phase 4 | Pending |
+| CRUD-03 | Phase 4 | Complete |
+| CRUD-04 | Phase 4 | Complete |
+| CRUD-05 | Phase 4 | Complete |
+| CRUD-06 | Phase 4 | Complete |
 | CRUD-07 | Phase 4 | Pending |
 | CRUD-08 | Phase 4 | Pending |
 | CRUD-09 | Phase 4 | Pending |

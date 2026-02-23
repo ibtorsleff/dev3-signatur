@@ -82,7 +82,7 @@ Plans:
 
 **Goal:** ActivityCreateEdit.razor, .razor.cs, and .razor.css are rewritten to fix all identified defects (wrong post-edit navigation, RecruitmentTypeId/LeadershipPosition/BlindRecruitment bidirectional translation, CalendarType checkbox state derivation, cascade loading disabled states, localized validation messages, wrong localization key for LockCandidateEvaluation)
 **Depends on:** Phase 03.8
-**Plans:** 3 plans
+**Plans:** 1/3 plans executed
 
 Plans:
 - [ ] 03.9-01-PLAN.md -- Fix ActivityCreateEdit.razor.cs (navigation, field translations, cascade loading) and ActivityFormModel.Validate() (localized messages via ValidationContext)

@@ -5,14 +5,14 @@
 See: .planning/PROJECT.md (updated 2026-02-13)
 
 **Core value:** The activity list view must work perfectly. Users must be able to see and navigate their recruitment activities with correct status.
-**Current focus:** Phase 03.8 COMPLETE -- Client Selector Dropdown and Create Activity Button
+**Current focus:** Phase 03.9 IN PROGRESS -- Redo ActivityCreateEdit UI Migration with Full Fidelity
 
 ## Current Position
 
-Phase: 3.8 of 8 (Client Selector Dropdown and Create Activity Button)
-Plan: 2 of 2 in current phase
-Status: Phase 03.8 COMPLETE
-Last activity: 2026-02-18 -- Plan 03.8-02 complete
+Phase: 3.9 of 8 (Redo ActivityCreateEdit UI Migration with Full Fidelity)
+Plan: 1 of N in current phase
+Status: Plan 03.9-01 COMPLETE
+Last activity: 2026-02-23 -- Plan 03.9-01 complete
 
 Progress: [##########] 100%
 
@@ -74,6 +74,7 @@ Progress: [##########] 100%
 | 03.7.1-02 | 2 min | 2 | 2 |
 | 03.8-01 | 3 min | 2 | 6 |
 | 03.8-02 | 2 min | 1 | 2 |
+| 03.9-01 | 8 min | 2 | 2 |
 
 ## Accumulated Context
 
@@ -167,6 +168,12 @@ Recent decisions affecting current work:
 - [Phase 03.8-01]: ClientService bypasses EF global filters via raw SQL -- does not set CurrentSiteId/CurrentClientId on context
 - [Phase 03.8-02]: MudSelect with -1 sentinel for "All Clients" -- simpler than nullable int with MudBlazor select
 - [Phase 03.8-02]: Draft mode navigates to ActivityCreateDraft.aspx, other modes to ActivityCreateEdit.aspx -- matches legacy routing pattern
+- [Phase 03.9-01]: ValidationContext.GetService is non-generic in System.ComponentModel.DataAnnotations -- use GetService(typeof(T)) as T pattern
+- [Phase 03.9-01]: Edit save navigation goes to /recruiting/activities (not Snackbar + stay on page) -- matches legacy behavior
+- [Phase 03.9-01]: _saving = false only in catch block for OnSaveAsync -- navigation destroys component, reset in finally is unnecessary
+- [Phase 03.9-01]: RecruitmentTypeId ternary derivation in MapEditDataToForm: LeadershipPositionId==1 -> type 2, BlindRecruitmentId==1 -> type 3, else type 1 or null
+- [Phase 03.9-01]: CalendarTypeId derived from checkbox state in BuildSaveCommand: ClosedCalendar=2, OpenCalendar=1, both=use dropdown, neither=0
+- [Phase 03.9-01]: _cascadeLoading field added to ActivityCreateEdit -- toggled true/false around LoadClientDependentDataAsync in OnClientChangedAsync
 
 ### Pending Todos
 
@@ -182,6 +189,7 @@ None yet.
 - Phase 03.7 inserted after Phase 3: Authentication & User Context — Migration Strategy (URGENT)
 - Phase 03.7.1 inserted after Phase 03.7: ICurrentUserService — DB-Backed User Context (URGENT)
 - Phase 03.8 inserted after Phase 3: Client selector dropdown and Create Activity button for non-client users on ActivityList (URGENT)
+- Phase 03.9 inserted after Phase 3: Redo ActivityCreateEdit UI migration with full fidelity (URGENT)
 
 ### Blockers/Concerns
 
@@ -191,8 +199,8 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-18
-Stopped at: Completed 03.8-02-PLAN.md (Client dropdown + Create Activity button UI)
+Last session: 2026-02-23
+Stopped at: Completed 03.9-01-PLAN.md (ActivityCreateEdit code-behind logic defect fixes)
 Resume file: None
 
-**Phase 03.8 COMPLETE**: Client selector dropdown and Create Activity button added to ActivityList toolbar with role/permission gating and legacy ASPX navigation.
+**Phase 03.9-01 COMPLETE**: Fixed 6 code-behind logic defects in ActivityCreateEdit.razor.cs and added localized validation messages to ActivityFormModel.Validate() via ValidationContext.
