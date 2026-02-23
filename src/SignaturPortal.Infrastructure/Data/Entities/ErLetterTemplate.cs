@@ -6,5 +6,5 @@ public class ErLetterTemplate
     public int ClientId { get; set; }
     public string TemplateName { get; set; } = null!;
     public bool Active { get; set; }
-    public int TypeId { get; set; }
+    public int ErLetterTemplateTypeId { get; set; }
 }

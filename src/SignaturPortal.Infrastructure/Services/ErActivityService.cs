@@ -1572,11 +1572,11 @@ public class ErActivityService : IErActivityService
             .OrderBy(t => t.TemplateName)
             .ToListAsync(ct);
 
-        var emailTemplatesReceived               = allEmailTemplates.Where(t => t.TypeId == 1).Select(t => new SimpleOptionDto(t.ErLetterTemplateId, t.TemplateName)).ToList();
-        var emailTemplatesInterview              = allEmailTemplates.Where(t => t.TypeId == 2).Select(t => new SimpleOptionDto(t.ErLetterTemplateId, t.TemplateName)).ToList();
-        var emailTemplatesRejected               = allEmailTemplates.Where(t => t.TypeId == 3).Select(t => new SimpleOptionDto(t.ErLetterTemplateId, t.TemplateName)).ToList();
-        var emailTemplatesRejectedAfterInterview = allEmailTemplates.Where(t => t.TypeId == 4).Select(t => new SimpleOptionDto(t.ErLetterTemplateId, t.TemplateName)).ToList();
-        var emailTemplatesNotifyCommittee        = allEmailTemplates.Where(t => t.TypeId == 5).Select(t => new SimpleOptionDto(t.ErLetterTemplateId, t.TemplateName)).ToList();
+        var emailTemplatesReceived               = allEmailTemplates.Where(t => t.ErLetterTemplateTypeId == 1).Select(t => new SimpleOptionDto(t.ErLetterTemplateId, t.TemplateName)).ToList();
+        var emailTemplatesInterview              = allEmailTemplates.Where(t => t.ErLetterTemplateTypeId == 2).Select(t => new SimpleOptionDto(t.ErLetterTemplateId, t.TemplateName)).ToList();
+        var emailTemplatesRejected               = allEmailTemplates.Where(t => t.ErLetterTemplateTypeId == 3).Select(t => new SimpleOptionDto(t.ErLetterTemplateId, t.TemplateName)).ToList();
+        var emailTemplatesRejectedAfterInterview = allEmailTemplates.Where(t => t.ErLetterTemplateTypeId == 4).Select(t => new SimpleOptionDto(t.ErLetterTemplateId, t.TemplateName)).ToList();
+        var emailTemplatesNotifyCommittee        = allEmailTemplates.Where(t => t.ErLetterTemplateTypeId == 5).Select(t => new SimpleOptionDto(t.ErLetterTemplateId, t.TemplateName)).ToList();
 
         // SMS templates for this client
         var smsTemplates = await context.ErSmsTemplates
