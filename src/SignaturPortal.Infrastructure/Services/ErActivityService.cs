@@ -1554,12 +1554,12 @@ public class ErActivityService : IErActivityService
             ? @"SELECT ERApplicationTemplateId AS Id, Name
                 FROM ERApplicationTemplate
                 WHERE ClientId = {0} AND ERTemplateGroupId = {1}
-                  AND IsEnabled = 1 AND ERApplicationTemplateTypeId = 1
+                  AND Active = 1 AND ERApplicationTemplateTypeId = 1
                 ORDER BY Name"
             : @"SELECT ERApplicationTemplateId AS Id, Name
                 FROM ERApplicationTemplate
                 WHERE ClientId = {0}
-                  AND IsEnabled = 1 AND ERApplicationTemplateTypeId = 1
+                  AND Active = 1 AND ERApplicationTemplateTypeId = 1
                 ORDER BY Name";
 
         List<SimpleOptionDto> applicationTemplates;
@@ -1581,7 +1581,7 @@ public class ErActivityService : IErActivityService
         var emailTemplatesSql = @"SELECT ERLetterTemplateId AS Id, Name
                   FROM ERLetterTemplate
                   WHERE ClientId = {0} AND ERLetterTemplateTypeId = {1}
-                    AND IsEnabled = 1
+                    AND Active = 1
                   ORDER BY Name";
 
         var emailTemplatesReceived = await context.Database
@@ -1609,7 +1609,7 @@ public class ErActivityService : IErActivityService
             .SqlQueryRaw<SimpleOptionDto>(
                 @"SELECT ERSmsTemplateId AS Id, Name
                   FROM ERSmsTemplate
-                  WHERE ClientId = {0} AND IsEnabled = 1
+                  WHERE ClientId = {0} AND Active = 1
                   ORDER BY Name",
                 clientId)
             .ToListAsync(ct);
