@@ -62,6 +62,8 @@ public partial class SignaturDbContext : DbContext
 
     public virtual DbSet<ErTemplateGroupApplicationTemplate> ErTemplateGroupApplicationTemplates { get; set; }
 
+    public virtual DbSet<ErTemplateGroupLetterTemplate> ErTemplateGroupLetterTemplates { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.UseCollation("Latin1_General_CI_AS");

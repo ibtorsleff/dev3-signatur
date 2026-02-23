@@ -204,6 +204,31 @@ public partial class ActivityCreateEdit
     {
         _clientConfig = await ClientService.GetActivityClientConfigAsync(clientId);
         _options = await ErActivityService.GetActivityFormOptionsAsync(clientId, _form.TemplateGroupId);
+        AutoSelectSingleTemplateOptions();
+    }
+
+    // Mirrors legacy FLDropDown.DataBindControl: when a required dropdown has exactly
+    // one item and nothing is selected yet, auto-select that item.
+    private void AutoSelectSingleTemplateOptions()
+    {
+        if (_options.TemplateGroups.Count == 1 && !_form.TemplateGroupId.HasValue)
+            _form.TemplateGroupId = _options.TemplateGroups[0].TemplateGroupId;
+        if (_options.ApplicationTemplates.Count == 1 && !_form.ApplicationTemplateId.HasValue)
+            _form.ApplicationTemplateId = _options.ApplicationTemplates[0].Id;
+        if (_options.EmailTemplatesReceived.Count == 1 && !_form.EmailTemplateReceivedId.HasValue)
+            _form.EmailTemplateReceivedId = _options.EmailTemplatesReceived[0].Id;
+        if (_options.EmailTemplatesInterview.Count == 1 && !_form.EmailTemplateInterviewId.HasValue)
+            _form.EmailTemplateInterviewId = _options.EmailTemplatesInterview[0].Id;
+        if (_options.EmailTemplatesInterview2Plus.Count == 1 && !_form.EmailTemplateInterview2PlusId.HasValue)
+            _form.EmailTemplateInterview2PlusId = _options.EmailTemplatesInterview2Plus[0].Id;
+        if (_options.EmailTemplatesRejected.Count == 1 && !_form.EmailTemplateRejectedId.HasValue)
+            _form.EmailTemplateRejectedId = _options.EmailTemplatesRejected[0].Id;
+        if (_options.EmailTemplatesRejectedAfterInterview.Count == 1 && !_form.EmailTemplateRejectedAfterInterviewId.HasValue)
+            _form.EmailTemplateRejectedAfterInterviewId = _options.EmailTemplatesRejectedAfterInterview[0].Id;
+        if (_options.EmailTemplatesNotifyCommittee.Count == 1 && !_form.EmailTemplateNotifyCommitteeId.HasValue)
+            _form.EmailTemplateNotifyCommitteeId = _options.EmailTemplatesNotifyCommittee[0].Id;
+        if (_options.SmsTemplates.Count == 1 && !_form.SmsTemplateInterviewId.HasValue)
+            _form.SmsTemplateInterviewId = _options.SmsTemplates[0].Id;
     }
 
     private void MapEditDataToForm(ActivityEditDto data)
@@ -358,6 +383,12 @@ public partial class ActivityCreateEdit
     {
         _form.TemplateGroupId = templateGroupId;
         _form.ApplicationTemplateId = null;
+        _form.EmailTemplateReceivedId = null;
+        _form.EmailTemplateInterviewId = null;
+        _form.EmailTemplateInterview2PlusId = null;
+        _form.EmailTemplateRejectedId = null;
+        _form.EmailTemplateRejectedAfterInterviewId = null;
+        _form.EmailTemplateNotifyCommitteeId = null;
 
         if (_form.ClientId.HasValue)
         {
@@ -366,8 +397,15 @@ public partial class ActivityCreateEdit
                 _form.ClientId.Value, templateGroupId);
             _options = _options with
             {
-                ApplicationTemplates = updatedOptions.ApplicationTemplates
+                ApplicationTemplates                 = updatedOptions.ApplicationTemplates,
+                EmailTemplatesReceived               = updatedOptions.EmailTemplatesReceived,
+                EmailTemplatesInterview              = updatedOptions.EmailTemplatesInterview,
+                EmailTemplatesInterview2Plus         = updatedOptions.EmailTemplatesInterview2Plus,
+                EmailTemplatesRejected               = updatedOptions.EmailTemplatesRejected,
+                EmailTemplatesRejectedAfterInterview = updatedOptions.EmailTemplatesRejectedAfterInterview,
+                EmailTemplatesNotifyCommittee        = updatedOptions.EmailTemplatesNotifyCommittee,
             };
+            AutoSelectSingleTemplateOptions();
         }
     }
 

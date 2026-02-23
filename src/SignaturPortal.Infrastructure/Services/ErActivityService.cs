@@ -1499,7 +1499,7 @@ public class ErActivityService : IErActivityService
         var sectionGroupsTask  = FormOptions_LoadClientSectionGroupsAsync(clientId, ct);
         var languagesTask      = FormOptions_LoadLanguagesAsync(ct);
         var appTemplatesTask   = FormOptions_LoadAppTemplatesAsync(clientId, currentTemplateGroupId, ct);
-        var emailTask          = FormOptions_LoadEmailTemplatesAsync(clientId, ct);
+        var emailTask          = FormOptions_LoadEmailTemplatesAsync(clientId, currentTemplateGroupId, ct);
         var smsTask            = FormOptions_LoadSmsTemplatesAsync(clientId, ct);
 
         await Task.WhenAll(jobnetTask, statusesTask, templateGroupsTask, sectionGroupsTask,
@@ -1524,8 +1524,8 @@ public class ErActivityService : IErActivityService
             EmailTemplatesInterview              = allEmailTemplates.Where(t => t.ErLetterTemplateTypeId == 2).Select(t => new SimpleOptionDto(t.ErLetterTemplateId, t.TemplateName)).ToList(),
             EmailTemplatesInterview2Plus         = allEmailTemplates.Where(t => t.ErLetterTemplateTypeId == 2).Select(t => new SimpleOptionDto(t.ErLetterTemplateId, t.TemplateName)).ToList(),
             EmailTemplatesRejected               = allEmailTemplates.Where(t => t.ErLetterTemplateTypeId == 3).Select(t => new SimpleOptionDto(t.ErLetterTemplateId, t.TemplateName)).ToList(),
-            EmailTemplatesRejectedAfterInterview = allEmailTemplates.Where(t => t.ErLetterTemplateTypeId == 4).Select(t => new SimpleOptionDto(t.ErLetterTemplateId, t.TemplateName)).ToList(),
-            EmailTemplatesNotifyCommittee        = allEmailTemplates.Where(t => t.ErLetterTemplateTypeId == 5).Select(t => new SimpleOptionDto(t.ErLetterTemplateId, t.TemplateName)).ToList(),
+            EmailTemplatesRejectedAfterInterview = allEmailTemplates.Where(t => t.ErLetterTemplateTypeId == 5).Select(t => new SimpleOptionDto(t.ErLetterTemplateId, t.TemplateName)).ToList(),
+            EmailTemplatesNotifyCommittee        = allEmailTemplates.Where(t => t.ErLetterTemplateTypeId == 4).Select(t => new SimpleOptionDto(t.ErLetterTemplateId, t.TemplateName)).ToList(),
             SmsTemplates                         = smsTask.Result
         };
     }
@@ -1556,8 +1556,7 @@ public class ErActivityService : IErActivityService
     {
         await using var context = await _contextFactory.CreateDbContextAsync(ct);
         return await context.ErTemplateGroups
-            .Where(tg => context.Eractivities.Any(a =>
-                a.ClientId == clientId && a.ErtemplateGroupId == tg.ErtemplateGroupId))
+            .Where(tg => tg.ClientId == clientId && tg.Active)
             .OrderBy(tg => tg.Name)
             .Select(tg => new TemplateGroupDropdownDto { TemplateGroupId = tg.ErtemplateGroupId, Name = tg.Name })
             .ToListAsync(ct);
@@ -1585,7 +1584,7 @@ public class ErActivityService : IErActivityService
     {
         await using var context = await _contextFactory.CreateDbContextAsync(ct);
         var query = context.ErApplicationTemplates
-            .Where(t => t.ClientId == clientId && t.Active && t.ErApplicationTemplateTypeId == 1);
+            .Where(t => t.ClientId == clientId && t.Active && t.ErApplicationTemplateTypeId == 2); // 2 = UserDefinedTemplate
         if (templateGroupId.HasValue)
             query = query.Where(t => context.ErTemplateGroupApplicationTemplates.Any(tg =>
                 tg.ErTemplateGroupId == templateGroupId.Value && tg.ErApplicationTemplateId == t.ErApplicationTemplateId));
@@ -1595,11 +1594,15 @@ public class ErActivityService : IErActivityService
             .ToListAsync(ct);
     }
 
-    private async Task<List<ErLetterTemplate>> FormOptions_LoadEmailTemplatesAsync(int clientId, CancellationToken ct)
+    private async Task<List<ErLetterTemplate>> FormOptions_LoadEmailTemplatesAsync(int clientId, int? templateGroupId, CancellationToken ct)
     {
         await using var context = await _contextFactory.CreateDbContextAsync(ct);
-        return await context.ErLetterTemplates
-            .Where(t => t.ClientId == clientId && t.Active)
+        var query = context.ErLetterTemplates
+            .Where(t => t.ClientId == clientId && t.Active);
+        if (templateGroupId.HasValue)
+            query = query.Where(t => context.ErTemplateGroupLetterTemplates.Any(tg =>
+                tg.ErTemplateGroupId == templateGroupId.Value && tg.ErLetterTemplateId == t.ErLetterTemplateId));
+        return await query
             .OrderBy(t => t.TemplateName)
             .ToListAsync(ct);
     }

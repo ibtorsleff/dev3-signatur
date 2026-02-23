@@ -543,7 +543,7 @@ else
                                            Variant="Variant.Outlined"
                                            Margin="Margin.Dense"
                                            Disabled="@(_cascadeLoading || !_form.ClientId.HasValue)">
-                                    <MudSelectItem Value="@((int?)null)">—</MudSelectItem>
+                                    <MudSelectItem Value="@((int?)null)">(@Localization.GetText("PleaseSelect"))</MudSelectItem>
                                     @foreach (var tg in _options.TemplateGroups)
                                     {
                                         <MudSelectItem Value="@((int?)tg.TemplateGroupId)">@tg.Name</MudSelectItem>
@@ -562,7 +562,7 @@ else
                                        Variant="Variant.Outlined"
                                        Margin="Margin.Dense"
                                        Disabled="@TemplateInputsDisabled">
-                                <MudSelectItem Value="@((int?)null)">—</MudSelectItem>
+                                <MudSelectItem Value="@((int?)null)">(@Localization.GetText("PleaseSelect"))</MudSelectItem>
                                 @foreach (var tmpl in _options.ApplicationTemplates)
                                 {
                                     <MudSelectItem Value="@((int?)tmpl.Id)">@tmpl.Name</MudSelectItem>
@@ -581,7 +581,7 @@ else
                                        Variant="Variant.Outlined"
                                        Margin="Margin.Dense"
                                        Disabled="@TemplateInputsDisabled">
-                                <MudSelectItem Value="@((int?)null)">—</MudSelectItem>
+                                <MudSelectItem Value="@((int?)null)">(@Localization.GetText("PleaseSelect"))</MudSelectItem>
                                 @foreach (var tmpl in _options.EmailTemplatesReceived)
                                 {
                                     <MudSelectItem Value="@((int?)tmpl.Id)">@tmpl.Name</MudSelectItem>
@@ -600,7 +600,7 @@ else
                                        Variant="Variant.Outlined"
                                        Margin="Margin.Dense"
                                        Disabled="@TemplateInputsDisabled">
-                                <MudSelectItem Value="@((int?)null)">—</MudSelectItem>
+                                <MudSelectItem Value="@((int?)null)">(@Localization.GetText("PleaseSelect"))</MudSelectItem>
                                 @foreach (var tmpl in _options.EmailTemplatesInterview)
                                 {
                                     <MudSelectItem Value="@((int?)tmpl.Id)">@tmpl.Name</MudSelectItem>
@@ -621,7 +621,7 @@ else
                                            Variant="Variant.Outlined"
                                            Margin="Margin.Dense"
                                            Disabled="@TemplateInputsDisabled">
-                                    <MudSelectItem Value="@((int?)null)">—</MudSelectItem>
+                                    <MudSelectItem Value="@((int?)null)">(@Localization.GetText("PleaseSelect"))</MudSelectItem>
                                     @foreach (var tmpl in _options.EmailTemplatesInterview2Plus)
                                     {
                                         <MudSelectItem Value="@((int?)tmpl.Id)">@tmpl.Name</MudSelectItem>
@@ -640,7 +640,7 @@ else
                                        Variant="Variant.Outlined"
                                        Margin="Margin.Dense"
                                        Disabled="@TemplateInputsDisabled">
-                                <MudSelectItem Value="@((int?)null)">—</MudSelectItem>
+                                <MudSelectItem Value="@((int?)null)">(@Localization.GetText("PleaseSelect"))</MudSelectItem>
                                 @foreach (var tmpl in _options.EmailTemplatesRejected)
                                 {
                                     <MudSelectItem Value="@((int?)tmpl.Id)">@tmpl.Name</MudSelectItem>
@@ -659,7 +659,7 @@ else
                                        Variant="Variant.Outlined"
                                        Margin="Margin.Dense"
                                        Disabled="@TemplateInputsDisabled">
-                                <MudSelectItem Value="@((int?)null)">—</MudSelectItem>
+                                <MudSelectItem Value="@((int?)null)">(@Localization.GetText("PleaseSelect"))</MudSelectItem>
                                 @foreach (var tmpl in _options.EmailTemplatesRejectedAfterInterview)
                                 {
                                     <MudSelectItem Value="@((int?)tmpl.Id)">@tmpl.Name</MudSelectItem>
@@ -678,7 +678,7 @@ else
                                        Variant="Variant.Outlined"
                                        Margin="Margin.Dense"
                                        Disabled="@TemplateInputsDisabled">
-                                <MudSelectItem Value="@((int?)null)">—</MudSelectItem>
+                                <MudSelectItem Value="@((int?)null)">(@Localization.GetText("PleaseSelect"))</MudSelectItem>
                                 @foreach (var tmpl in _options.EmailTemplatesNotifyCommittee)
                                 {
                                     <MudSelectItem Value="@((int?)tmpl.Id)">@tmpl.Name</MudSelectItem>
@@ -699,7 +699,7 @@ else
                                            Variant="Variant.Outlined"
                                            Margin="Margin.Dense"
                                            Disabled="@TemplateInputsDisabled">
-                                    <MudSelectItem Value="@((int?)null)">—</MudSelectItem>
+                                    <MudSelectItem Value="@((int?)null)">(@Localization.GetText("PleaseSelect"))</MudSelectItem>
                                     @foreach (var tmpl in _options.SmsTemplates)
                                     {
                                         <MudSelectItem Value="@((int?)tmpl.Id)">@tmpl.Name</MudSelectItem>

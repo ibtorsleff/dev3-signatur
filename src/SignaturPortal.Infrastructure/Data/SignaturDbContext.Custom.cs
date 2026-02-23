@@ -127,5 +127,13 @@ public partial class SignaturDbContext
             entity.Property(e => e.ErTemplateGroupId).HasColumnName("ERTemplateGroupId");
             entity.Property(e => e.ErApplicationTemplateId).HasColumnName("ERApplicationTemplateId");
         });
+
+        modelBuilder.Entity<ErTemplateGroupLetterTemplate>(entity =>
+        {
+            entity.ToTable("ERTemplateGroupERLetterTemplate");
+            entity.HasKey(e => new { e.ErTemplateGroupId, e.ErLetterTemplateId });
+            entity.Property(e => e.ErTemplateGroupId).HasColumnName("ERTemplateGroupId");
+            entity.Property(e => e.ErLetterTemplateId).HasColumnName("ERLetterTemplateId");
+        });
     }
 }
