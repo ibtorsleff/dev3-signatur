@@ -405,6 +405,13 @@ public partial class ActivityCreateEdit
                 EmailTemplatesRejectedAfterInterview = updatedOptions.EmailTemplatesRejectedAfterInterview,
                 EmailTemplatesNotifyCommittee        = updatedOptions.EmailTemplatesNotifyCommittee,
             };
+
+            // Yield to let Blazor render the new MudSelectItem components so they register
+            // with their parent MudSelect before we set the selected values. Without this,
+            // simultaneously changing the items list and the selected value causes MudSelect
+            // to fall back to ToString() (showing raw int IDs like "48", "49", "50").
+            await Task.Yield();
+
             AutoSelectSingleTemplateOptions();
         }
     }

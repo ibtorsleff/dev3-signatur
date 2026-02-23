@@ -546,7 +546,7 @@ else
                                     <MudSelectItem Value="@((int?)null)">(@Localization.GetText("PleaseSelect"))</MudSelectItem>
                                     @foreach (var tg in _options.TemplateGroups)
                                     {
-                                        <MudSelectItem Value="@((int?)tg.TemplateGroupId)">@tg.Name</MudSelectItem>
+                                        <MudSelectItem @key="@tg.TemplateGroupId" Value="@((int?)tg.TemplateGroupId)">@tg.Name</MudSelectItem>
                                     }
                                 </MudSelect>
                             </div>
@@ -565,7 +565,7 @@ else
                                 <MudSelectItem Value="@((int?)null)">(@Localization.GetText("PleaseSelect"))</MudSelectItem>
                                 @foreach (var tmpl in _options.ApplicationTemplates)
                                 {
-                                    <MudSelectItem Value="@((int?)tmpl.Id)">@tmpl.Name</MudSelectItem>
+                                    <MudSelectItem @key="@tmpl.Id" Value="@((int?)tmpl.Id)">@tmpl.Name</MudSelectItem>
                                 }
                             </MudSelect>
                             <ValidationMessage For="@(() => _form.ApplicationTemplateId)" />
@@ -584,7 +584,7 @@ else
                                 <MudSelectItem Value="@((int?)null)">(@Localization.GetText("PleaseSelect"))</MudSelectItem>
                                 @foreach (var tmpl in _options.EmailTemplatesReceived)
                                 {
-                                    <MudSelectItem Value="@((int?)tmpl.Id)">@tmpl.Name</MudSelectItem>
+                                    <MudSelectItem @key="@tmpl.Id" Value="@((int?)tmpl.Id)">@tmpl.Name</MudSelectItem>
                                 }
                             </MudSelect>
                             <ValidationMessage For="@(() => _form.EmailTemplateReceivedId)" />
@@ -603,7 +603,7 @@ else
                                 <MudSelectItem Value="@((int?)null)">(@Localization.GetText("PleaseSelect"))</MudSelectItem>
                                 @foreach (var tmpl in _options.EmailTemplatesInterview)
                                 {
-                                    <MudSelectItem Value="@((int?)tmpl.Id)">@tmpl.Name</MudSelectItem>
+                                    <MudSelectItem @key="@tmpl.Id" Value="@((int?)tmpl.Id)">@tmpl.Name</MudSelectItem>
                                 }
                             </MudSelect>
                             <ValidationMessage For="@(() => _form.EmailTemplateInterviewId)" />
@@ -624,7 +624,7 @@ else
                                     <MudSelectItem Value="@((int?)null)">(@Localization.GetText("PleaseSelect"))</MudSelectItem>
                                     @foreach (var tmpl in _options.EmailTemplatesInterview2Plus)
                                     {
-                                        <MudSelectItem Value="@((int?)tmpl.Id)">@tmpl.Name</MudSelectItem>
+                                        <MudSelectItem @key="@tmpl.Id" Value="@((int?)tmpl.Id)">@tmpl.Name</MudSelectItem>
                                     }
                                 </MudSelect>
                             </div>
@@ -643,7 +643,7 @@ else
                                 <MudSelectItem Value="@((int?)null)">(@Localization.GetText("PleaseSelect"))</MudSelectItem>
                                 @foreach (var tmpl in _options.EmailTemplatesRejected)
                                 {
-                                    <MudSelectItem Value="@((int?)tmpl.Id)">@tmpl.Name</MudSelectItem>
+                                    <MudSelectItem @key="@tmpl.Id" Value="@((int?)tmpl.Id)">@tmpl.Name</MudSelectItem>
                                 }
                             </MudSelect>
                             <ValidationMessage For="@(() => _form.EmailTemplateRejectedId)" />
@@ -662,7 +662,7 @@ else
                                 <MudSelectItem Value="@((int?)null)">(@Localization.GetText("PleaseSelect"))</MudSelectItem>
                                 @foreach (var tmpl in _options.EmailTemplatesRejectedAfterInterview)
                                 {
-                                    <MudSelectItem Value="@((int?)tmpl.Id)">@tmpl.Name</MudSelectItem>
+                                    <MudSelectItem @key="@tmpl.Id" Value="@((int?)tmpl.Id)">@tmpl.Name</MudSelectItem>
                                 }
                             </MudSelect>
                             <ValidationMessage For="@(() => _form.EmailTemplateRejectedAfterInterviewId)" />
@@ -681,7 +681,7 @@ else
                                 <MudSelectItem Value="@((int?)null)">(@Localization.GetText("PleaseSelect"))</MudSelectItem>
                                 @foreach (var tmpl in _options.EmailTemplatesNotifyCommittee)
                                 {
-                                    <MudSelectItem Value="@((int?)tmpl.Id)">@tmpl.Name</MudSelectItem>
+                                    <MudSelectItem @key="@tmpl.Id" Value="@((int?)tmpl.Id)">@tmpl.Name</MudSelectItem>
                                 }
                             </MudSelect>
                             <ValidationMessage For="@(() => _form.EmailTemplateNotifyCommitteeId)" />
@@ -702,7 +702,7 @@ else
                                     <MudSelectItem Value="@((int?)null)">(@Localization.GetText("PleaseSelect"))</MudSelectItem>
                                     @foreach (var tmpl in _options.SmsTemplates)
                                     {
-                                        <MudSelectItem Value="@((int?)tmpl.Id)">@tmpl.Name</MudSelectItem>
+                                        <MudSelectItem @key="@tmpl.Id" Value="@((int?)tmpl.Id)">@tmpl.Name</MudSelectItem>
                                     }
                                 </MudSelect>
                                 <ValidationMessage For="@(() => _form.SmsTemplateInterviewId)" />
