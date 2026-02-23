@@ -1,0 +1,808 @@
+@page "/recruiting/activities/new"
+@page "/recruiting/activities/{ActivityId:int}/edit"
+@attribute [Authorize(Policy = "RecruitmentAccess")]
+@using Microsoft.AspNetCore.Authorization
+@using SignaturPortal.Application.DTOs
+@using SignaturPortal.Application.Interfaces
+@using SignaturPortal.Web.Components.Shared.Recruiting
+
+@* Fix: MudSelect has display:flex on its outer wrapper, which blocks CSS margin
+   collapsing. The mud-input-control margin-top:4px stays inside the flex
+   container, adding to the label's margin-bottom:4px → 8px gap.
+   MudAutocomplete uses display:block, so the same margin collapses with the
+   label's margin-bottom → 4px gap. Removing the top margin normalises all
+   inputs to the label's 4px margin-bottom, regardless of component type.
+   Injected via HeadContent to bypass static-asset fingerprinting in dev mode. *@
+<HeadContent>
+    <style>
+        .activity-form .mud-input-control {
+            margin-top: 0 !important;
+        }
+    </style>
+</HeadContent>
+
+@if (_loading)
+{
+    <MudProgressLinear Indeterminate="true" Color="Color.Primary" Class="mb-4" />
+}
+else if (_loadError != null)
+{
+    <MudAlert Severity="Severity.Error" Class="mb-4">@_loadError</MudAlert>
+}
+else
+{
+    <EditForm Model="_form" OnValidSubmit="OnSaveAsync" class="activity-form">
+        <DataAnnotationsValidator />
+
+        @if (_saveError != null)
+        {
+            <MudAlert Severity="Severity.Error" Class="mb-4" ShowCloseIcon="true" CloseIconClicked="() => _saveError = null">@_saveError</MudAlert>
+        }
+
+        @* ── Action buttons ── *@
+        <MudStack Row="true" Spacing="2" Wrap="Wrap.Wrap" Class="mb-4">
+            <MudButton ButtonType="ButtonType.Submit"
+                       Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       Disabled="_saving"
+                       StartIcon="@Icons.Material.Filled.Save">
+                @Localization.GetText("Save")
+            </MudButton>
+            <MudButton Variant="Variant.Outlined"
+                       OnClick="OnCancelAsync"
+                       Disabled="_saving"
+                       StartIcon="@Icons.Material.Filled.Cancel">
+                @Localization.GetText("Cancel")
+            </MudButton>
+            @if (IsEditMode)
+            {
+                <MudButton Variant="Variant.Outlined"
+                           Color="Color.Error"
+                           OnClick="OnDeleteAsync"
+                           Disabled="_saving"
+                           StartIcon="@Icons.Material.Filled.Delete">
+                    @Localization.GetText("Delete")
+                </MudButton>
+                <MudButton Variant="Variant.Filled"
+                           Color="Color.Primary"
+                           OnClick="OnCloseActivityAsync"
+                           Disabled="_saving"
+                           StartIcon="@Icons.Material.Filled.Done">
+                    @Localization.GetText("CloseActivity")
+                </MudButton>
+            }
+        </MudStack>
+
+        <MudGrid>
+            @* ── LEFT COLUMN ── *@
+            <MudItem xs="12" md="8">
+
+                @* Read-only header (edit mode only) *@
+                @if (IsEditMode && _editData != null)
+                {
+                    <MudPaper Class="pa-4 mb-4" Elevation="1">
+                        <MudGrid>
+                            <MudItem xs="12" sm="4">
+                                <div class="field-label-text">@Localization.GetText("ActivityId")</div>
+                                <MudText Typo="Typo.body2">@_editData.EractivityId</MudText>
+                            </MudItem>
+                            <MudItem xs="12" sm="4">
+                                <div class="field-label-text">@Localization.GetText("CreatedBy")</div>
+                                <MudText Typo="Typo.body2">@_editData.CreatedByName</MudText>
+                            </MudItem>
+                            <MudItem xs="12" sm="4">
+                                <div class="field-label-text">@Localization.GetText("CreateDate")</div>
+                                <MudText Typo="Typo.body2">@_editData.CreateDate.ToString("dd-MM-yyyy HH:mm")</MudText>
+                            </MudItem>
+                        </MudGrid>
+                    </MudPaper>
+                }
+
+                @* ── Master Data card ── *@
+                <MudPaper Class="pa-4 mb-4" Elevation="1">
+                    <MudText Typo="Typo.h6" Class="mb-4">@Localization.GetText("MasterData")</MudText>
+
+                    <MudGrid>
+                        @* Status *@
+                        <MudItem xs="12" sm="6">
+                            <div class="form-field">
+                                <label class="field-label-text">@Localization.GetText("Status") <span class="required-mark">*</span></label>
+                                <MudSelect T="int?"
+                                           @bind-Value="_form.StatusId"
+                                           Variant="Variant.Outlined"
+                                           Margin="Margin.Dense">
+                                    @foreach (var status in _options.Statuses)
+                                    {
+                                        <MudSelectItem Value="@((int?)status.Id)">@status.Name</MudSelectItem>
+                                    }
+                                </MudSelect>
+                                <ValidationMessage For="@(() => _form.StatusId)" />
+                            </div>
+                        </MudItem>
+
+                        @* Client (non-client users only) *@
+                        @if (!_isClientUser)
+                        {
+                            <MudItem xs="12" sm="6">
+                                <div class="form-field">
+                                    <label class="field-label-text">@Localization.GetText("Client") <span class="required-mark">*</span></label>
+                                    <MudAutocomplete T="ClientDropdownDto"
+                                                     @ref="_clientAutocomplete"
+                                                     Value="_selectedClient"
+                                                     ValueChanged="OnClientChangedAsync"
+                                                     SearchFunc="SearchClientsAsync"
+                                                     ToStringFunc="@(c => c == null ? string.Empty : (c.IsEnabled ? c.ClientName : $"[{c.ClientName}]"))"
+                                                     Variant="Variant.Outlined"
+                                                     Margin="Margin.Dense"
+                                                     MinCharacters="0"
+                                                     MaxItems="null"
+                                                     Strict="false"
+                                                     CoerceValue="true" />
+                                </div>
+                            </MudItem>
+                        }
+
+                        @* Headline *@
+                        <MudItem xs="12">
+                            <div class="form-field">
+                                <label class="field-label-text">@Localization.GetText("Headline") <span class="required-mark">*</span></label>
+                                <MudTextField T="string"
+                                              @bind-Value="_form.Headline"
+                                              Variant="Variant.Outlined"
+                                              Margin="Margin.Dense"
+                                              MaxLength="70"
+                                              Counter="70" />
+                                <ValidationMessage For="@(() => _form.Headline)" />
+                            </div>
+                        </MudItem>
+
+                        @* Job Title *@
+                        <MudItem xs="12" sm="6">
+                            <div class="form-field">
+                                <label class="field-label-text">@Localization.GetText("Jobtitle")</label>
+                                <MudTextField T="string"
+                                              @bind-Value="_form.JobTitle"
+                                              Variant="Variant.Outlined"
+                                              Margin="Margin.Dense"
+                                              MaxLength="70" />
+                            </div>
+                        </MudItem>
+
+                        @* Jobnet Occupation *@
+                        <MudItem xs="12" sm="6">
+                            <div class="form-field">
+                                <label class="field-label-text">@Localization.GetText("ERActivityJobnetOccupation") <span class="required-mark">*</span></label>
+                                <MudAutocomplete T="SimpleOptionDto"
+                                                 Value="_selectedOccupation"
+                                                 ValueChanged="OnOccupationChangedAsync"
+                                                 SearchFunc="SearchOccupationsAsync"
+                                                 ToStringFunc="@(o => o?.Name ?? string.Empty)"
+                                                 Variant="Variant.Outlined"
+                                                 Margin="Margin.Dense"
+                                                 MinCharacters="0"
+                                                 MaxItems="null"
+                                                 CoerceValue="true" />
+                            </div>
+                        </MudItem>
+
+                        @* Client Section Group (conditional) *@
+                        @if (_clientConfig.UseClientSectionGroups)
+                        {
+                            <MudItem xs="12" sm="6">
+                                <div class="form-field">
+                                    <label class="field-label-text">@Localization.GetText("ClientSectionGroup")</label>
+                                    <MudSelect T="int?"
+                                               Value="_form.ClientSectionGroupId"
+                                               ValueChanged="OnSectionGroupChangedAsync"
+                                               Variant="Variant.Outlined"
+                                               Margin="Margin.Dense"
+                                               Disabled="@(_cascadeLoading || !_form.ClientId.HasValue)">
+                                        <MudSelectItem Value="@((int?)null)">—</MudSelectItem>
+                                        @foreach (var group in _options.ClientSectionGroups)
+                                        {
+                                            <MudSelectItem Value="@((int?)group.ClientSectionGroupId)">@group.Name</MudSelectItem>
+                                        }
+                                    </MudSelect>
+                                </div>
+                            </MudItem>
+                        }
+
+                        @* Client Section *@
+                        <MudItem xs="12" sm="6">
+                            <div class="form-field">
+                                <label class="field-label-text">@Localization.GetText("ClientSection") <span class="required-mark">*</span></label>
+                                <MudAutocomplete T="ClientSectionDropdownDto"
+                                                 @ref="_clientSectionAutocomplete"
+                                                 Value="_selectedClientSection"
+                                                 ValueChanged="OnClientSectionChangedAsync"
+                                                 SearchFunc="SearchClientSectionsAsync"
+                                                 ToStringFunc="@(cs => cs?.Name ?? string.Empty)"
+                                                 Variant="Variant.Outlined"
+                                                 Margin="Margin.Dense"
+                                                 MinCharacters="0"
+                                                 CoerceValue="true"
+                                                 Disabled="@(_cascadeLoading || !_form.ClientId.HasValue)" />
+                            </div>
+                        </MudItem>
+
+                        @* Reposting *@
+                        <MudItem xs="12" sm="6">
+                            <div class="form-field form-field-checkbox">
+                                <MudCheckBox T="bool"
+                                             @bind-Value="_form.Reposting"
+                                             Dense="true">
+                                    <span class="checkbox-label-text">@Localization.GetText("Reposting")</span>
+                                </MudCheckBox>
+                            </div>
+                        </MudItem>
+
+                        @* Recruitment Type *@
+                        <MudItem xs="12" sm="6">
+                            <div class="form-field">
+                                <label class="field-label-text">@Localization.GetText("RecruitmentType") <span class="required-mark">*</span></label>
+                                <MudSelect T="int?"
+                                           @bind-Value="_form.RecruitmentTypeId"
+                                           Variant="Variant.Outlined"
+                                           Margin="Margin.Dense">
+                                    <MudSelectItem Value="@((int?)null)">—</MudSelectItem>
+                                    @foreach (var opt in _options.RecruitmentTypes)
+                                    {
+                                        <MudSelectItem Value="@((int?)opt.Id)">@opt.Name</MudSelectItem>
+                                    }
+                                </MudSelect>
+                                <ValidationMessage For="@(() => _form.RecruitmentTypeId)" />
+                            </div>
+                        </MudItem>
+
+                        @* Lock Evaluation / View Committee Evals (conditional) *@
+                        @if (_clientConfig.LockEvaluationFeatureEnabled)
+                        {
+                            <MudItem xs="12" sm="6">
+                                <div class="form-field form-field-checkbox">
+                                    <MudCheckBox T="bool" @bind-Value="_form.LockCandidateEvaluation" Dense="true">
+                                        <span class="checkbox-label-text">@Localization.GetText("HideCandidateEvalutionAndNotesWhenUserHasNotEvaluated")</span>
+                                    </MudCheckBox>
+                                </div>
+                            </MudItem>
+                            <MudItem xs="12" sm="6">
+                                <div class="form-field form-field-checkbox">
+                                    <MudCheckBox T="bool" @bind-Value="_form.ViewCommitteeEvaluations" Dense="true">
+                                        <span class="checkbox-label-text">@Localization.GetText("ViewRecruitmentCommitteeEvaluations")</span>
+                                    </MudCheckBox>
+                                </div>
+                            </MudItem>
+                        }
+
+                        @* Send Email on New Candidate *@
+                        <MudItem xs="12" sm="6">
+                            <div class="form-field form-field-checkbox">
+                                <MudCheckBox T="bool" @bind-Value="_form.SendEmailOnNewCandidate" Dense="true">
+                                    <span class="checkbox-label-text">@Localization.GetText("SendEmailOnNewCandidate")</span>
+                                </MudCheckBox>
+                            </div>
+                        </MudItem>
+
+                        @* Send Daily Status Mail (conditional) *@
+                        @if (_clientConfig.SendDailyStatusMailEnabled)
+                        {
+                            <MudItem xs="12" sm="6">
+                                <div class="form-field form-field-checkbox">
+                                    <MudCheckBox T="bool" @bind-Value="_form.SendDailyStatusMail" Dense="true">
+                                        <span class="checkbox-label-text">@Localization.GetText("SendDailyStatusMail")</span>
+                                    </MudCheckBox>
+                                </div>
+                            </MudItem>
+                        }
+
+                        @* Continuous Posting (conditional) *@
+                        @if (_clientConfig.ContinuousPostingEnabled)
+                        {
+                            <MudItem xs="12" sm="6">
+                                <div class="form-field form-field-checkbox">
+                                    <MudCheckBox T="bool" @bind-Value="_form.ContinuousPosting" Dense="true">
+                                        <span class="checkbox-label-text">@Localization.GetText("ContinuousPosting")</span>
+                                    </MudCheckBox>
+                                </div>
+                            </MudItem>
+                        }
+
+                        @* Application Deadline (hidden if continuous posting) *@
+                        @if (!_form.ContinuousPosting)
+                        {
+                            <MudItem xs="12" sm="6">
+                                <div class="form-field">
+                                    <label class="field-label-text">@Localization.GetText("ApplicationDeadline") <span class="required-mark">*</span></label>
+                                    <MudStack Row="true" Spacing="1">
+                                        <MudDatePicker @bind-Date="_form.ApplicationDeadline"
+                                                       Variant="Variant.Outlined"
+                                                       Margin="Margin.Dense"
+                                                       DateFormat="dd-MM-yyyy"
+                                                       Style="flex:1" />
+                                        <MudTimePicker Time="_applicationDeadlineTime"
+                                                       TimeChanged="OnApplicationDeadlineTimeChanged"
+                                                       Variant="Variant.Outlined"
+                                                       Margin="Margin.Dense"
+                                                       Style="width:110px" />
+                                    </MudStack>
+                                    <ValidationMessage For="@(() => _form.ApplicationDeadline)" />
+                                </div>
+                            </MudItem>
+                        }
+
+                        @* Hire Date *@
+                        <MudItem xs="12">
+                            <div class="form-field">
+                                <label class="field-label-text">@Localization.GetText("HireDate")</label>
+                                <MudRadioGroup T="int" @bind-Value="_form.HireDateType" Class="mt-1">
+                                    <MudRadio Value="0" Dense="true">@Localization.GetText("NoHireDate")</MudRadio>
+                                    <MudRadio Value="1" Dense="true">@Localization.GetText("Date")</MudRadio>
+                                    <MudRadio Value="2" Dense="true">@Localization.GetText("Freetext")</MudRadio>
+                                </MudRadioGroup>
+                                @if (_form.HireDateType == 1)
+                                {
+                                    <MudDatePicker @bind-Date="_form.HireDate"
+                                                   Variant="Variant.Outlined"
+                                                   Margin="Margin.Dense"
+                                                   DateFormat="dd-MM-yyyy"
+                                                   Class="mt-2" />
+                                    <ValidationMessage For="@(() => _form.HireDate)" />
+                                }
+                                @if (_form.HireDateType == 2)
+                                {
+                                    <MudTextField T="string"
+                                                  @bind-Value="_form.HireDateFreeText"
+                                                  Variant="Variant.Outlined"
+                                                  Margin="Margin.Dense"
+                                                  MaxLength="100"
+                                                  Class="mt-2" />
+                                    <ValidationMessage For="@(() => _form.HireDateFreeText)" />
+                                }
+                            </div>
+                        </MudItem>
+
+                        @* Interview Rounds (conditional) *@
+                        @if (_clientConfig.MultipleInterviewRoundsEnabled)
+                        {
+                            <MudItem xs="12" sm="6">
+                                <div class="form-field">
+                                    <label class="field-label-text">@Localization.GetText("InterviewRounds") <span class="required-mark">*</span></label>
+                                    <MudSelect T="int?"
+                                               @bind-Value="_form.InterviewRounds"
+                                               Variant="Variant.Outlined"
+                                               Margin="Margin.Dense">
+                                        <MudSelectItem Value="@((int?)null)">—</MudSelectItem>
+                                        @foreach (var opt in _options.InterviewRoundsOptions)
+                                        {
+                                            <MudSelectItem Value="@((int?)opt.Id)">@opt.Name</MudSelectItem>
+                                        }
+                                    </MudSelect>
+                                    <ValidationMessage For="@(() => _form.InterviewRounds)" />
+                                </div>
+                            </MudItem>
+                        }
+
+                        @* Calendar fields (conditional) *@
+                        @if (_clientConfig.CalendarEnabled)
+                        {
+                            <MudItem xs="12" sm="6">
+                                <div class="form-field form-field-checkbox">
+                                    <MudCheckBox T="bool" @bind-Value="_form.ClosedCalendarEnabled" Dense="true">
+                                        <span class="checkbox-label-text">@Localization.GetText("ClosedCalendarEnabled")</span>
+                                    </MudCheckBox>
+                                </div>
+                            </MudItem>
+                            <MudItem xs="12" sm="6">
+                                <div class="form-field form-field-checkbox">
+                                    <MudCheckBox T="bool" @bind-Value="_form.OpenCalendarEnabled" Dense="true">
+                                        <span class="checkbox-label-text">@Localization.GetText("OpenCalendarEnabled")</span>
+                                    </MudCheckBox>
+                                </div>
+                            </MudItem>
+
+                            @if (_form.ClosedCalendarEnabled && _form.OpenCalendarEnabled)
+                            {
+                                <MudItem xs="12" sm="6">
+                                    <div class="form-field">
+                                        <label class="field-label-text">@Localization.GetText("CalendarType") <span class="required-mark">*</span></label>
+                                        <MudSelect T="int?"
+                                                   @bind-Value="_form.CalendarTypeId"
+                                                   Variant="Variant.Outlined"
+                                                   Margin="Margin.Dense">
+                                            <MudSelectItem Value="@((int?)null)">—</MudSelectItem>
+                                            @foreach (var opt in _options.CalendarTypes)
+                                            {
+                                                <MudSelectItem Value="@((int?)opt.Id)">@opt.Name</MudSelectItem>
+                                            }
+                                        </MudSelect>
+                                        <ValidationMessage For="@(() => _form.CalendarTypeId)" />
+                                    </div>
+                                </MudItem>
+                            }
+
+                            @if (_form.OpenCalendarEnabled)
+                            {
+                                <MudItem xs="12" sm="6">
+                                    <div class="form-field">
+                                        <label class="field-label-text">@Localization.GetText("InterviewDuration") <span class="required-mark">*</span></label>
+                                        <MudSelect T="int?"
+                                                   @bind-Value="_form.InterviewDurationId"
+                                                   Variant="Variant.Outlined"
+                                                   Margin="Margin.Dense">
+                                            <MudSelectItem Value="@((int?)null)">—</MudSelectItem>
+                                            @foreach (var opt in _options.InterviewDurations)
+                                            {
+                                                <MudSelectItem Value="@((int?)opt.Id)">@opt.Name</MudSelectItem>
+                                            }
+                                        </MudSelect>
+                                        <ValidationMessage For="@(() => _form.InterviewDurationId)" />
+                                    </div>
+                                </MudItem>
+                            }
+
+                            @if (IsEditMode && ActivityId.HasValue)
+                            {
+                                <MudItem xs="12">
+                                    <div class="form-field">
+                                        <div class="field-label-text">@Localization.GetText("InterviewSchedule")</div>
+                                        <MudLink Href="@($"/Responsive/Recruiting/OpenCalendarAdministration.aspx?ErId={ActivityId}")" Class="mt-1 d-inline-block">
+                                            @Localization.GetText("InterviewSchedule") →
+                                        </MudLink>
+                                    </div>
+                                </MudItem>
+                            }
+                        }
+
+                        @* SMS Reminders (conditional) *@
+                        @if (_clientConfig.AllowSendingSms && _clientConfig.CalendarEnabled)
+                        {
+                            <MudItem xs="12" sm="6">
+                                <div class="form-field form-field-checkbox">
+                                    <MudCheckBox T="bool" @bind-Value="_form.SendSmsInterviewReminders" Dense="true">
+                                        <span class="checkbox-label-text">@Localization.GetText("SendSmsInterviewRemembrances")</span>
+                                    </MudCheckBox>
+                                </div>
+                            </MudItem>
+                        }
+
+                        @* Extended Evaluation (conditional) *@
+                        @if (_clientConfig.ExtendedEvaluationEnabled)
+                        {
+                            <MudItem xs="12" sm="6">
+                                <div class="form-field form-field-checkbox">
+                                    <MudCheckBox T="bool" @bind-Value="_form.ExtendedEvaluationEnabled" Dense="true">
+                                        <span class="checkbox-label-text">@Localization.GetText("ExtendedEvaluationEnabled")</span>
+                                    </MudCheckBox>
+                                </div>
+                            </MudItem>
+                            @if (_form.ExtendedEvaluationEnabled && IsEditMode && ActivityId.HasValue)
+                            {
+                                <MudItem xs="12">
+                                    <MudLink Href="@($"/Responsive/Recruiting/EvaluationCriteriaAdministration.aspx?ErId={ActivityId}")" Class="d-inline-block">
+                                        @Localization.GetText("EvaluationCriteria") →
+                                    </MudLink>
+                                </MudItem>
+                            }
+                        }
+
+                        @* Language (conditional) *@
+                        @if (_clientConfig.MultipleLanguagesEnabled && _options.Languages.Count > 0)
+                        {
+                            <MudItem xs="12">
+                                <div class="form-field">
+                                    <label class="field-label-text">@Localization.GetText("Language") <span class="required-mark">*</span></label>
+                                    <MudSelect T="int"
+                                               MultiSelection="true"
+                                               SelectedValues="_form.SelectedLanguageIds"
+                                               SelectedValuesChanged="OnLanguagesChangedAsync"
+                                               Variant="Variant.Outlined"
+                                               Margin="Margin.Dense">
+                                        @foreach (var lang in _options.Languages)
+                                        {
+                                            <MudSelectItem Value="@lang.Id">@lang.Name</MudSelectItem>
+                                        }
+                                    </MudSelect>
+                                </div>
+                            </MudItem>
+                        }
+                    </MudGrid>
+                </MudPaper>
+
+                @* ── Templates card ── *@
+                <MudPaper Class="pa-4 mb-4" Elevation="1">
+                    <MudText Typo="Typo.h6" Class="mb-4">@Localization.GetText("Templates")</MudText>
+
+                    <MudGrid>
+                        @* Template Group (conditional) *@
+                        @if (_clientConfig.UseTemplateGroups)
+                        {
+                            <MudItem xs="12" sm="6">
+                                <div class="form-field">
+                                    <label class="field-label-text">@Localization.GetText("TemplateGroup")</label>
+                                    <MudSelect T="int?"
+                                               Value="_form.TemplateGroupId"
+                                               ValueChanged="OnTemplateGroupChangedAsync"
+                                               Variant="Variant.Outlined"
+                                               Margin="Margin.Dense"
+                                               Disabled="@(_cascadeLoading || !_form.ClientId.HasValue)">
+                                        <MudSelectItem Value="@((int?)null)">—</MudSelectItem>
+                                        @foreach (var tg in _options.TemplateGroups)
+                                        {
+                                            <MudSelectItem Value="@((int?)tg.TemplateGroupId)">@tg.Name</MudSelectItem>
+                                        }
+                                    </MudSelect>
+                                </div>
+                            </MudItem>
+                        }
+
+                        @* Application Template *@
+                        <MudItem xs="12" sm="6">
+                            <div class="form-field">
+                                <label class="field-label-text">@Localization.GetText("ApplicationTemplate") <span class="required-mark">*</span></label>
+                                <MudSelect T="int?"
+                                           @bind-Value="_form.ApplicationTemplateId"
+                                           Variant="Variant.Outlined"
+                                           Margin="Margin.Dense"
+                                           Disabled="@(_cascadeLoading || !_form.ClientId.HasValue)">
+                                    <MudSelectItem Value="@((int?)null)">—</MudSelectItem>
+                                    @foreach (var tmpl in _options.ApplicationTemplates)
+                                    {
+                                        <MudSelectItem Value="@((int?)tmpl.Id)">@tmpl.Name</MudSelectItem>
+                                    }
+                                </MudSelect>
+                                <ValidationMessage For="@(() => _form.ApplicationTemplateId)" />
+                            </div>
+                        </MudItem>
+
+                        @* Email: Received *@
+                        <MudItem xs="12" sm="6">
+                            <div class="form-field">
+                                <label class="field-label-text">@Localization.GetText("ReceivedEmail") <span class="required-mark">*</span></label>
+                                <MudSelect T="int?"
+                                           @bind-Value="_form.EmailTemplateReceivedId"
+                                           Variant="Variant.Outlined"
+                                           Margin="Margin.Dense"
+                                           Disabled="@(_cascadeLoading || !_form.ClientId.HasValue)">
+                                    <MudSelectItem Value="@((int?)null)">—</MudSelectItem>
+                                    @foreach (var tmpl in _options.EmailTemplatesReceived)
+                                    {
+                                        <MudSelectItem Value="@((int?)tmpl.Id)">@tmpl.Name</MudSelectItem>
+                                    }
+                                </MudSelect>
+                                <ValidationMessage For="@(() => _form.EmailTemplateReceivedId)" />
+                            </div>
+                        </MudItem>
+
+                        @* Email: Interview *@
+                        <MudItem xs="12" sm="6">
+                            <div class="form-field">
+                                <label class="field-label-text">@Localization.GetText("InterviewEmailForSelected") <span class="required-mark">*</span></label>
+                                <MudSelect T="int?"
+                                           @bind-Value="_form.EmailTemplateInterviewId"
+                                           Variant="Variant.Outlined"
+                                           Margin="Margin.Dense"
+                                           Disabled="@(_cascadeLoading || !_form.ClientId.HasValue)">
+                                    <MudSelectItem Value="@((int?)null)">—</MudSelectItem>
+                                    @foreach (var tmpl in _options.EmailTemplatesInterview)
+                                    {
+                                        <MudSelectItem Value="@((int?)tmpl.Id)">@tmpl.Name</MudSelectItem>
+                                    }
+                                </MudSelect>
+                                <ValidationMessage For="@(() => _form.EmailTemplateInterviewId)" />
+                            </div>
+                        </MudItem>
+
+                        @* Email: Interview 2+ rounds (conditional) *@
+                        @if (_clientConfig.MultipleInterviewRoundsEnabled && (_form.InterviewRounds ?? 0) >= 2)
+                        {
+                            <MudItem xs="12" sm="6">
+                                <div class="form-field">
+                                    <label class="field-label-text">@Localization.GetText("InterviewEmailTwoPlusRoundsForSelected")</label>
+                                    <MudSelect T="int?"
+                                               @bind-Value="_form.EmailTemplateInterview2PlusId"
+                                               Variant="Variant.Outlined"
+                                               Margin="Margin.Dense"
+                                               Disabled="@(_cascadeLoading || !_form.ClientId.HasValue)">
+                                        <MudSelectItem Value="@((int?)null)">—</MudSelectItem>
+                                        @foreach (var tmpl in _options.EmailTemplatesInterview2Plus)
+                                        {
+                                            <MudSelectItem Value="@((int?)tmpl.Id)">@tmpl.Name</MudSelectItem>
+                                        }
+                                    </MudSelect>
+                                </div>
+                            </MudItem>
+                        }
+
+                        @* Email: Rejected *@
+                        <MudItem xs="12" sm="6">
+                            <div class="form-field">
+                                <label class="field-label-text">@Localization.GetText("RejectedEmailForNotSelected") <span class="required-mark">*</span></label>
+                                <MudSelect T="int?"
+                                           @bind-Value="_form.EmailTemplateRejectedId"
+                                           Variant="Variant.Outlined"
+                                           Margin="Margin.Dense"
+                                           Disabled="@(_cascadeLoading || !_form.ClientId.HasValue)">
+                                    <MudSelectItem Value="@((int?)null)">—</MudSelectItem>
+                                    @foreach (var tmpl in _options.EmailTemplatesRejected)
+                                    {
+                                        <MudSelectItem Value="@((int?)tmpl.Id)">@tmpl.Name</MudSelectItem>
+                                    }
+                                </MudSelect>
+                                <ValidationMessage For="@(() => _form.EmailTemplateRejectedId)" />
+                            </div>
+                        </MudItem>
+
+                        @* Email: Rejected After Interview *@
+                        <MudItem xs="12" sm="6">
+                            <div class="form-field">
+                                <label class="field-label-text">@Localization.GetText("RejectedEmailAfterInterview") <span class="required-mark">*</span></label>
+                                <MudSelect T="int?"
+                                           @bind-Value="_form.EmailTemplateRejectedAfterInterviewId"
+                                           Variant="Variant.Outlined"
+                                           Margin="Margin.Dense"
+                                           Disabled="@(_cascadeLoading || !_form.ClientId.HasValue)">
+                                    <MudSelectItem Value="@((int?)null)">—</MudSelectItem>
+                                    @foreach (var tmpl in _options.EmailTemplatesRejectedAfterInterview)
+                                    {
+                                        <MudSelectItem Value="@((int?)tmpl.Id)">@tmpl.Name</MudSelectItem>
+                                    }
+                                </MudSelect>
+                                <ValidationMessage For="@(() => _form.EmailTemplateRejectedAfterInterviewId)" />
+                            </div>
+                        </MudItem>
+
+                        @* Email: Notify Committee *@
+                        <MudItem xs="12" sm="6">
+                            <div class="form-field">
+                                <label class="field-label-text">@Localization.GetText("NotifyRecruitmentCommitteeEmail") <span class="required-mark">*</span></label>
+                                <MudSelect T="int?"
+                                           @bind-Value="_form.EmailTemplateNotifyCommitteeId"
+                                           Variant="Variant.Outlined"
+                                           Margin="Margin.Dense"
+                                           Disabled="@(_cascadeLoading || !_form.ClientId.HasValue)">
+                                    <MudSelectItem Value="@((int?)null)">—</MudSelectItem>
+                                    @foreach (var tmpl in _options.EmailTemplatesNotifyCommittee)
+                                    {
+                                        <MudSelectItem Value="@((int?)tmpl.Id)">@tmpl.Name</MudSelectItem>
+                                    }
+                                </MudSelect>
+                                <ValidationMessage For="@(() => _form.EmailTemplateNotifyCommitteeId)" />
+                            </div>
+                        </MudItem>
+
+                        @* SMS Template (conditional) *@
+                        @if (_clientConfig.AllowSendingSms)
+                        {
+                            <MudItem xs="12" sm="6">
+                                <div class="form-field">
+                                    <label class="field-label-text">@Localization.GetText("InterviewSmsForSelected") <span class="required-mark">*</span></label>
+                                    <MudSelect T="int?"
+                                               @bind-Value="_form.SmsTemplateInterviewId"
+                                               Variant="Variant.Outlined"
+                                               Margin="Margin.Dense"
+                                               Disabled="@(_cascadeLoading || !_form.ClientId.HasValue)">
+                                        <MudSelectItem Value="@((int?)null)">—</MudSelectItem>
+                                        @foreach (var tmpl in _options.SmsTemplates)
+                                        {
+                                            <MudSelectItem Value="@((int?)tmpl.Id)">@tmpl.Name</MudSelectItem>
+                                        }
+                                    </MudSelect>
+                                    <ValidationMessage For="@(() => _form.SmsTemplateInterviewId)" />
+                                </div>
+                            </MudItem>
+                        }
+                    </MudGrid>
+                </MudPaper>
+            </MudItem>
+
+            @* ── RIGHT COLUMN (sidebar) ── *@
+            <MudItem xs="12" md="4">
+
+                @* Recruitment Responsible *@
+                <MudPaper Class="pa-4 mb-4" Elevation="1">
+                    <MudText Typo="Typo.h6" Class="mb-3">
+                        @(_clientConfig.IsFundClient
+                            ? Localization.GetText("RecruitingResponsableFund")
+                            : Localization.GetText("RecruitingResponsable"))
+                    </MudText>
+
+                    @if (_responsibleUser != null)
+                    {
+                        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2" Class="mb-3">
+                            <MudAvatar Color="Color.Primary" Size="Size.Small">
+                                @(_responsibleUser.DisplayName.Length > 0 ? _responsibleUser.DisplayName[0] : '?')
+                            </MudAvatar>
+                            <MudText Typo="Typo.body2">@_responsibleUser.DisplayName</MudText>
+                        </MudStack>
+                    }
+                    else
+                    {
+                        <MudText Typo="Typo.body2" Class="mud-text-secondary mb-3">—</MudText>
+                    }
+
+                    <MudButton Variant="Variant.Outlined"
+                               Size="Size.Small"
+                               OnClick="OnChangeResponsibleAsync"
+                               Disabled="!_form.ClientId.HasValue"
+                               StartIcon="@Icons.Material.Filled.PersonSearch">
+                        @Localization.GetText("Change")
+                    </MudButton>
+                    <ValidationMessage For="@(() => _form.RecruitmentResponsibleUserId)" />
+                </MudPaper>
+
+                @* Alternative Responsibles *@
+                <MudPaper Class="pa-4 mb-4" Elevation="1">
+                    <MudText Typo="Typo.h6" Class="mb-3">@Localization.GetText("RecruitingResponsableAlternative")</MudText>
+
+                    @if (_alternativeUsers.Count == 0)
+                    {
+                        <MudText Typo="Typo.body2" Class="mud-text-secondary mb-2">—</MudText>
+                    }
+                    @foreach (var altUser in _alternativeUsers)
+                    {
+                        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2" Class="mb-2">
+                            <MudAvatar Color="Color.Secondary" Size="Size.Small">
+                                @(altUser.DisplayName.Length > 0 ? altUser.DisplayName[0] : '?')
+                            </MudAvatar>
+                            <MudText Typo="Typo.body2" Style="flex:1">@altUser.DisplayName</MudText>
+                            <MudIconButton Icon="@Icons.Material.Filled.RemoveCircleOutline"
+                                           Size="Size.Small"
+                                           Color="Color.Error"
+                                           OnClick="() => RemoveAlternativeResponsible(altUser.UserId)" />
+                        </MudStack>
+                    }
+
+                    <MudButton Variant="Variant.Outlined"
+                               Size="Size.Small"
+                               OnClick="OnAddAlternativeResponsibleAsync"
+                               Disabled="!_form.ClientId.HasValue"
+                               StartIcon="@Icons.Material.Filled.PersonAdd">
+                        @Localization.GetText("Add")
+                    </MudButton>
+                </MudPaper>
+
+                @* Committee (read-only, edit mode only) *@
+                @if (IsEditMode)
+                {
+                    <MudPaper Class="pa-4 mb-4" Elevation="1">
+                        <MudText Typo="Typo.h6" Class="mb-3">@Localization.GetText("RecruitmentCommittee")</MudText>
+
+                        @if (_committeeMembers.Count == 0)
+                        {
+                            <MudText Typo="Typo.body2" Class="mud-text-secondary mb-3">—</MudText>
+                        }
+                        else
+                        {
+                            <MudSimpleTable Dense="true" Class="mb-3" Style="font-size:0.8rem">
+                                <thead>
+                                    <tr>
+                                        <th>@Localization.GetText("Name")</th>
+                                        <th>@Localization.GetText("Type")</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var member in _committeeMembers)
+                                    {
+                                        <tr>
+                                            <td>@member.FullName</td>
+                                            <td>@member.MemberTypeName</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </MudSimpleTable>
+                        }
+
+                        @if (ActivityId.HasValue)
+                        {
+                            <MudButton Variant="Variant.Outlined"
+                                       Size="Size.Small"
+                                       Href="@($"/Responsive/Recruiting/RecruitmentCommitteeAddRemoveInternal.aspx?ErId={ActivityId}")"
+                                       StartIcon="@Icons.Material.Filled.Group">
+                                @Localization.GetText("ManageCommittee")
+                            </MudButton>
+                        }
+                    </MudPaper>
+                }
+            </MudItem>
+        </MudGrid>
+    </EditForm>
+}
