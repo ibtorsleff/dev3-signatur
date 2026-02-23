@@ -1,7 +1,6 @@
 @page "/recruiting/activities/new"
 @page "/recruiting/activities/{ActivityId:int}/edit"
 @attribute [Authorize(Policy = "RecruitmentAccess")]
-@rendermode @(new InteractiveServerRenderMode(prerender: false))
 @using Microsoft.AspNetCore.Authorization
 @using SignaturPortal.Application.DTOs
 @using SignaturPortal.Application.Interfaces

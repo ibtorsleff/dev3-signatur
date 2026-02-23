@@ -46,8 +46,13 @@
             var stored = await JS.InvokeAsync<string?>("themePreference.get");
             var isDark = stored == "dark";
             ThemeState.Initialize(isDark);
-            _isDarkMode = isDark;
-            StateHasChanged();
+            // Only re-render if the stored preference differs from the default (false).
+            // Avoids a spurious full-layout re-render on every page load for light-mode users.
+            if (isDark != _isDarkMode)
+            {
+                _isDarkMode = isDark;
+                StateHasChanged();
+            }
         }
     }
 
