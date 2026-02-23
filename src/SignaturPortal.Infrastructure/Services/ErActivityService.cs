@@ -1452,18 +1452,19 @@ public class ErActivityService : IErActivityService
         int? currentTemplateGroupId = null,
         CancellationToken ct = default)
     {
-        // Hard-coded / in-memory lists — no DB needed
-        var statuses = new List<ActivityStatusOptionDto>
-        {
-            new(1, StatusMappings.GetActivityStatusName(1)),
-            new(2, StatusMappings.GetActivityStatusName(2)),
-            new(3, StatusMappings.GetActivityStatusName(3)),
-        };
-        var leadershipPositions  = new List<SimpleOptionDto> { new(1, "Ja"), new(2, "Nej") };
-        var blindRecruitmentOptions = new List<SimpleOptionDto> { new(1, "Ja"), new(2, "Nej") };
-        var interviewRoundsOptions = Enumerable.Range(1, 5).Select(i => new SimpleOptionDto(i, i.ToString())).ToList();
-
         var langId = _sessionContext.UserLanguageId;
+
+        // Hard-coded / in-memory lists — no DB needed
+        var leadershipPositions     = new List<SimpleOptionDto> { new(1, "Ja"), new(2, "Nej") };
+        var blindRecruitmentOptions = new List<SimpleOptionDto> { new(1, "Ja"), new(2, "Nej") };
+        var interviewRoundsOptions = new List<SimpleOptionDto>
+        {
+            new(1, _localization.GetText("RoundWithArgs",  langId, "1")),
+            new(2, _localization.GetText("RoundsWithArgs", langId, "2")),
+            new(3, _localization.GetText("RoundsWithArgs", langId, "3")),
+            new(4, _localization.GetText("RoundsWithArgs", langId, "4")),
+            new(5, _localization.GetText("RoundsWithArgs", langId, "5")),
+        };
         var recruitmentTypes = new List<SimpleOptionDto>
         {
             new((int)ERRecruitmentType.Normal,             _localization.GetText("Normal",             langId)),
@@ -1493,6 +1494,7 @@ public class ErActivityService : IErActivityService
         var jobnetTask         = _cache.TryGetValue(jobnetCacheKey, out List<SimpleOptionDto>? cached)
                                      ? Task.FromResult(cached!)
                                      : FormOptions_LoadOccupationsAsync(jobnetCacheKey, ct);
+        var statusesTask       = FormOptions_LoadStatusesAsync(langId, ct);
         var templateGroupsTask = FormOptions_LoadTemplateGroupsAsync(clientId, ct);
         var sectionGroupsTask  = FormOptions_LoadClientSectionGroupsAsync(clientId, ct);
         var languagesTask      = FormOptions_LoadLanguagesAsync(ct);
@@ -1500,13 +1502,13 @@ public class ErActivityService : IErActivityService
         var emailTask          = FormOptions_LoadEmailTemplatesAsync(clientId, ct);
         var smsTask            = FormOptions_LoadSmsTemplatesAsync(clientId, ct);
 
-        await Task.WhenAll(jobnetTask, templateGroupsTask, sectionGroupsTask,
+        await Task.WhenAll(jobnetTask, statusesTask, templateGroupsTask, sectionGroupsTask,
                            languagesTask, appTemplatesTask, emailTask, smsTask);
 
         var allEmailTemplates = emailTask.Result;
         return new ActivityFormOptionsDto
         {
-            Statuses                             = statuses,
+            Statuses                             = statusesTask.Result,
             JobnetOccupations                    = jobnetTask.Result,
             ClientSectionGroups                  = sectionGroupsTask.Result,
             LeadershipPositions                  = leadershipPositions,
@@ -1538,6 +1540,16 @@ public class ErActivityService : IErActivityService
             .ToListAsync(ct);
         _cache.Set(cacheKey, result, TimeSpan.FromHours(1));
         return result;
+    }
+
+    private async Task<List<ActivityStatusOptionDto>> FormOptions_LoadStatusesAsync(int langId, CancellationToken ct)
+    {
+        await using var context = await _contextFactory.CreateDbContextAsync(ct);
+        var rows = await context.Database
+            .SqlQueryRaw<SimpleOptionDto>(
+                "SELECT ERActivityStatusId AS Id, TextId AS Name FROM ERActivityStatus ORDER BY [Order]")
+            .ToListAsync(ct);
+        return rows.Select(r => new ActivityStatusOptionDto(r.Id, _localization.GetText(r.Name, langId))).ToList();
     }
 
     private async Task<List<TemplateGroupDropdownDto>> FormOptions_LoadTemplateGroupsAsync(int clientId, CancellationToken ct)

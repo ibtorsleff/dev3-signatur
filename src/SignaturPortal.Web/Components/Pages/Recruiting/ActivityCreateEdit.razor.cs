@@ -70,6 +70,8 @@ public partial class ActivityCreateEdit
 
     private bool IsEditMode => ActivityId.HasValue;
 
+    private bool IsDeletedActivity => IsEditMode && _editData?.StatusId == 3;
+
     // InterviewRounds: show if client has the flag, or in edit mode if activity already has rounds set
     private bool ShowInterviewRoundsDropdown =>
         _clientConfig.MultipleInterviewRoundsEnabled ||
@@ -162,6 +164,8 @@ public partial class ActivityCreateEdit
             _selectedClient = _clients.FirstOrDefault(c => c.ClientId == preselectedClientId.Value);
             _form.ClientId = preselectedClientId.Value;
             await LoadClientDependentDataAsync(preselectedClientId.Value);
+            if (_clientConfig.SendDailyStatusMailEnabled && _clientConfig.SendDailyStatusMailDefaultOn)
+                _form.SendDailyStatusMail = true;
         }
 
         // Default status = Ongoing; HireDate default = Date (legacy has no NoHireDate option)
@@ -305,6 +309,8 @@ public partial class ActivityCreateEdit
             try
             {
                 await LoadClientDependentDataAsync(client.ClientId);
+                if (!IsEditMode && _clientConfig.SendDailyStatusMailEnabled && _clientConfig.SendDailyStatusMailDefaultOn)
+                    _form.SendDailyStatusMail = true;
             }
             finally
             {

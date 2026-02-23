@@ -222,6 +222,7 @@ public class ClientService : IClientService
                     CAST(ISNULL(sc.CustomData.value('(/ClientCustomData/Recruitment/@CalendarEnabled)[1]','NVARCHAR(5)'), 'false') AS NVARCHAR(5)) AS CalendarEnabledRaw,
                     CAST(ISNULL(sc.CustomData.value('(/ClientCustomData/Recruitment/@AllowSendingSms)[1]','NVARCHAR(5)'), 'false') AS NVARCHAR(5)) AS AllowSendingSmsRaw,
                     CAST(ISNULL(sc.ERecruitmentSendDailyStatusMailToRecruitmentCommitteeEnabled, 0) AS BIT) AS SendDailyStatusMailEnabled,
+                    CAST(CASE WHEN sc.CustomData.value('(/ClientCustomData/Recruitment/@SendDailyStatusMailToRecruitmentCommitteeDefaultOn)[1]','NVARCHAR(5)') = 'false' THEN 0 ELSE 1 END AS BIT) AS SendDailyStatusMailDefaultOn,
                     CAST(ISNULL(sc.CustomData.value('(/ClientCustomData/Recruitment/@ContinuousPostingEnabled)[1]','NVARCHAR(5)'), 'false') AS NVARCHAR(5)) AS ContinuousPostingEnabledRaw,
                     CAST(ISNULL(sc.CustomData.value('(/ClientCustomData/Recruitment/@MultipleLanguagesEnabled)[1]','NVARCHAR(5)'), 'false') AS NVARCHAR(5)) AS MultipleLanguagesEnabledRaw,
                     CAST(ISNULL(sc.ERecruitmentCandidateEvaluationEnabled, 0) AS BIT) AS CandidateEvaluationEnabled,
@@ -250,6 +251,7 @@ public class ClientService : IClientService
             CalendarEnabled = string.Equals(row.CalendarEnabledRaw, "true", StringComparison.OrdinalIgnoreCase),
             AllowSendingSms = string.Equals(row.AllowSendingSmsRaw, "true", StringComparison.OrdinalIgnoreCase),
             SendDailyStatusMailEnabled = row.SendDailyStatusMailEnabled,
+            SendDailyStatusMailDefaultOn = row.SendDailyStatusMailDefaultOn,
             ContinuousPostingEnabled = string.Equals(row.ContinuousPostingEnabledRaw, "true", StringComparison.OrdinalIgnoreCase),
             MultipleLanguagesEnabled = string.Equals(row.MultipleLanguagesEnabledRaw, "true", StringComparison.OrdinalIgnoreCase),
             CandidateEvaluationEnabled = row.CandidateEvaluationEnabled,
@@ -278,6 +280,7 @@ public class ClientService : IClientService
         public string? CalendarEnabledRaw { get; set; }
         public string? AllowSendingSmsRaw { get; set; }
         public bool SendDailyStatusMailEnabled { get; set; }
+        public bool SendDailyStatusMailDefaultOn { get; set; }
         public string? ContinuousPostingEnabledRaw { get; set; }
         public string? MultipleLanguagesEnabledRaw { get; set; }
         public bool CandidateEvaluationEnabled { get; set; }

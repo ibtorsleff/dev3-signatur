@@ -94,7 +94,7 @@ else
                                        @bind-Value="_form.StatusId"
                                        Variant="Variant.Outlined"
                                        Margin="Margin.Dense">
-                                @foreach (var status in _options.Statuses)
+                                @foreach (var status in _options.Statuses.Where(s => s.Id != 3 || IsDeletedActivity))
                                 {
                                     <MudSelectItem Value="@((int?)status.Id)">@status.Name</MudSelectItem>
                                 }

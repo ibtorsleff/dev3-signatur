@@ -25,6 +25,12 @@ public record ActivityClientConfigDto
     /// <summary>Client has daily status mail feature enabled.</summary>
     public bool SendDailyStatusMailEnabled { get; init; }
 
+    /// <summary>
+    /// SendDailyStatusMail checkbox should default to checked when creating a new activity.
+    /// Legacy: defaults to TRUE unless XML has @SendDailyStatusMailToRecruitmentCommitteeDefaultOn = 'false'.
+    /// </summary>
+    public bool SendDailyStatusMailDefaultOn { get; init; }
+
     /// <summary>Client has continuous posting feature enabled.</summary>
     public bool ContinuousPostingEnabled { get; init; }
 
