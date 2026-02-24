@@ -6,24 +6,6 @@
 @using SignaturPortal.Application.Interfaces
 @using SignaturPortal.Web.Components.Shared.Recruiting
 
-@* Fix: MudSelect flex container blocks margin collapsing vs MudAutocomplete block display.
-   Zeroing mud-input-control top margin normalises gap across all input types. *@
-<HeadContent>
-    <style>
-        .activity-form .mud-input-control {
-            margin-top: 0 !important;
-        }
-    </style>
-</HeadContent>
-
-@* DEBUG PANEL — remove when redraw is resolved *@
-<div style="background:#fffbe6;border:1px solid #f0c040;padding:8px;margin-bottom:8px;font-size:11px;font-family:monospace">
-    <strong>Renders: @_renderCount</strong>
-    @foreach (var entry in _renderLog)
-    {
-        <div>@entry</div>
-    }
-</div>
 
 @if (_loading)
 {

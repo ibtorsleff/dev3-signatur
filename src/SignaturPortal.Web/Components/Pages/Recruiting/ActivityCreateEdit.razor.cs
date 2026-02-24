@@ -42,15 +42,6 @@ public partial class ActivityCreateEdit
     private bool _loading = true;
     private bool _saving;
     private bool _cascadeLoading;
-
-    // DEBUG — remove when redraw is resolved
-    private int _renderCount;
-    private readonly List<string> _renderLog = new();
-    protected override void OnAfterRender(bool firstRender)
-    {
-        _renderCount++;
-        _renderLog.Add($"#{_renderCount} {DateTime.Now:HH:mm:ss.fff}  loading={_loading}  cascade={_cascadeLoading}  clientId={_form.ClientId}");
-    }
     private string? _loadError;
     private string? _saveError;
     private bool _isClientUser;
